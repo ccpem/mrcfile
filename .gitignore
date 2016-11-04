@@ -1,0 +1,10 @@
+# Compiled python modules
+*.py[co]
+
+# Distribution artifacts
+#/dist/
+#/*.egg-info
+
+# IDE files
+.project
+.pydevproject
