@@ -6,9 +6,8 @@ TODO: module docstring
 """
 
 # TODO: main improvements to make:
-# - handle axis swapping (?)
 # - ability to create a large empty file to be filled piecemeal
-# - handle different mx & nx values etc
+# - handle crystallographic files sensibly - different mx & nx values etc
 # IMOD - header correctly calculates pixel size as cella.x / mx, but 3dmod
 # gives distances assuming X spacing applies in all dimensions, and applies it
 # on a map of nx * ny * nz pixels (where it is probably wrong since it's calculated
@@ -31,8 +30,9 @@ __version__ = '0.0.0'
 
 from datetime import datetime
 import os
-import numpy as np
 import sys
+
+import numpy as np
 
 MRC_FORMAT_VERSION = 20140  # MRC2014 format, version 0
 
@@ -121,7 +121,7 @@ class MrcFile(object):
 
         Header values are stored in a structured numpy array. To get numeric
         values from them it might be necessary to use the item() method:
-        >>> header['mode']
+        >>> header.mode
         TODO: finish
 
         """
@@ -258,13 +258,12 @@ class MrcFile(object):
         """Get or set the voxel size in angstroms.
         
         The voxel size is returned as a structured numpy record array with three
-        fields (x, y and z). Because the array is produced by calculation from
-        values in the header, changes to it will *not* cause any changes in the
-        file.
+        fields (x, y and z). Note that changing the voxel_size array in-place
+        will *not* change the voxel size in the file.
         
-        To set the voxel size, assign a value to the voxel_size attribute. You
-        may give a single number, a 3-tuple (x, y ,z) or a modified version of
-        the voxel_size array. The following examples are all equivalent:
+        To set the voxel size, assign a new value to the voxel_size attribute.
+        You may give a single number, a 3-tuple (x, y ,z) or a modified version
+        of the voxel_size array. The following examples are all equivalent:
         
         >>> mrc.voxel_size = 1.0
         
@@ -427,41 +426,31 @@ class MrcFile(object):
         """Read the data block from the file.
         
         This method first calculates the parameters needed to read the data
-        (block start position, endian-ness, file mode) and then opens the data
-        as a numpy memmap array.
+        (block start position, endian-ness, file mode, array shape) and then
+        opens the data as a numpy memmap array.
         """
 
         mode = self.header.mode
         dtype = dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
 
-        # data dimensions
+        # convert data dimensions from header into array shape
         nx = self.header.nx
         ny = self.header.ny
         nz = self.header.nz
-        mx = self.header.mx
-        my = self.header.my
         mz = self.header.mz
         ispg = self.header.ispg
 
-        # TODO: need to decide how to handle case where nx != mx - which to use for shape, pixel size calc etc?
-        assert nx == mx
-        assert ny == my
-
-        # Convert to array shape
-        if ispg == VOLUME_STACK_SPACEGROUP:
-            assert nz >= mz
-            assert nz % mz == 0
+        if VOLUME_STACK_SPACEGROUP <= ispg <= 630:
             shape = (nz // mz, mz, ny, nx)
-        elif ispg == VOLUME_SPACEGROUP:
+        elif VOLUME_SPACEGROUP <= ispg <= 230:
             shape = (nz, ny, nx)
         elif ispg == IMAGE_STACK_SPACEGROUP:
-            assert nz >= 0
-            if nz > 1:
-                shape = (nz, ny, nx)
-                self._is_image_stack = True
-            else:
+            if nz == 1:
                 # Use a 2D array for a single image
                 shape = (ny, nx)
+            else:
+                shape = (nz, ny, nx)
+                self._is_image_stack = True
         else:
             raise ValueError("Unrecognised space group '{0}'".format(ispg))
 
@@ -547,10 +536,8 @@ def create_default_header():
     """Create a default MRC file header.
 
     The header is initialised with standard file type and version information,
-    90.0 degree cell angles, default axes, and statistics fields set to
-    indicate undetermined values. The first text label is set to indicate the
-    file was created by this Python module along with a timestamp. Other header
-    fields are set to zero.
+    default values for some essential fields, and zeros elsewhere. The first
+    text label is also set to indicate the file was created by this module.
 
     Returns:
         The new header, as a structured numpy record array.
@@ -559,6 +546,9 @@ def create_default_header():
     header.map = MAP_ID
     header.nversion = MRC_FORMAT_VERSION
     header.machst = machine_stamp_from_byte_order(header.mode.dtype.byteorder)
+
+    # Default space group is P1
+    header.ispg = VOLUME_SPACEGROUP
 
     # Standard cell angles all 90.0 degrees
     default_cell_angle = 90.0

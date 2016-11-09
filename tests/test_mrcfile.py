@@ -98,10 +98,14 @@ class MrcFileTest(unittest.TestCase):
         name = os.path.join(self.test_data, 'EMD-3001.map')
         with MrcFile(name) as mrc:
             assert mrc.header.nbytes == 1024
-            assert mrc.header.nsymbt == 80
-            assert mrc.extended_header.nbytes == 80
+            assert mrc.header.nsymbt == 160
+            assert mrc.extended_header.nbytes == 160
             assert mrc.extended_header.dtype.kind == 'V'
-            assert str(mrc.extended_header) == 'X,  Y,  Z                                                                       '
+            ext = str(mrc.extended_header)
+            assert ext == ('X,  Y,  Z                               '
+                           '                                        '
+                           '-X,  Y+1/2,  -Z                         '
+                           '                                        ')
     
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         name = os.path.join(self.test_data, 'EMD-3001.map')
@@ -221,10 +225,13 @@ class MrcFileTest(unittest.TestCase):
                 mrc.data[1,1] = 0
     
     def test_2d_data_is_single_image(self):
+        x, y = 3, 2
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(6, dtype=np.int16).reshape(2, 3)
+            mrc.data = np.arange(y * x, dtype=np.int16).reshape(y, x)
             assert mrc.is_single_image()
             assert mrc.header.ispg == mrcfile.IMAGE_STACK_SPACEGROUP
+            assert mrc.header.nx == mrc.header.mx == x
+            assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.nz == mrc.header.mz == 1
     
     def test_switching_2d_data_to_image_stack_raises_exception(self):
@@ -240,11 +247,14 @@ class MrcFileTest(unittest.TestCase):
                 mrc.set_volume()
     
     def test_3d_data_is_volume_by_default(self):
+        x, y, z = 4, 3, 2
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(2, 2, 3)
+            mrc.data = np.arange(z * y * x, dtype=np.int16).reshape(z, y, x)
             assert mrc.is_volume()
             assert mrc.header.ispg == mrcfile.VOLUME_SPACEGROUP
-            assert mrc.header.nz == mrc.header.mz == 2
+            assert mrc.header.nx == mrc.header.mx == x
+            assert mrc.header.ny == mrc.header.my == y
+            assert mrc.header.nz == mrc.header.mz == z
     
     def test_switching_volume_to_image_stack(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
@@ -268,12 +278,16 @@ class MrcFileTest(unittest.TestCase):
             assert mrc.header.nz == mrc.header.mz == 2
     
     def test_4d_data_is_volume_stack(self):
+        x, y, z, nvol = 3, 4, 5, 6
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(24, dtype=np.int16).reshape(2, 2, 2, 3)
+            mrc.data = (np.arange(nvol * z * y * x, dtype=np.int16)
+                        .reshape(nvol, z, y, x))
             assert mrc.is_volume_stack()
             assert mrc.header.ispg == mrcfile.VOLUME_STACK_SPACEGROUP
-            assert mrc.header.nz == 4
-            assert mrc.header.mz == 2
+            assert mrc.header.nx == mrc.header.mx == x
+            assert mrc.header.ny == mrc.header.my == y
+            assert mrc.header.nz == z * nvol
+            assert mrc.header.mz == z
     
     def test_switching_4d_data_to_image_stack_raises_exception(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
