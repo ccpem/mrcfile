@@ -134,7 +134,6 @@ class MrcFile(object):
             raise IOError("File '{0}' already exists; set overwrite=True"
                           "to overwrite it".format(name))
 
-        self._is_image_stack = False   # Treat 3D data as a volume by default
         self._read_only = (mode == 'r')
         self._file = open(name, mode + 'b')
 
@@ -149,8 +148,8 @@ class MrcFile(object):
                 self._read_header()
 
             # Now we have a header (default or from the file) we can read the
-            # extended header and data arrays, which will be empty if this is a
-            # new file
+            # extended header and data arrays (which will be empty if this is a
+            # new file)
             self._read_extended_header()
             self._read_data()
         except Exception:
@@ -318,11 +317,13 @@ class MrcFile(object):
 
 
     def is_image_stack(self):
-        return self.data.ndim == 3 and self._is_image_stack
+        return (self.data.ndim == 3
+                and self.header.ispg == IMAGE_STACK_SPACEGROUP)
 
 
     def is_volume(self):
-        return self.data.ndim == 3 and not self._is_image_stack
+        return (self.data.ndim == 3
+                and self.header.ispg != IMAGE_STACK_SPACEGROUP)
 
 
     def is_volume_stack(self):
@@ -332,15 +333,16 @@ class MrcFile(object):
     def set_image_stack(self):
         if self.data.ndim != 3:
             raise ValueError('Only 3D data can be changed into an image stack')
-        self._is_image_stack = True
-        self._update_header_from_data()
+        self.header.ispg = IMAGE_STACK_SPACEGROUP
+        self.header.mz = 1
 
 
     def set_volume(self):
         if self.data.ndim != 3:
             raise ValueError('Only 3D data can be changed into a volume')
-        self._is_image_stack = False
-        self._update_header_from_data()
+        if self.is_image_stack():
+            self.header.ispg = VOLUME_SPACEGROUP
+            self.header.mz = self.header.nz
 
 
     def close(self):
@@ -440,19 +442,13 @@ class MrcFile(object):
         mz = self.header.mz
         ispg = self.header.ispg
 
-        if VOLUME_STACK_SPACEGROUP <= ispg <= 630:
+        if spacegroup_is_volume_stack(ispg):
             shape = (nz // mz, mz, ny, nx)
-        elif VOLUME_SPACEGROUP <= ispg <= 230:
-            shape = (nz, ny, nx)
-        elif ispg == IMAGE_STACK_SPACEGROUP:
-            if nz == 1:
-                # Use a 2D array for a single image
-                shape = (ny, nx)
-            else:
-                shape = (nz, ny, nx)
-                self._is_image_stack = True
+        elif ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
+            # Use a 2D array for a single image
+            shape = (ny, nx)
         else:
-            raise ValueError("Unrecognised space group '{0}'".format(ispg))
+            shape = (nz, ny, nx)
 
         header_size = self.header.nbytes + self.header.nsymbt
         data_size = nx * ny * nz * dtype.itemsize
@@ -484,7 +480,7 @@ class MrcFile(object):
     def _update_header_from_data(self):
         if self._read_only:
             raise ValueError('This file is read-only')
-        update_header_from_data(self.header, self.data, self._is_image_stack)
+        update_header_from_data(self.header, self.data)
 
 
     def _write_header(self):
@@ -625,11 +621,10 @@ def read_header(data_file):
     return header
 
 
-def update_header_from_data(header, data, is_image_stack=False):
+def update_header_from_data(header, data):
     """Update the given MRC file header from the given data array.
 
-    If the data is 3-dimensional, the header will be set to indicate that the
-    file contains volume data unless is_image_stack is set to True.
+    TODO: explain space group changes
 
     This function updates the header byte order and machine stamp to match the
     byte order of the data. It also updates the file mode, space group and the
@@ -643,12 +638,9 @@ def update_header_from_data(header, data, is_image_stack=False):
     data array need to be inspected.)
 
     Args:
-        header: The header to update, as a numpy record array. The header is
-            updated in-place.
+        header: The header to update, as a numpy record array. The header will
+            be updated in-place.
         data: A numpy array containing the data.
-        is_image_stack: A flag to indicate that three-dimensional data is an
-            image stack, not a volume. If the data array is not three-
-            dimensional, this flag is ignored.
     """
     # Check the dtype is one we can handle and update mode to match
     header.mode = mode_from_dtype(data.dtype)
@@ -671,18 +663,17 @@ def update_header_from_data(header, data, is_image_stack=False):
     elif axes == 3:
         header.nx = header.mx = shape[2]
         header.ny = header.my = shape[1]
-        if is_image_stack:
-            # Image stack. Space group 0, mz = 1, nz = sections in the volume
-            header.ispg = IMAGE_STACK_SPACEGROUP
+        if header.ispg == IMAGE_STACK_SPACEGROUP:
+            # Image stack. mz = 1, nz = sections in the volume
             header.mz = 1
             header.nz = shape[0]
         else:
-            # Volume by default. Space group 1, nz = mz = sections in the volume
-            header.ispg = VOLUME_SPACEGROUP
+            # Volume. nz = mz = sections in the volume
             header.nz = header.mz = shape[0]
     elif axes == 4:
         # Volume stack. Space group 401, mz = secs per vol, nz = total sections
-        header.ispg = VOLUME_STACK_SPACEGROUP
+        if not spacegroup_is_volume_stack(header.ispg):
+            header.ispg = VOLUME_STACK_SPACEGROUP
         header.nx = header.mx = shape[3]
         header.ny = header.my = shape[2]
         header.mz = shape[1]
@@ -824,3 +815,6 @@ def machine_stamp_from_byte_order(byte_order='='):
     else:
         raise ValueError("Unrecognised byte order "
                          "indicator '{0}'".format(byte_order))
+
+def spacegroup_is_volume_stack(ispg):
+    return 401 <= ispg <= 630
