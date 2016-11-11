@@ -25,24 +25,24 @@ from tests import test_data
 
 
 class MrcFileTest(unittest.TestCase):
-    """
-    Unit tests for MRC file I/O.
-    """
+    
+    """Unit tests for MRC file I/O."""
+    
     def setUp(self):
         self.test_data = test_data.get_test_data_path()
         self.test_output = tempfile.mkdtemp()
         self.temp_mrc_name = os.path.join(self.test_output, 'test_file.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
-
+    
     def tearDown(self):
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
-    
+            
     ############################################################################
     #
     # Tests which depend on existing files (in the test_data directory)
     #
-
+    
     def test_machine_stamp_is_read_correctly(self):
         with MrcFile(self.example_mrc_name) as mrc:
             assert np.array_equal(mrc.header.machst, [ 0x44, 0x41, 0, 0 ])
@@ -61,7 +61,8 @@ class MrcFileTest(unittest.TestCase):
     
     def test_repr(self):
         with MrcFile(self.example_mrc_name) as mrc:
-            assert repr(mrc) == "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
+            expected = "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
+            assert repr(mrc) == expected
     
     def test_data_values_are_correct(self):
         with MrcFile(self.example_mrc_name) as mrc:
@@ -118,8 +119,8 @@ class MrcFileTest(unittest.TestCase):
         with MrcFile(self.example_mrc_name, mode='r') as mrc:
             assert not mrc.extended_header.flags.writeable
             with self.assertRaisesRegexp(ValueError, 'read-only'):
-                mrc.extended_header = np.zeros(5)
-
+                mrc.set_extended_header(np.zeros(5))
+    
     def test_voxel_size_is_read_correctly(self):
         with MrcFile(self.example_mrc_name) as mrc:
             self.assertAlmostEqual(mrc.voxel_size.x, 11.400000, places=6)
@@ -142,21 +143,20 @@ class MrcFileTest(unittest.TestCase):
         assert not os.path.exists(self.temp_mrc_name)
         open(self.temp_mrc_name, 'w+').close()
         assert os.path.exists(self.temp_mrc_name)
-        with MrcFile(self.temp_mrc_name, mode='w+', overwrite=True):
-            pass
+        MrcFile(self.temp_mrc_name, mode='w+', overwrite=True).close()
     
     def test_can_edit_header_in_read_write_mode(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(3, 4)
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
         with MrcFile(self.temp_mrc_name, mode='r+') as mrc:
             assert mrc.header.ispg == 0
             assert mrc.header.flags.writeable
             mrc.header.ispg = 1
             assert mrc.header.ispg == 1
-
+    
     def test_cannot_edit_header_in_read_only_mode(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(3, 4)
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
         with MrcFile(self.temp_mrc_name, mode='r') as mrc:
             assert mrc.header.ispg == 0
             assert not mrc.header.flags.writeable
@@ -172,9 +172,8 @@ class MrcFileTest(unittest.TestCase):
     def test_creating_extended_header(self):
         data = np.arange(12, dtype=np.int16).reshape(3, 4)
         extended_header = np.array('example extended header', dtype='S')
-        with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = data
-            mrc.extended_header = extended_header
+        with mrcfile.new(self.temp_mrc_name, data) as mrc:
+            mrc.set_extended_header(extended_header)
             np.testing.assert_array_equal(mrc.data, data)
         with MrcFile(self.temp_mrc_name, mode='r') as mrc:
             # Change the extended header dtype to a string for comparison
@@ -186,10 +185,10 @@ class MrcFileTest(unittest.TestCase):
         data = np.arange(12, dtype=np.int16).reshape(3, 4)
         extended_header = np.array('example extended header', dtype='S')
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = data
-            mrc.extended_header = extended_header
+            mrc.set_data(data)
+            mrc.set_extended_header(extended_header)
         with MrcFile(self.temp_mrc_name, mode='r+') as mrc:
-            mrc.extended_header = np.array(())
+            mrc.set_extended_header(np.array(()))
             assert mrc.header.nsymbt == 0
             mrc._file.seek(0, os.SEEK_END)
             file_size = mrc._file.tell()
@@ -197,7 +196,7 @@ class MrcFileTest(unittest.TestCase):
     
     def test_can_edit_data_in_read_write_mode(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(3, 4)
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
         with MrcFile(self.temp_mrc_name, mode='r+') as mrc:
             assert mrc.data[1,1] == 5
             assert mrc.data.flags.writeable
@@ -206,7 +205,7 @@ class MrcFileTest(unittest.TestCase):
     
     def test_data_array_cannot_be_changed_after_closing_file(self):
         mrc = MrcFile(self.temp_mrc_name, mode='w+')
-        mrc.data = np.arange(12, dtype=np.int16).reshape(3, 4)
+        mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
         data_ref = mrc.data
         # Check that writing to the data array does not raise an exception
         data_ref[0,0] = 1
@@ -217,7 +216,7 @@ class MrcFileTest(unittest.TestCase):
     
     def test_cannot_edit_data_in_read_only_mode(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(3, 4)
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
         with MrcFile(self.temp_mrc_name, mode='r') as mrc:
             assert mrc.data[1,1] == 5
             assert not mrc.data.flags.writeable
@@ -226,8 +225,8 @@ class MrcFileTest(unittest.TestCase):
     
     def test_2d_data_is_single_image(self):
         x, y = 3, 2
-        with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(y * x, dtype=np.int16).reshape(y, x)
+        data = np.arange(y * x, dtype=np.int16).reshape(y, x)
+        with mrcfile.new(self.temp_mrc_name, data) as mrc:
             assert mrc.is_single_image()
             assert mrc.header.ispg == mrcfile.IMAGE_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
@@ -236,20 +235,20 @@ class MrcFileTest(unittest.TestCase):
     
     def test_switching_2d_data_to_image_stack_raises_exception(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(6, dtype=np.int16).reshape(2, 3)
+            mrc.set_data(np.arange(6, dtype=np.int16).reshape(2, 3))
             with self.assertRaises(ValueError):
                 mrc.set_image_stack()
     
     def test_switching_2d_data_to_volume_raises_exception(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(6, dtype=np.int16).reshape(2, 3)
+            mrc.set_data(np.arange(6, dtype=np.int16).reshape(2, 3))
             with self.assertRaises(ValueError):
                 mrc.set_volume()
     
     def test_3d_data_is_volume_by_default(self):
         x, y, z = 4, 3, 2
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(z * y * x, dtype=np.int16).reshape(z, y, x)
+            mrc.set_data(np.arange(z * y * x, dtype=np.int16).reshape(z, y, x))
             assert mrc.is_volume()
             assert mrc.header.ispg == mrcfile.VOLUME_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
@@ -258,7 +257,7 @@ class MrcFileTest(unittest.TestCase):
     
     def test_switching_volume_to_image_stack(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(2, 2, 3)
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))
             assert mrc.is_volume()
             mrc.set_image_stack()
             assert mrc.is_image_stack()
@@ -268,7 +267,7 @@ class MrcFileTest(unittest.TestCase):
     
     def test_switching_image_stack_to_volume(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(12, dtype=np.int16).reshape(2, 2, 3)
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))
             assert mrc.is_volume()
             mrc.set_image_stack()
             assert mrc.is_image_stack()
@@ -279,9 +278,10 @@ class MrcFileTest(unittest.TestCase):
     
     def test_4d_data_is_volume_stack(self):
         x, y, z, nvol = 3, 4, 5, 6
+        vstack = (np.arange(nvol * z * y * x, dtype=np.int16)
+                  .reshape(nvol, z, y, x))
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = (np.arange(nvol * z * y * x, dtype=np.int16)
-                        .reshape(nvol, z, y, x))
+            mrc.set_data(vstack)
             assert mrc.is_volume_stack()
             assert mrc.header.ispg == mrcfile.VOLUME_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
@@ -291,13 +291,13 @@ class MrcFileTest(unittest.TestCase):
     
     def test_switching_4d_data_to_image_stack_raises_exception(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(24, dtype=np.int16).reshape(2, 2, 2, 3)
+            mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 2, 2, 3))
             with self.assertRaises(ValueError):
                 mrc.set_image_stack()
     
     def test_switching_4d_data_to_volume_raises_exception(self):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = np.arange(24, dtype=np.int16).reshape(2, 2, 2, 3)
+            mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 2, 2, 3))
             with self.assertRaises(ValueError):
                 mrc.set_volume()
     
@@ -308,7 +308,7 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(name, mode='w+') as mrc:
-            mrc.data = data
+            mrc.set_data(data)
         
         # Re-read data and check header and data values
         with MrcFile(name) as mrc:
@@ -326,7 +326,7 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(name, mode='w+') as mrc:
-            mrc.data = data
+            mrc.set_data(data)
             
             # Check data has been converted to mode 6
             np.testing.assert_array_equal(mrc.data, data)
@@ -371,7 +371,7 @@ class MrcFileTest(unittest.TestCase):
         data[4][0] = np.nan
         data[4][1] = np.inf
         data[4][2] = -np.inf
-
+        
         # Write the data to a file and test it's read back correctly
         name = os.path.join(self.test_output, 'test_img_10x9_mode2_inf_nan.mrc')
         write_file_then_read_and_assert_data_unchanged(name, data)
@@ -383,8 +383,8 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(name, mode='w+') as mrc:
-            mrc.data = data
-        
+            mrc.set_data(data)
+            
             # Check data has been converted to mode 2
             np.testing.assert_array_equal(mrc.data, data)
             assert mrc.header.mode == 2
@@ -445,7 +445,7 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(name, mode='w+') as mrc:
-            mrc.data = stack
+            mrc.set_data(stack)
             mrc.set_image_stack()
         
         # Re-read data and check header and data values
@@ -466,7 +466,7 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(name, mode='w+') as mrc:
-            mrc.data = vol
+            mrc.set_data(vol)
         
         # Re-read data and check header and data values
         with MrcFile(name) as mrc:
@@ -485,7 +485,7 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(name, mode='w+') as mrc:
-            mrc.data = stack
+            mrc.set_data(stack)
         
         # Re-read data and check header and data values
         with MrcFile(name) as mrc:
@@ -510,7 +510,7 @@ class MrcFileTest(unittest.TestCase):
         
         # Write data
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
-            mrc.data = vol
+            mrc.set_data(vol)
             assert mrc.header.dmin == np.float32(vol.min())
             assert mrc.header.dmax == np.float32(vol.max())
             assert mrc.header.dmean == np.float32(vol.mean(dtype=np.float64))
@@ -523,7 +523,7 @@ class MrcFileTest(unittest.TestCase):
         
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
             # Write zeros to file
-            mrc.data = zeros
+            mrc.set_data(zeros)
             
             # Now replace with non-zero data, in place
             mrc.data[:] = data[:]
@@ -546,7 +546,7 @@ class MrcFileTest(unittest.TestCase):
         data = np.arange(x * y, dtype=np.int16).reshape(z, y, x)
         
         with MrcFile(self.temp_mrc_name, 'w+') as mrc:
-            mrc.data = data
+            mrc.set_data(data)
             assert mrc.voxel_size.x == 0.0
             assert mrc.voxel_size.y == 0.0
             assert mrc.voxel_size.z == 0.0
@@ -562,7 +562,7 @@ class MrcFileTest(unittest.TestCase):
         data = np.arange(x * y, dtype=np.int16).reshape(z, y, x)
         
         with MrcFile(self.temp_mrc_name, 'w+') as mrc:
-            mrc.data = data
+            mrc.set_data(data)
             assert mrc.voxel_size.x == 0.0
             assert mrc.voxel_size.y == 0.0
             assert mrc.voxel_size.z == 0.0
@@ -588,7 +588,7 @@ class MrcFileTest(unittest.TestCase):
         data = np.arange(x * y, dtype=np.int16).reshape(z, y, x)
         
         with MrcFile(self.temp_mrc_name, 'w+') as mrc:
-            mrc.data = data
+            mrc.set_data(data)
             assert mrc.voxel_size.x == 0.0
             assert mrc.voxel_size.y == 0.0
             assert mrc.voxel_size.z == 0.0
@@ -732,7 +732,7 @@ class MrcFileTest(unittest.TestCase):
 
 def write_file_then_read_and_assert_data_unchanged(name, data):
     with MrcFile(name, mode='w+') as mrc:
-        mrc.data = data
+        mrc.set_data(data)
     with MrcFile(name) as mrc:
         np.testing.assert_array_equal(mrc.data, data)
         assert mrc.data.dtype == data.dtype
