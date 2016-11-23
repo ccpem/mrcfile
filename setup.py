@@ -10,7 +10,7 @@ def readme():
 setup(
     name='mrcfile',
     version='0.0.0',
-    py_modules=['mrcfile'],
+    packages=['mrcfile'],
     install_requires=['numpy >= 1.11.0'],
     
     author='Colin Palmer',

@@ -20,6 +20,7 @@ from datetime import datetime
 import numpy as np
 
 import mrcfile
+import mrcfile.utils as utils
 from mrcfile import MrcFile
 from tests import test_data
 
@@ -37,7 +38,7 @@ class MrcFileTest(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
-            
+    
     ############################################################################
     #
     # Tests which depend on existing files (in the test_data directory)
@@ -228,7 +229,7 @@ class MrcFileTest(unittest.TestCase):
         data = np.arange(y * x, dtype=np.int16).reshape(y, x)
         with mrcfile.new(self.temp_mrc_name, data) as mrc:
             assert mrc.is_single_image()
-            assert mrc.header.ispg == mrcfile.IMAGE_STACK_SPACEGROUP
+            assert mrc.header.ispg == utils.IMAGE_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.nz == mrc.header.mz == 1
@@ -250,7 +251,7 @@ class MrcFileTest(unittest.TestCase):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(np.arange(z * y * x, dtype=np.int16).reshape(z, y, x))
             assert mrc.is_volume()
-            assert mrc.header.ispg == mrcfile.VOLUME_SPACEGROUP
+            assert mrc.header.ispg == utils.VOLUME_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.nz == mrc.header.mz == z
@@ -261,7 +262,7 @@ class MrcFileTest(unittest.TestCase):
             assert mrc.is_volume()
             mrc.set_image_stack()
             assert mrc.is_image_stack()
-            assert mrc.header.ispg == mrcfile.IMAGE_STACK_SPACEGROUP
+            assert mrc.header.ispg == utils.IMAGE_STACK_SPACEGROUP
             assert mrc.header.nz == 2
             assert mrc.header.mz == 1
     
@@ -273,7 +274,7 @@ class MrcFileTest(unittest.TestCase):
             assert mrc.is_image_stack()
             mrc.set_volume()
             assert mrc.is_volume()
-            assert mrc.header.ispg == mrcfile.VOLUME_SPACEGROUP
+            assert mrc.header.ispg == utils.VOLUME_SPACEGROUP
             assert mrc.header.nz == mrc.header.mz == 2
     
     def test_4d_data_is_volume_stack(self):
@@ -283,7 +284,7 @@ class MrcFileTest(unittest.TestCase):
         with MrcFile(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(vstack)
             assert mrc.is_volume_stack()
-            assert mrc.header.ispg == mrcfile.VOLUME_STACK_SPACEGROUP
+            assert mrc.header.ispg == utils.VOLUME_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.nz == z * nvol
@@ -314,7 +315,7 @@ class MrcFileTest(unittest.TestCase):
         with MrcFile(name) as mrc:
             np.testing.assert_array_equal(mrc.data, data)
             assert not mrc.is_image_stack()
-            assert mrc.header.ispg == mrcfile.IMAGE_STACK_SPACEGROUP
+            assert mrc.header.ispg == utils.IMAGE_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.nz == mrc.header.mz == 1
@@ -452,7 +453,7 @@ class MrcFileTest(unittest.TestCase):
         with MrcFile(name) as mrc:
             np.testing.assert_array_equal(mrc.data, stack)
             assert mrc.is_image_stack()
-            assert mrc.header.ispg == mrcfile.IMAGE_STACK_SPACEGROUP
+            assert mrc.header.ispg == utils.IMAGE_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.mz == 1
@@ -471,7 +472,7 @@ class MrcFileTest(unittest.TestCase):
         # Re-read data and check header and data values
         with MrcFile(name) as mrc:
             np.testing.assert_array_equal(mrc.data, vol)
-            assert mrc.header.ispg == mrcfile.VOLUME_SPACEGROUP
+            assert mrc.header.ispg == utils.VOLUME_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.mz == mrc.header.nz == z
@@ -490,7 +491,7 @@ class MrcFileTest(unittest.TestCase):
         # Re-read data and check header and data values
         with MrcFile(name) as mrc:
             np.testing.assert_array_equal(mrc.data, stack)
-            assert mrc.header.ispg == mrcfile.VOLUME_STACK_SPACEGROUP
+            assert mrc.header.ispg == utils.VOLUME_STACK_SPACEGROUP
             assert mrc.header.nx == mrc.header.mx == x
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.mz == z
@@ -611,124 +612,124 @@ class MrcFileTest(unittest.TestCase):
             datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
     
     def test_header_dtype_is_correct_length(self):
-        assert mrcfile.HEADER_DTYPE.itemsize == 1024
+        assert utils.HEADER_DTYPE.itemsize == 1024
     
     def test_mode_0_is_converted_to_int8(self):
-        dtype = mrcfile.dtype_from_mode(0)
+        dtype = utils.dtype_from_mode(0)
         assert dtype == np.dtype(np.int8)
     
     def test_mode_1_is_converted_to_int16(self):
-        dtype = mrcfile.dtype_from_mode(1)
+        dtype = utils.dtype_from_mode(1)
         assert dtype == np.dtype(np.int16)
     
     def test_mode_2_is_converted_to_float32(self):
-        dtype = mrcfile.dtype_from_mode(2)
+        dtype = utils.dtype_from_mode(2)
         assert dtype == np.dtype(np.float32)
     
     def test_mode_3_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.dtype_from_mode(3)
+            utils.dtype_from_mode(3)
     
     def test_mode_4_is_converted_to_complex64(self):
-        dtype = mrcfile.dtype_from_mode(4)
+        dtype = utils.dtype_from_mode(4)
         assert dtype == np.dtype(np.complex64)
     
     def test_mode_6_is_converted_to_uint16(self):
-        dtype = mrcfile.dtype_from_mode(6)
+        dtype = utils.dtype_from_mode(6)
         assert dtype == np.dtype(np.uint16)
     
     def test_undefined_modes_raise_exception(self):
         for mode in (x for x in range(-33, 34, 1) if x not in [0, 1, 2, 4, 6]):
             with self.assertRaises(ValueError):
-                mrcfile.dtype_from_mode(mode)
+                utils.dtype_from_mode(mode)
     
     def test_mode_scalar_is_converted_without_error(self):
-        dtype = mrcfile.dtype_from_mode(np.float32(1))
+        dtype = utils.dtype_from_mode(np.float32(1))
         assert dtype == np.dtype(np.int16)
     
     def test_mode_zerodim_array_is_converted_without_error(self):
-        dtype = mrcfile.dtype_from_mode(np.array(1))
+        dtype = utils.dtype_from_mode(np.array(1))
         assert dtype == np.dtype(np.int16)
     
     def test_mode_onedim_array_is_converted_without_error(self):
-        dtype = mrcfile.dtype_from_mode(np.array([1]))
+        dtype = utils.dtype_from_mode(np.array([1]))
         assert dtype == np.dtype(np.int16)
     
     def test_float16_dtype_is_converted_to_mode_2(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.float16))
+        mode = utils.mode_from_dtype(np.dtype(np.float16))
         assert mode == 2
     
     def test_float32_dtype_is_converted_to_mode_2(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.float32))
+        mode = utils.mode_from_dtype(np.dtype(np.float32))
         assert mode == 2
     
     def test_float64_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.float64))
+            utils.mode_from_dtype(np.dtype(np.float64))
     
     def test_float128_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.float128))
+            utils.mode_from_dtype(np.dtype(np.float128))
     
     def test_int8_dtype_is_converted_to_mode_0(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.int8))
+        mode = utils.mode_from_dtype(np.dtype(np.int8))
         assert mode == 0
     
     def test_int16_dtype_is_converted_to_mode_1(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.int16))
+        mode = utils.mode_from_dtype(np.dtype(np.int16))
         assert mode == 1
     
     def test_int32_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.int32))
+            utils.mode_from_dtype(np.dtype(np.int32))
     
     def test_int64_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.int64))
+            utils.mode_from_dtype(np.dtype(np.int64))
     
     def test_uint8_dtype_is_converted_to_mode_6(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.uint8))
+        mode = utils.mode_from_dtype(np.dtype(np.uint8))
         assert mode == 6
     
     def test_uint16_dtype_is_converted_to_mode_6(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.uint16))
+        mode = utils.mode_from_dtype(np.dtype(np.uint16))
         assert mode == 6
     
     def test_uint32_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.uint32))
+            utils.mode_from_dtype(np.dtype(np.uint32))
     
     def test_uint64_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.uint64))
+            utils.mode_from_dtype(np.dtype(np.uint64))
     
     def test_complex64_dtype_is_converted_to_mode_4(self):
-        mode = mrcfile.mode_from_dtype(np.dtype(np.complex64))
+        mode = utils.mode_from_dtype(np.dtype(np.complex64))
         assert mode == 4
     
     def test_complex128_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.complex128))
+            utils.mode_from_dtype(np.dtype(np.complex128))
     
     def test_string_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype('S1'))
+            utils.mode_from_dtype(np.dtype('S1'))
     
     def test_unicode_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype('U1'))
+            utils.mode_from_dtype(np.dtype('U1'))
     
     def test_bool_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(np.bool))
+            utils.mode_from_dtype(np.dtype(np.bool))
     
     def test_object_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype(object))
+            utils.mode_from_dtype(np.dtype(object))
     
     def test_structured_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            mrcfile.mode_from_dtype(np.dtype([(b'f1', np.int32)]))
+            utils.mode_from_dtype(np.dtype([(b'f1', np.int32)]))
 
 def write_file_then_read_and_assert_data_unchanged(name, data):
     with MrcFile(name, mode='w+') as mrc:
@@ -752,13 +753,4 @@ def create_test_complex64_array():
     return data
 
 if __name__ == '__main__':
-#     unittest.main()
-    for root, dirs, files in os.walk(test_data.get_test_data_path()):
-        for f in files:
-            try:
-                with MrcFile(os.path.join(root, f)) as mrc:
-                    if mrc.header.mapc != 1 or mrc.header.mapr != 2 or mrc.header.maps != 3:
-                        print('{0} has swapped axes'.format(os.path.join(root, f)))
-                mrcfile.print_header(mrcfile.read_header(open(os.path.join(root, f))))
-            except Exception:
-                continue
+    unittest.main()
