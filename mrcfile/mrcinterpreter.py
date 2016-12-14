@@ -80,8 +80,7 @@ class MrcInterpreter(object):
         if 'w' in self._mode:
             # New file. Create a default header and truncate the file to the
             # standard header size (1024 bytes).
-            self.header = utils.create_default_header()
-            self._file.truncate(self.header.nbytes)
+            self.__header = utils.create_default_header()
         else:
             # Existing file. Read the header.
             self._read_header()
@@ -91,6 +90,11 @@ class MrcInterpreter(object):
         # new file)
         self._read_extended_header()
         self._read_data()
+    
+    @property
+    def header(self):
+        """Get the file's header as a numpy record array."""
+        return self.__header
     
     @property
     def extended_header(self):
@@ -119,17 +123,8 @@ class MrcInterpreter(object):
         """
         if self._read_only:
             raise ValueError('This file is read-only')
-        if extended_header.nbytes != self.__extended_header.nbytes:
-            data_copy = self.__data.copy()
-            self._close_memmap()
-            self.__extended_header = extended_header
-            self.header.nsymbt = extended_header.nbytes
-            header_nbytes = self.header.nbytes + extended_header.nbytes
-            self._file.truncate(header_nbytes + data_copy.nbytes)
-            self._open_memmap(data_copy.dtype, data_copy.shape)
-            np.copyto(self.__data, data_copy)
-        else:
-            self.__extended_header = extended_header
+        self.__extended_header = extended_header
+        self.header.nsymbt = extended_header.nbytes
     
     @property
     def data(self):
@@ -139,23 +134,24 @@ class MrcInterpreter(object):
         slices of data will be fetched from disk only when requested. This
         allows parts of very large files to be accessed easily and quickly.
         
-        The data values can be modified and will automatically be written to
-        disk (unless the file is open in read-only mode). However, after
-        changing any values the header statistics might be incorrect. Call
+        The data values can be modified and will be written to disk when the
+        file is closed (unless the file is open in read-only mode). However,
+        after changing any values the header statistics might be incorrect. Call
         update_header_stats() to update them if required -- this is usually a
         good idea, but can take a long time for large files.
         
         Returns:
-            The file's data block, as a numpy memmap array.
+            The file's data block, as a numpy array.
         """
         return self.__data
     
     def set_data(self, data):
         """Replace the file's data.
         
-        This replaces the current data with a copy of the given array, and
-        updates the header to match the new data dimensions. The data statistics
-        (min, max, mean and rms) stored in the header will also be updated.
+        This replaces the current data with the given array (or a copy of it),
+        and updates the header to match the new data dimensions. The data
+        statistics (min, max, mean and rms) stored in the header will also be
+        updated.
         """
         if self._read_only:
             raise ValueError('This file is read-only')
@@ -185,20 +181,29 @@ class MrcInterpreter(object):
         assert np.can_cast(data, dtype, casting='safe')
         
         # At this point, we know the data is valid, so we go ahead with the swap
-        # First, close the old memmap and replace the header with the new one
-        self._close_memmap()
-        self.header = new_header
+        # First, close the old data and replace the header with the new one
+        self._close_data()
+        self.__header = new_header
         
         # Next, truncate the file to the new size (this should be safe to do
         # whether the new size is smaller, greater or the same as the old size)
         header_nbytes = self.header.nbytes + self.extended_header.nbytes
-        self._file.truncate(header_nbytes + data.nbytes)
+        self._set_file_size(header_nbytes + data.nbytes)
         
-        # Now, open a new memmap of the correct shape, size and dtype
-        self._open_memmap(dtype, data.shape)
+        # Now, open a new data array of the correct shape, size and dtype
+        self._open_new_data(dtype, data.shape)
         
-        # Finally, copy the new data into the memmap
+        # Finally, copy the new data into the array
         np.copyto(self.__data, data, casting='safe')
+    
+    def _close_data(self):
+        self.__data = None
+    
+    def _set_file_size(self, nbytes):
+        pass
+    
+    def _open_new_data(self, dtype, shape):
+        self.__data = np.zeros(shape, dtype=dtype)
     
     @property
     def voxel_size(self):
@@ -286,27 +291,15 @@ class MrcInterpreter(object):
             self.header.mz = self.header.nz
     
     def close(self):
-        """Flush any changes to disk and close the file."""
-        if not self._file.closed:
-            self.flush()
-            self._close_memmap()
-            self._file.close()
-        self.header = None
-    
-    def flush(self):
-        """Flush the header and data arrays to the file buffer."""
-        if not self._read_only:
-            self._update_header_from_data()
-            self._write_header()
-            
-            # Flushing the file before the mmap makes the mmap flush faster
-            self._file.flush()
-            self.__data.flush()
-            self._file.flush()
-    
-    def __repr__(self):
-        return "MrcFile('{0}', mode='{1}')".format(self._file.name,
-                                                   self._file.mode[:-1])
+        """Flush any changes to disk and close the file.
+        
+        This base class simply clears the header and data fields. Subclasses
+        should ensure the fields are written to disk as necessary.
+        """
+        self.__header = None
+        self.__extended_header = None
+        self.__data.flags.writeable = False
+        self.__data = None
     
     def __enter__(self):
         """Called by the context manager at the start of a 'with' block.
@@ -337,33 +330,28 @@ class MrcInterpreter(object):
     
     def _read_header(self):
         """Read the header from the file."""
-        self.header = utils.read_header(self._file)
-        self.header.flags.writeable = not self._read_only
+        self.__header = utils.read_header(self._file)
+        self.__header.flags.writeable = not self._read_only
     
     def _read_extended_header(self):
         """Read the extended header from the file.
         
         If there is no extended header, a zero-length array is assigned to the
         extended_header field.
-        """
-        ext_header_size = self.header.nsymbt
-        if ext_header_size > 0:
-            self._file.seek(self.header.nbytes, os.SEEK_SET)
-            ext_header_bytes = self._file.read(ext_header_size)
-            self.__extended_header = np.array(ext_header_bytes, dtype='V')
-        else:
-            self.__extended_header = np.array((), dtype='V')
         
-        self.extended_header.flags.writeable = not self._read_only
+        The file pointer will be advanced by the size of the extended header.
+        """
+        ext_header_str = self._file.read(self.header.nsymbt)
+        self.__extended_header = np.fromstring(ext_header_str, dtype='V1')
+        self.__extended_header.flags.writeable = not self._read_only
     
     def _read_data(self):
         """Read the data block from the file.
         
-        This method first calculates the parameters needed to read the data
-        (block start position, endian-ness, file mode, array shape) and then
-        opens the data as a numpy memmap array.
+        This method assumes the header is already open and the file pointer
+        is positioned at the start of the data block. A numpy array is created
+        containing the data.
         """
-        
         mode = self.header.mode
         dtype = utils.dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
         
@@ -381,66 +369,18 @@ class MrcInterpreter(object):
             shape = (ny, nx)
         else:
             shape = (nz, ny, nx)
-            
-        header_size = self.header.nbytes + self.header.nsymbt
-        data_size = nx * ny * nz * dtype.itemsize
         
-        #####################################
-        # memmap version:
-        #
-        self._file.seek(0, os.SEEK_END)
-        file_size = self._file.tell()
-        assert file_size == header_size + data_size
+        self.__data = np.fromfile(self._file, dtype=dtype).reshape(shape)
+        self.__data.flags.writeable = not self._read_only
         
-        self._open_memmap(dtype, shape)
-        
-        ######################################
-        # normal array version:
-        #
-#         self._seek_to_data_block()
-#         data_str = self._file.read(data_size)
-#         
-#         # Make sure that we have read the whole file
-#         assert not self._file.read()
-#         
-#         # Read data
-#         self.data = np.ndarray(shape=shape, dtype=dtype, buffer=data_str)
+        # Make sure that we have read the whole file
+        # TODO: replace with warning so incorrect files can still be opened
+        assert not self._file.read()
     
     def _update_header_from_data(self):
         if self._read_only:
             raise ValueError('This file is read-only')
         utils.update_header_from_data(self.header, self.data)
-    
-    def _write_header(self):
-        self._file.seek(0)
-        self._file.write(self.header)
-        self._file.write(self.extended_header)
-    
-    def _open_memmap(self, dtype, shape):
-        """Open a new memmap array pointing at the file's data block."""
-        acc_mode = 'r' if self._read_only else 'r+'
-        header_nbytes = self.header.nbytes + self.header.nsymbt
-        
-        self._file.flush()
-        self.__data = np.memmap(self._file,
-                                dtype=dtype,
-                                mode=acc_mode,
-                                offset=header_nbytes,
-                                shape=shape)
-    
-    def _close_memmap(self):
-        """Delete the existing memmap array, if it exists.
-        
-        The array is flagged as read-only before deletion, so if a reference to
-        it has been kept elsewhere, changes to it should no longer be able to
-        change the file contents.
-        """
-        try:
-            self.__data.flush()
-            self.__data.flags.writeable = False
-            del self.__data
-        except AttributeError:
-            pass
     
     def print_header(self):
         """Print the file header."""

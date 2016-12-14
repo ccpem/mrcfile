@@ -51,3 +51,29 @@ class MrcFile(MrcInterpreter):
         except Exception:
             self._file.close()
             raise
+    
+    def __repr__(self):
+        return "MrcFile('{0}', mode='{1}')".format(self._file.name,
+                                                   self._file.mode[:-1])
+    
+    def close(self):
+        """Flush any changes to disk and close the file."""
+        if not self._file.closed:
+            self.flush()
+            self._file.close()
+        super(MrcFile, self).close()
+    
+    def flush(self):
+        """Flush the header and data arrays to the file buffer."""
+        if not self._read_only:
+            self._update_header_from_data()
+            self._write_header()
+            
+            self._file.write(self.data)
+            self._file.truncate()
+            self._file.flush()
+    
+    def _write_header(self):
+        self._file.seek(0)
+        self._file.write(self.header)
+        self._file.write(self.extended_header)

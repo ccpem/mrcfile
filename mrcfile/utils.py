@@ -82,8 +82,8 @@ def reset_header_stats(header):
 def read_header(data_file):
     """Read the MRC header from the given file object.
     
-    The header will be read from the beginning of the file, regardless of the
-    current file pointer position.
+    The header will be read from the current file pointer position, and the file
+    pointer will be advanced by 1024 bytes.
     
     Args:
         file: A Python file-like object, which should be open in binary mode.
@@ -94,14 +94,22 @@ def read_header(data_file):
     Raises:
         ValueError: The file is not a valid MRC file.
     """
+    # Read 1024 bytes from the stream
+    header_str = data_file.read(HEADER_DTYPE.itemsize)
+    
+    # Use a recarray to allow access to fields as attributes
+    # (e.g. header.mode instead of header['mode'])
+    header = np.rec.fromstring(header_str, dtype=HEADER_DTYPE, shape=())
+    
+    # Make header writeable, because fromstring() creates a read-only array
+    header.flags.writeable = True
+    
     # Check this is an MRC file, and read machine stamp to get byte order
-    data_file.seek(MAP_ID_OFFSET_BYTES, os.SEEK_SET)
-    map_str = data_file.read(4)
-    if map_str != MAP_ID:
+    if header.map != MAP_ID:
         raise ValueError('Map ID string not found - not an MRC file, '
                          'or file is corrupt')
     
-    machst = bytearray(data_file.read(4))
+    machst = header.machst
     if machst[0] == 0x44 and machst[1] in (0x44, 0x41):
         byte_order = '<'
     elif (machst[0] == 0x11 and machst[1] == 0x11):
@@ -110,13 +118,9 @@ def read_header(data_file):
         raise ValueError('Unrecognised machine stamp: '
                          + ' '.join('0x{:02x}'.format(byte) for byte in machst))
     
-    # Prepare to read header
-    header_dtype = HEADER_DTYPE.newbyteorder(byte_order)
-    data_file.seek(0)
+    # Create a new dtype with the correct byte order and update the header
+    header.dtype = header.dtype.newbyteorder(byte_order)
     
-    # Use a recarray to allow access to fields as attributes
-    # (e.g. header.mode instead of header['mode'])
-    header = np.rec.fromfile(data_file, dtype=header_dtype, shape=())
     return header
 
 
@@ -196,7 +200,7 @@ def update_header_stats(header, data):
     header.dmin = data.min()
     header.dmax = data.max()
     
-    # Use a float64 accumulator to calculate mean and std deviation
+    # Use a float64 accumulator to calculate mean and standard deviation
     # This prevents overflow errors during calculation
     header.dmean = np.float32(data.mean(dtype=np.float64))
     header.rms = np.float32(data.std(dtype=np.float64))

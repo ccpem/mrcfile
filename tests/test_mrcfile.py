@@ -25,6 +25,24 @@ from mrcfile import MrcFile
 from tests import test_data
 
 
+
+# import doctest
+
+# doc_test_dir = tempfile.mkdtemp()
+# doc_test_file = MrcFile(os.path.join(doc_test_dir, 'doc_test.mrc'), 'w+')
+# 
+# def tearDownModule():
+#     global doc_test_dir, doc_test_file
+#     doc_test_file.close()
+#     if os.path.exists(doc_test_dir):
+#         shutil.rmtree(doc_test_dir)
+# 
+# def load_tests(loader, tests, ignore):
+#     global doc_test_file
+#     tests.addTests(doctest.DocTestSuite(mrcfile, extraglobs={'mrc': doc_test_file}))
+#     return tests
+
+
 class MrcFileTest(unittest.TestCase):
     
     """Unit tests for MRC file I/O."""
@@ -103,11 +121,12 @@ class MrcFileTest(unittest.TestCase):
             assert mrc.header.nsymbt == 160
             assert mrc.extended_header.nbytes == 160
             assert mrc.extended_header.dtype.kind == 'V'
-            ext = str(mrc.extended_header)
-            assert ext == ('X,  Y,  Z                               '
-                           '                                        '
-                           '-X,  Y+1/2,  -Z                         '
-                           '                                        ')
+            mrc.extended_header.dtype = 'S80'
+            ext = mrc.extended_header
+            assert ext[0] == ('X,  Y,  Z                               '
+                              '                                        ')
+            assert ext[1] == ('-X,  Y+1/2,  -Z                         '
+                              '                                        ')
     
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         name = os.path.join(self.test_data, 'EMD-3001.map')
@@ -190,6 +209,7 @@ class MrcFileTest(unittest.TestCase):
             mrc.set_extended_header(extended_header)
         with MrcFile(self.temp_mrc_name, mode='r+') as mrc:
             mrc.set_extended_header(np.array(()))
+            mrc.flush()
             assert mrc.header.nsymbt == 0
             mrc._file.seek(0, os.SEEK_END)
             file_size = mrc._file.tell()
