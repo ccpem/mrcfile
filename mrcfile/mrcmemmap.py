@@ -1,6 +1,9 @@
 # Copyright (c) 2016, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 """
+mrcmemmap
+---------
+
 TODO:
 
 """
@@ -46,6 +49,21 @@ class MrcMemmap(MrcInterpreter):
             self.__extended_header = extended_header
     
     def set_data(self, data):
+        """TODO: doc Get the file's current data block as a numpy array.
+        
+        The data is opened as a memory map to the file on disk, meaning that
+        slices of data will be fetched from disk only when requested. This
+        allows parts of very large files to be accessed easily and quickly.
+        
+        The data values can be modified and will be written to disk when the
+        file is closed (unless the file is open in read-only mode). However,
+        after changing any values the header statistics might be incorrect. Call
+        update_header_stats() to update them if required -- this is usually a
+        good idea, but can take a long time for large files.
+        
+        Returns:
+            The file's data block, as a numpy array.
+        """
         """Replace the file's data.
         
         This replaces the current data with a copy of the given array, and

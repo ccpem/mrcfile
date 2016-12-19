@@ -5,6 +5,10 @@
 Module to provide the path to the test data directory.
 """
 
+# Import Python 3 features for future-proofing
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
+
 import os
 
 def get_test_data_path():

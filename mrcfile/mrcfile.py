@@ -33,47 +33,61 @@ def read(name, mode='r'):
 
 class MrcFile(MrcInterpreter):
     
+    """An object which represents an MRC / CCP4 map file.
+    
+    The header and data of the file are presented as numpy arrays.
+    
+    Usage: TODO:
+    
+    """
+    
     def __init__(self, name, mode='r', overwrite=False, **kwargs):
+        super(MrcFile, self).__init__(**kwargs)
+        
         if mode not in ['r', 'r+', 'w+']:
             raise ValueError("Mode '{0}' not supported".format(mode))
         
         if ('w' in mode and os.path.exists(name) and not overwrite):
-            raise IOError("File '{0}' already exists; set overwrite=True"
+            raise IOError("File '{0}' already exists; set overwrite=True "
                           "to overwrite it".format(name))
         
         self._mode = mode
-        self._file = open(name, mode + 'b')
-        
         self._read_only = (self._mode == 'r')
         
+        self._open_file(name)
+        
         try:
-            super(MrcFile, self).__init__(**kwargs)
+            if 'w' in mode:
+                self._create_default_fields()
+            else:
+                self._read_stream()
+                # TODO: add warning if file is too long?
         except Exception:
-            self._file.close()
+            self._close_file()
             raise
     
     def __repr__(self):
-        return "MrcFile('{0}', mode='{1}')".format(self._file.name,
-                                                   self._file.mode[:-1])
+        return "MrcFile('{0}', mode='{1}')".format(self._iostream.name,
+                                                   self._mode)
+    
+    def _open_file(self, name):
+        """Open a file object to use as the I/O stream."""
+        self._iostream = open(name, self._mode + 'b')
+    
+    def _read_stream(self):
+        """Override _read_stream() to move back to start of file first."""
+        self._iostream.seek(0)
+        super(MrcFile, self)._read_stream()
     
     def close(self):
-        """Flush any changes to disk and close the file."""
-        if not self._file.closed:
-            self.flush()
-            self._file.close()
+        """Flush any changes to disk and close the file.
+        
+        This override calls super() to ensure the stream is flushed and closed,
+        then closes the file object.
+        """
         super(MrcFile, self).close()
+        self._close_file()
     
-    def flush(self):
-        """Flush the header and data arrays to the file buffer."""
-        if not self._read_only:
-            self._update_header_from_data()
-            self._write_header()
-            
-            self._file.write(self.data)
-            self._file.truncate()
-            self._file.flush()
-    
-    def _write_header(self):
-        self._file.seek(0)
-        self._file.write(self.header)
-        self._file.write(self.extended_header)
+    def _close_file(self):
+        """Close the file object."""
+        self._iostream.close()
