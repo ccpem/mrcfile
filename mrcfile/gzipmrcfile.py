@@ -24,8 +24,8 @@ class GzipMrcFile(MrcFile):
     
     """
     
-    def __init__(self, name, **kwargs):
-        super(GzipMrcFile, self).__init__(name, **kwargs)
+    def __init__(self, name, mode='r', **kwargs):
+        super(GzipMrcFile, self).__init__(name, mode, **kwargs)
     
     def __repr__(self):
         return "GzipMrcFile('{0}', mode='{1}')".format(self._fileobj.name,
