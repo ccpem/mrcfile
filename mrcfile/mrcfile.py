@@ -78,6 +78,7 @@ class MrcFile(MrcInterpreter):
         """Override _read_stream() to move back to start of file first."""
         self._iostream.seek(0)
         super(MrcFile, self)._read_stream()
+        # TODO: add warning if file is larger than expected?
     
     def close(self):
         """Flush any changes to disk and close the file.

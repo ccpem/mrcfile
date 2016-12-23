@@ -6,8 +6,9 @@ Tests for utils.py
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+# Deliberately do NOT import unicode_literals due to a bug in numpy dtypes:
+# https://github.com/numpy/numpy/issues/2407
+from __future__ import absolute_import, division, print_function
 
 import unittest
 
@@ -139,7 +140,7 @@ class UtilsTest(unittest.TestCase):
     
     def test_structured_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            utils.mode_from_dtype(np.dtype([(b'f1', np.int32)]))
+            utils.mode_from_dtype(np.dtype([('f1', np.int32)]))
     
     def test_spacegroup_is_volume_stack(self):
         for ispg in range(-2000, 2000):

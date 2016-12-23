@@ -405,7 +405,7 @@ class MrcObjectTest(unittest.TestCase):
     
     def test_new_header_contains_creator_label(self):
         assert self.mrcobject.header.nlabl == 1
-        label = self.mrcobject.header.label[0]
+        label = self.mrcobject.header.label[0].decode()
         assert label.startswith('Created by mrcfile.py    ')
         time = label[-40:].strip()
         datetime.strptime(time, '%Y-%m-%d %H:%M:%S') # will throw if bad format

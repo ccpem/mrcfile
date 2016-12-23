@@ -130,7 +130,7 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.header.nsymbt == 0
             assert mrc.extended_header.nbytes == 0
             assert mrc.extended_header.dtype.kind == 'V'
-            assert str(mrc.extended_header.tobytes()) == ''
+            assert mrc.extended_header.tobytes() == b''
     
     def test_extended_header_is_read_correctly(self):
         with self.newmrc(self.ext_header_mrc_name) as mrc:
@@ -140,16 +140,16 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.extended_header.dtype.kind == 'V'
             mrc.extended_header.dtype = 'S80'
             ext = mrc.extended_header
-            assert ext[0] == ('X,  Y,  Z                               '
-                              '                                        ')
-            assert ext[1] == ('-X,  Y+1/2,  -Z                         '
-                              '                                        ')
+            assert ext[0] == (b'X,  Y,  Z                               '
+                              b'                                        ')
+            assert ext[1] == (b'-X,  Y+1/2,  -Z                         '
+                              b'                                        ')
     
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         with self.newmrc(self.ext_header_mrc_name, mode='r') as mrc:
             assert not mrc.extended_header.flags.writeable
             with self.assertRaisesRegexp(ValueError, 'read-only'):
-                mrc.extended_header.fill('a')
+                mrc.extended_header.fill(b'a')
     
     def test_cannot_set_extended_header_in_read_only_mode(self):
         with self.newmrc(self.example_mrc_name, mode='r') as mrc:
