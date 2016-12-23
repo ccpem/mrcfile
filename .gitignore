@@ -2,8 +2,13 @@
 *.py[co]
 
 # Distribution artifacts
-#/dist/
-#/*.egg-info
+/build/
+/dist/
+/*.egg-info
+
+Test artifacts
+/.tox/
+.coverage
 
 # IDE files
 .project

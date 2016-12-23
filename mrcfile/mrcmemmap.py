@@ -4,7 +4,7 @@
 mrcmemmap
 ---------
 
-TODO:
+TODO: this module is currently broken - do not use!
 
 """
 

@@ -65,7 +65,7 @@ class MrcInterpreter(MrcObject):
         """
         try:
             self.close()
-        except AttributeError:
+        except Exception:
             pass
     
     def _read_stream(self):
