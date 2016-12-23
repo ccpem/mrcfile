@@ -8,7 +8,7 @@ file's header and data as numpy arrays.
 
 __ MRC2014_
 
-.. |build-status| image:: https://travis-ci.org/ccpem/mrcfile.svg?branch=master?style=flat
+.. |build-status| image:: https://travis-ci.org/ccpem/mrcfile.svg?branch=master
     :target: https://travis-ci.org/ccpem/mrcfile
     :alt: Build Status
 
