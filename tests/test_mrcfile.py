@@ -268,18 +268,6 @@ class MrcFileTest(MrcObjectTest):
             mrc.data[1,1] = 0
             assert mrc.data[1,1] == 0
     
-    def xtest_data_array_cannot_be_changed_after_closing_file(self):
-        # TODO: reinstate this test with mmap class only
-        mrc = self.newmrc(self.temp_mrc_name, mode='w+')
-        mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
-        data_ref = mrc.data
-        # Check that writing to the data array does not raise an exception
-        data_ref[0,0] = 1
-        mrc.close()
-        assert not data_ref.flags.writeable
-        with self.assertRaises(ValueError):
-            data_ref[0,0] = 2
-    
     def test_cannot_edit_data_in_read_only_mode(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
