@@ -121,7 +121,9 @@ class MrcFileTest(MrcObjectTest):
             self.assertAlmostEqual(calc_min, mrc.header.dmin)
             self.assertAlmostEqual(calc_mean, mrc.header.dmean)
             self.assertAlmostEqual(calc_std, mrc.header.rms)
-            self.assertAlmostEqual(calc_sum, 6268.8959961)
+            
+            # Convert calc_sum to float to fix a bug with memmap comparisons in python 3
+            self.assertAlmostEqual(float(calc_sum), 6268.8959961)
     
     def test_absent_extended_header_is_read_as_zero_length_array(self):
         with self.newmrc(self.example_mrc_name) as mrc:

@@ -233,21 +233,18 @@ class MrcObjectTest(unittest.TestCase):
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.int8
         assert self.mrcobject.header.mode == 0
-        assert self.mrcobject.data is data, 'Data should not have been copied'
     
     def test_int16_dtype_is_preserved_in_mode_1(self):
         data = np.arange(6, dtype=np.int16).reshape(3, 2)
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.int16
         assert self.mrcobject.header.mode == 1
-        assert self.mrcobject.data is data, 'Data should not have been copied'
     
     def test_float32_dtype_is_preserved_in_mode_2(self):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.float32
         assert self.mrcobject.header.mode == 2
-        assert self.mrcobject.data is data, 'Data should not have been copied'
     
     def test_complex64_dtype_is_preserved_in_mode_4(self):
         data = np.arange(6, dtype=np.complex64).reshape(3, 2)
@@ -255,28 +252,24 @@ class MrcObjectTest(unittest.TestCase):
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.complex64
         assert self.mrcobject.header.mode == 4
-        assert self.mrcobject.data is data, 'Data should not have been copied'
     
     def test_uint16_dtype_is_preserved_in_mode_6(self):
         data = np.arange(6, dtype=np.uint16).reshape(3, 2)
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.uint16
         assert self.mrcobject.header.mode == 6
-        assert self.mrcobject.data is data, 'Data should not have been copied'
     
     def test_float16_dtype_is_widened_in_mode_2(self):
         data = np.arange(6, dtype=np.float16).reshape(3, 2)
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.float32
         assert self.mrcobject.header.mode == 2
-        assert self.mrcobject.data is not data, 'Data should have been copied'
     
     def test_uint8_dtype_is_widened_in_mode_6(self):
         data = np.arange(6, dtype=np.uint8).reshape(3, 2)
         self.mrcobject.set_data(data)
         assert self.mrcobject.data.dtype == np.uint16
         assert self.mrcobject.header.mode == 6
-        assert self.mrcobject.data is not data, 'Data should have been copied'
     
     def test_header_byte_order_is_unchanged_by_data_with_native_order(self):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)

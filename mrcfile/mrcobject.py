@@ -52,7 +52,7 @@ class MrcObject(object):
         """Set valid default values for the header and data fields."""
         self._create_default_header()
         self._extended_header = np.fromstring('', dtype='V1')
-        self._data = np.fromstring('', dtype=np.int8)
+        self._set_new_data(np.fromstring('', dtype=np.int8))
     
     def _create_default_header(self):
         """Create a default MRC file header.
@@ -148,7 +148,7 @@ class MrcObject(object):
         
         # Replace the old data array with the new one, and update the header
         self._close_data()
-        self._replace_data(new_data)
+        self._set_new_data(new_data)
         self.update_header_from_data()
         self.update_header_stats()
     
@@ -156,10 +156,11 @@ class MrcObject(object):
         """Close the data array."""
         self._data = None
     
-    def _replace_data(self, data):
+    def _set_new_data(self, data):
         """Replace the data array with a new one.
         
-        The new data must be valid for use in an MRC file!
+        The new data array is not checked - it must already be valid for use in
+        an MRC file.
         """
         self._data = data
     
