@@ -13,6 +13,7 @@ import sys
 import unittest
 import warnings
 from datetime import datetime
+from StringIO import StringIO
 
 import numpy as np
 
@@ -166,6 +167,13 @@ class MrcObjectTest(unittest.TestCase):
         assert self.mrcobject.is_volume()
         assert self.mrcobject.header.ispg == constants.VOLUME_SPACEGROUP
         assert self.mrcobject.header.nz == self.mrcobject.header.mz == 2
+    
+    def test_image_stack_with_new_3d_data_is_still_image_stack(self):
+        self.mrcobject.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))
+        self.mrcobject.set_image_stack()
+        assert self.mrcobject.is_image_stack()
+        self.mrcobject.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
+        assert self.mrcobject.is_image_stack()
     
     def test_header_is_correct_for_4d_data(self):
         x, y, z, nvol = 3, 4, 5, 6
@@ -409,6 +417,20 @@ class MrcObjectTest(unittest.TestCase):
         assert label.startswith('Created by mrcfile.py    ')
         time = label[-40:].strip()
         datetime.strptime(time, '%Y-%m-%d %H:%M:%S') # will throw if bad format
+    
+    def test_print_header(self):
+        # Replace sys.stdout to capture print output
+        old_stdout = sys.stdout
+        outbuf = StringIO()
+        sys.stdout = outbuf
+        self.mrcobject.print_header()
+        sys.stdout = old_stdout
+        out = outbuf.getvalue()
+        outbuf.close()
+        
+        # Test the number of lines in the print_header() output as a rough check
+        # that it is working correctly.
+        assert len(out.split('\n')) == 32
 
 
 if __name__ == '__main__':

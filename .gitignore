@@ -6,7 +6,7 @@
 /dist/
 /*.egg-info
 
-Test artifacts
+# Test artifacts
 /.tox/
 .coverage
 

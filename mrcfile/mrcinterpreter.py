@@ -35,12 +35,11 @@ class MrcInterpreter(MrcObject):
     
     """
     
-    def __init__(self, **kwargs):
+    def __init__(self, iostream=None, **kwargs):
         super(MrcInterpreter, self).__init__(**kwargs)
         
-        # Set empty default fields
-        # TODO: pass in as kwargs for stand-alone testing
-        self._iostream = None
+        # Initialise iostream if given
+        self._iostream = iostream
     
     def __enter__(self):
         """Called by the context manager at the start of a 'with' block.

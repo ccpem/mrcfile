@@ -10,6 +10,7 @@ Tests for utils.py
 # https://github.com/numpy/numpy/issues/2407
 from __future__ import absolute_import, division, print_function
 
+import sys
 import unittest
 
 import numpy as np
@@ -141,6 +142,25 @@ class UtilsTest(unittest.TestCase):
     def test_structured_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
             utils.mode_from_dtype(np.dtype([('f1', np.int32)]))
+    
+    def test_little_endian_machine_stamp(self):
+        machst = utils.machine_stamp_from_byte_order('<')
+        assert machst == bytearray((0x44, 0x44, 0x00, 0x00))
+    
+    def test_big_endian_machine_stamp(self):
+        machst = utils.machine_stamp_from_byte_order('>')
+        assert machst == bytearray((0x11, 0x11, 0x00, 0x00))
+    
+    def test_native_machine_stamp(self):
+        machst = utils.machine_stamp_from_byte_order()
+        if sys.byteorder == 'little':
+            assert machst == utils.machine_stamp_from_byte_order('<')
+        else:
+            assert machst == utils.machine_stamp_from_byte_order('>')
+    
+    def test_unknown_byte_order_raises_exception(self):
+        with self.assertRaisesRegexp(ValueError, "Unrecognised byte order indicator"):
+            utils.machine_stamp_from_byte_order('|')
     
     def test_spacegroup_is_volume_stack(self):
         for ispg in range(-2000, 2000):

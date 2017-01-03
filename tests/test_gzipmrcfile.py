@@ -44,13 +44,13 @@ class GzipMrcFileTest(MrcFileTest):
         """Override test to change expected error message."""
         name = os.path.join(self.test_data, 'emd_3197.png')
         with (self.assertRaisesRegexp(IOError, 'Not a gzipped file')):
-            with GzipMrcFile(name):
-                pass
+            GzipMrcFile(name)
     
     def test_repr(self):
         """Override test to change expected repr string."""
         with GzipMrcFile(self.example_mrc_name) as mrc:
             assert repr(mrc) == "GzipMrcFile('{0}', mode='r')".format(self.example_mrc_name)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -93,8 +93,7 @@ class MrcFileTest(MrcObjectTest):
     def test_non_mrc_file_is_rejected(self):
         name = os.path.join(self.test_data, 'emd_3197.png')
         with (self.assertRaisesRegexp(ValueError, 'Map ID string not found')):
-            with self.newmrc(name):
-                pass
+            self.newmrc(name)
     
     def test_repr(self):
         with self.newmrc(self.example_mrc_name) as mrc:
@@ -190,6 +189,11 @@ class MrcFileTest(MrcObjectTest):
             mrc.flush()
             np.testing.assert_array_equal(orig_data, mrc.data)
     
+    def test_cannot_use_invalid_file_modes(self):
+        for mode in ('w', 'a', 'a+'):
+            with self.assertRaises(ValueError):
+                self.newmrc(self.temp_mrc_name, mode=mode)
+    
     def test_cannot_accidentally_overwrite_file(self):
         assert not os.path.exists(self.temp_mrc_name)
         open(self.temp_mrc_name, 'w+').close()
@@ -220,7 +224,7 @@ class MrcFileTest(MrcObjectTest):
             assert not mrc.header.flags.writeable
             # TODO: the next line should raise an exception but numpy allows it
             # Bug reported: https://github.com/numpy/numpy/issues/8171 - should
-            # be fixed in numpy > 1.11.2
+            # be fixed in numpy >= 1.12.0
             # For now we just make sure that the file itself is not altered
             mrc.header.ispg = 1
             assert mrc.header.ispg == 1
@@ -485,6 +489,7 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.header.mz == z
             assert mrc.header.nz == z * nvol
 
+
 def create_test_float32_array(dtype=np.float32):
     """Create a 10 x 9 array of float values over almost all of float32 range"""
     data = np.zeros((9, 10), dtype=dtype)
@@ -492,12 +497,14 @@ def create_test_float32_array(dtype=np.float32):
     data[5:] = np.logspace(-38.5, 38.5, 40).reshape(4, 10)
     return data
 
+
 def create_test_complex64_array():
     floats = create_test_float32_array()
     data = 1j * floats[::-1]
     data += floats
     assert data.dtype.type == np.complex64
     return data
+
 
 if __name__ == '__main__':
     unittest.main()
