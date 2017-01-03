@@ -13,7 +13,6 @@ import sys
 import unittest
 import warnings
 from datetime import datetime
-from StringIO import StringIO
 
 import numpy as np
 
@@ -417,20 +416,6 @@ class MrcObjectTest(unittest.TestCase):
         assert label.startswith('Created by mrcfile.py    ')
         time = label[-40:].strip()
         datetime.strptime(time, '%Y-%m-%d %H:%M:%S') # will throw if bad format
-    
-    def test_print_header(self):
-        # Replace sys.stdout to capture print output
-        old_stdout = sys.stdout
-        outbuf = StringIO()
-        sys.stdout = outbuf
-        self.mrcobject.print_header()
-        sys.stdout = old_stdout
-        out = outbuf.getvalue()
-        outbuf.close()
-        
-        # Test the number of lines in the print_header() output as a rough check
-        # that it is working correctly.
-        assert len(out.split('\n')) == 32
 
 
 if __name__ == '__main__':
