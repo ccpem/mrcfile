@@ -17,7 +17,7 @@ def test_suite():
 
 setup(
     name='mrcfile',
-    version='0.0.0',
+    version='0.0.1',
     packages=['mrcfile'],
     install_requires=['numpy >= 1.11.0'],
     
@@ -38,7 +38,7 @@ setup(
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ]
