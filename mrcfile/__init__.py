@@ -21,6 +21,19 @@ TODO: usage examples
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from .mrcfile import MrcFile, new
+from .mrcfile import MrcFile
 
 __version__ = '0.0.1'
+
+
+def new(name, data=None, mrcmode=None, shape=None, overwrite=False):
+    """Create a new MRC file."""
+    mrc = MrcFile(name, mode='w+', overwrite=overwrite)
+    if data is not None:
+        mrc.set_data(data)
+    return mrc
+
+
+def read(name, mode='r'):
+    # TODO: make this do something!
+    pass

@@ -25,7 +25,7 @@ from tests import test_data
 from tests.test_mrcobject import MrcObjectTest
 
 
-
+# Doctest stuff commented out for now - would be nice to get it working!
 # import doctest
 
 # doc_test_dir = tempfile.mkdtemp()
@@ -116,7 +116,6 @@ class MrcFileTest(MrcObjectTest):
             calc_sum = mrc.data.sum()
             
             # Compare calculated values with header records
-            # TODO: check these values on different machines 
             self.assertAlmostEqual(calc_max, mrc.header.dmax)
             self.assertAlmostEqual(calc_min, mrc.header.dmin)
             self.assertAlmostEqual(calc_mean, mrc.header.dmean)

@@ -4,7 +4,10 @@
 gzipmrcfile
 -----------
 
-TODO:
+Module which exports the GzipMrcFile class.
+
+Classes:
+    GzipMrcFile: An object which represents a gzipped MRC file.
 
 """
 
@@ -22,10 +25,9 @@ class GzipMrcFile(MrcFile):
     
     """MrcFile subclass for handling gzipped files.
     
-    """
+    Usage is the same as for MrcFile.
     
-    def __init__(self, name, mode='r', **kwargs):
-        super(GzipMrcFile, self).__init__(name, mode, **kwargs)
+    """
     
     def __repr__(self):
         return "GzipMrcFile('{0}', mode='{1}')".format(self._fileobj.name,

@@ -13,8 +13,7 @@ import os
 
 
 def get_test_data_path():
-    """
-    Get the path to the test data directory.
+    """ Get the path to the test data directory.
     
     This function is in a module on its own to ensure that the __file__ constant
     exists.

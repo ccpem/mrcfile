@@ -4,7 +4,16 @@
 utils
 -----
 
-TODO:
+Utility functions used by the other modules in the mrcfile package.
+
+Functions:
+    mode_from_dtype: Convert a numpy dtype to an MRC mode number.
+    dtype_from_mode: Convert an MRC mode number to a numpy dtype.
+    machine_stamp_from_byte_order: Get a machine stamp from a byte order
+        indicator.
+    spacegroup_is_volume_stack: Identify if a space group number represents a
+        volume stack.
+
 """
 
 # Import Python 3 features for future-proofing
@@ -82,8 +91,6 @@ def dtype_from_mode(mode):
     Raises:
         ValueError: There is no corresponding dtype for the given mode.
     """
-    # TODO: read mode 3 in some way - as int32 or structured types, maybe?
-    # Also maybe IMOD's mode 16 and mode 0 uint8 variant?
     mode = int(mode)
     if mode in _mode_to_dtype:
         return np.dtype(_mode_to_dtype[mode])
@@ -121,4 +128,13 @@ def machine_stamp_from_byte_order(byte_order='='):
                          "indicator '{0}'".format(byte_order))
 
 def spacegroup_is_volume_stack(ispg):
+    """Identify if the given space group number represents a volume stack.
+    
+    Args:
+        ispg: The space group number, as an integer, numpy scalar or single-
+            element numpy array.
+    
+    Returns:
+        True if the space group number is in the range 401--630.
+    """
     return 401 <= ispg <= 630

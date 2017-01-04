@@ -4,7 +4,10 @@
 mrcobject
 ---------
 
-TODO:
+Module which exports the MrcObject class.
+
+Classes:
+    MrcObject: An object representing image or volume data in the MRC format.
 
 """
 
@@ -24,22 +27,86 @@ from .constants import (MAP_ID, MRC_FORMAT_VERSION, IMAGE_STACK_SPACEGROUP,
 
 class MrcObject(object):
     
-    """Object representing image or volume data in the MRC format.
+    """An object representing image or volume data in the MRC format.
     
-    The header, extended header and data are stored as numpy arrays.
+    The header, extended header and data are stored as numpy arrays and
+    exposed as read-only attributes. To replace the data or extended header,
+    call set_data() or set_extended_header(). The header cannot be replaced but
+    can be modified in place.
+    
+    Voxel size is exposed as a writeable attribute, but is calculated on-the-fly
+    from the header's cella and mx/my/mz fields.
+    
+    Three-dimensional data can represent either a stack of 2D images, or a 3D
+    volume. This is indicated by the header's ispg (space group) field, which
+    is set to 0 for image data and >= 1 for volume data. The is_single_image(),
+    is_image_stack(), is_volume() and is_volume_stack() methods can be used to
+    identify the type of information stored in the data array. For 3D data, the
+    set_image_stack() and set_volume() methods can be used to switch between
+    image stack and volume interpretations of the data.
+    
+    If the data contents have been changed, you can use the
+    update_header_from_data() and update_header_stats() methods to make the
+    header consistent with the data. These methods are called automatically if
+    the data array is replaced by calling set_data(). update_header_from_data()
+    is fast, even with very large data arrays, because it only examines the
+    shape and type of the data array. update_header_stats() calculates
+    statistics from all items in the data array and so can be slow for very
+    large arrays. If necessary, the reset_header_stats() method can be called
+    to set the header fields to indicate that the statistics are undetermined.
+    
+    Attributes:
+        header
+        extended_header
+        data
+        voxel_size
+    
+    Methods:
+        set_extended_header
+        set_data
+        is_single_image
+        is_image_stack
+        is_volume
+        is_volume_stack
+        set_image_stack
+        set_volume
+        update_header_from_data
+        update_header_stats
+        reset_header_stats
+        print_header
+    
+    Attributes and methods relevant to subclasses:
+        _read_only
+        _check_writeable
+        _create_default_attributes
+        _close_data
+        _set_new_data
     
     """
     
     def __init__(self, **kwargs):
+        """Initialise a new MrcObject.
+        
+        This initialiser deliberately avoids creating any arrays and simply sets
+        the header, extended header and data attributes to None. This allows
+        subclasses to call super().__init__() at the start of their initialisers
+        and then set the attributes themselves, probably by reading from a file,
+        or by calling _create_default_attributes() for a new empty object.
+        
+        Note that this behaviour might change in future: this initialiser could
+        take optional arguments to allow the header and data to be provided
+        by the caller, or might create the standard empty defaults rather than
+        setting the attributes to None.
+        """
         super(MrcObject, self).__init__(**kwargs)
         
-        # Set empty default fields
+        # Set empty default attributes
         self._header = None
         self._extended_header = None
         self._data = None
         self._read_only = False
     
-    def check_writeable(self):
+    def _check_writeable(self):
         """Check that this MRC object is writeable.
         
         Raises:
@@ -48,8 +115,8 @@ class MrcObject(object):
         if self._read_only:
             raise ValueError('MRC object is read-only')
     
-    def _create_default_fields(self):
-        """Set valid default values for the header and data fields."""
+    def _create_default_attributes(self):
+        """Set valid default values for the header and data attributes."""
         self._create_default_header()
         self._extended_header = np.fromstring('', dtype='V1')
         self._set_new_data(np.fromstring('', dtype=np.int8))
@@ -112,7 +179,7 @@ class MrcObject(object):
     
     def set_extended_header(self, extended_header):
         """Replace the extended header."""
-        self.check_writeable()
+        self._check_writeable()
         self._extended_header = extended_header
         self.header.nsymbt = extended_header.nbytes
     
@@ -129,7 +196,7 @@ class MrcObject(object):
         statistics (min, max, mean and rms) stored in the header will also be
         updated.
         """
-        self.check_writeable()
+        self._check_writeable()
         
         # Check if the new data's dtype is valid without changes
         mode = utils.mode_from_dtype(data.dtype)
@@ -197,7 +264,7 @@ class MrcObject(object):
     
     @voxel_size.setter
     def voxel_size(self, voxel_size):
-        self.check_writeable()
+        self._check_writeable()
         try:
             # First, assume we have a single numeric value
             sizes = (float(voxel_size),) * 3
@@ -238,14 +305,14 @@ class MrcObject(object):
         return self.data.ndim == 4
     
     def set_image_stack(self):
-        self.check_writeable()
+        self._check_writeable()
         if self.data.ndim != 3:
             raise ValueError('Only 3D data can be changed into an image stack')
         self.header.ispg = IMAGE_STACK_SPACEGROUP
         self.header.mz = 1
     
     def set_volume(self):
-        self.check_writeable()
+        self._check_writeable()
         if self.data.ndim != 3:
             raise ValueError('Only 3D data can be changed into a volume')
         if self.is_image_stack():
@@ -275,7 +342,7 @@ class MrcObject(object):
         updating the other header information is always fast because only the
         type and shape of the data array need to be inspected.)
         """
-        self.check_writeable()
+        self._check_writeable()
         
         # Check the dtype is one we can handle and update mode to match
         header = self.header
@@ -324,7 +391,7 @@ class MrcObject(object):
         Note that this can take some time with large files, particularly with
         files larger than the currently available memory.
         """
-        self.check_writeable()
+        self._check_writeable()
         
         self.header.dmin = self.data.min()
         self.header.dmax = self.data.max()
@@ -336,7 +403,7 @@ class MrcObject(object):
     
     def reset_header_stats(self):
         """Set the header statistics to indicate that the values are unknown."""
-        self.check_writeable()
+        self._check_writeable()
         
         self.header.dmin = 0
         self.header.dmax = -1

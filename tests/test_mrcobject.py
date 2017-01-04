@@ -28,9 +28,9 @@ class MrcObjectTest(unittest.TestCase):
     def setUp(self):
         super(MrcObjectTest, self).setUp()
         self.mrcobject = MrcObject()
-        self.mrcobject._create_default_fields()
+        self.mrcobject._create_default_attributes()
     
-    def test_fields_are_empty_after_init(self):
+    def test_attributes_are_empty_after_init(self):
         mrcobject = MrcObject()
         assert mrcobject.header is None
         assert mrcobject.extended_header is None
@@ -38,10 +38,10 @@ class MrcObjectTest(unittest.TestCase):
     
     def test_check_writeable(self):
         assert not self.mrcobject._read_only
-        self.mrcobject.check_writeable() # should not throw
+        self.mrcobject._check_writeable() # should not throw
         self.mrcobject._read_only = True
         with self.assertRaisesRegexp(ValueError, 'MRC object is read-only'):
-            self.mrcobject.check_writeable()
+            self.mrcobject._check_writeable()
     
     def test_calling_setters_raises_exception_if_read_only(self):
         
@@ -88,15 +88,15 @@ class MrcObjectTest(unittest.TestCase):
         assert data.size == 0
         assert data.dtype == 'i1'
     
-    def test_setting_header_field_raises_exception(self):
+    def test_setting_header_attribute_raises_exception(self):
         with self.assertRaisesRegexp(AttributeError, "can't set attribute"):
             self.mrcobject.header = np.zeros(1)
     
-    def test_setting_extended_header_field_raises_exception(self):
+    def test_setting_extended_header_attribute_raises_exception(self):
         with self.assertRaisesRegexp(AttributeError, "can't set attribute"):
             self.mrcobject.extended_header = np.zeros(1)
     
-    def test_setting_data_field_raises_exception(self):
+    def test_setting_data_attribute_raises_exception(self):
         with self.assertRaisesRegexp(AttributeError, "can't set attribute"):
             self.mrcobject.data = np.zeros(1)
     

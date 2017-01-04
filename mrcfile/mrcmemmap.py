@@ -4,6 +4,11 @@
 mrcmemmap
 ---------
 
+Module which exports the MrcMemmap class.
+
+Classes:
+    MrcMemmap: An MrcFile subclass that uses a memory-mapped data array.
+
 """
 
 # Import Python 3 features for future-proofing
@@ -21,12 +26,26 @@ from .constants import IMAGE_STACK_SPACEGROUP
 
 class MrcMemmap(MrcFile):
     
-    """TODO: docs, try using our own mmap instead of numpy memmap class
+    """MrcFile subclass that uses a numpy memmap array for the data.
+    
+    Using a memmap means that the disk access is done lazily: the data array
+    will only be read or written in small chunks when required. To access the
+    contents of the array, use the array slice operator.
+    
+    Usage is the same as for MrcFile.
+    
+    Note that memmap arrays use a fairly small chunk size and so performance 
+    could be poor on file systems that are optimised for infrequent large I/O
+    operations.
+    
+    If required, it is possible to create a very large empty file by creating a
+    new MrcMemmap and then calling _open_memmap() to create the memmap array,
+    which can then be filled slice-by-slice. Be aware that the contents of a
+    new, empty memmap array might depend on your platform, so the data values
+    could be garbage (or zeros) until new values have been written to all slices
+    of the array.
     
     """
-    
-#     def __init__(self, name, mode='r', **kwargs):
-#         super(MrcMemmap, self).__init__(name, mode, **kwargs)
     
     def __repr__(self):
         return "MrcMemmap('{0}', mode='{1}')".format(self._iostream.name,
@@ -40,7 +59,7 @@ class MrcMemmap(MrcFile):
         very time consuming with large files, if the new extended header
         occupies a different number of bytes than the previous one.
         """
-        self.check_writeable()
+        self._check_writeable()
         if extended_header.nbytes != self._extended_header.nbytes:
             data_copy = self._data.copy()
             self._close_data()

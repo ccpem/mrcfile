@@ -4,7 +4,10 @@
 mrcinterpreter
 --------------
 
-TODO:
+Module which exports the MrcInterpreter class.
+
+Classes:
+    MrcInterpreter: An object which can interpret an I/O stream as MRC data.
 
 """
 
@@ -21,21 +24,45 @@ from .mrcobject import MrcObject
 from .constants import MAP_ID, IMAGE_STACK_SPACEGROUP
 
 
-# Constants
-MAP_ID_OFFSET_BYTES = 208  # location of 'MAP ' string in an MRC file
-
-
 class MrcInterpreter(MrcObject):
     
     """An object which interprets an I/O stream as MRC / CCP4 map data.
     
     The header and data are handled as numpy arrays - see MrcObject for details.
     
-    Subclasses or client code should handle opening and closing the I/O stream.
+    This class can be used directly, but it is mostly intended as a superclass
+    to provide common stream-handling functionality. This can be used by
+    subclasses which will handle opening and closing the stream.
+    
+    This class implements the __enter__() and __exit__() special methods which
+    allow it to be used by the Python context manager in a 'with' block. This
+    ensures that close() is called after the object is finished with.
+    
+    Methods:
+        flush
+        close
+    
+    Methods relevant to subclasses:
+        _read_stream
+        _read_data
     
     """
     
     def __init__(self, iostream=None, **kwargs):
+        """Initialise a new MrcInterpreter object.
+        
+        This initialiser deliberately avoids reading the stream, to allow
+        subclasses to call super().__init__() at the start of their initialisers
+        (probably before the stream has been opened). Subclasses should set the
+        _iostream attribute themselves and call _read_stream() when ready.
+        
+        To use the MrcInterpreter class directly, pass a stream when creating
+        the object and then call _read_stream() or _create_default_attributes().
+        
+        Args:
+            iostream: The I/O stream to use to read and write MRC data. The
+                default is None.
+        """
         super(MrcInterpreter, self).__init__(**kwargs)
         
         # Initialise iostream if given
@@ -68,11 +95,14 @@ class MrcInterpreter(MrcObject):
             pass
     
     def _read_stream(self):
-        """Read the header, extended header and data.
+        """Read the header, extended header and data from the I/O stream.
         
         Before calling this method, the stream should be open and positioned at
         the start of the header. This method will advance the stream to the end
         of the data block.
+        
+        Raises:
+            ValueError: The file is not a valid MRC file.
         """
         self._read_header()
         self._read_extended_header()
@@ -121,14 +151,14 @@ class MrcInterpreter(MrcObject):
         """Read the extended header from the stream.
         
         If there is no extended header, a zero-length array is assigned to the
-        extended_header field.
+        extended_header attribute.
         """
         ext_header_str = self._iostream.read(self.header.nsymbt)
         self._extended_header = np.fromstring(ext_header_str, dtype='V1')
         self._extended_header.flags.writeable = not self._read_only
     
     def _read_data(self):
-        """Read the data block from the stream.
+        """Read the data array from the stream.
         
         This method uses information from the header to set the data array's
         shape and dtype correctly.
@@ -157,8 +187,7 @@ class MrcInterpreter(MrcObject):
         self._data.flags.writeable = not self._read_only
     
     def close(self):
-        """Flush any changes to the stream and clear the data fields.
-        """
+        """Flush to the stream and clear the header and data attributes."""
         if self._header is not None and not self._iostream.closed:
             self.flush()
         self._header = None

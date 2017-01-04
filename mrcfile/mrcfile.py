@@ -4,7 +4,10 @@
 mrcfile
 -------
 
-TODO:
+Module which exports the MrcFile class.
+
+Classes:
+    MrcFile: An object which represents an MRC file.
 
 """
 
@@ -18,30 +21,50 @@ import os
 from .mrcinterpreter import MrcInterpreter
 
 
-def new(name, data=None, mrcmode=None, shape=None, overwrite=False):
-    """Create a new MRC file."""
-    mrc = MrcFile(name, mode='w+', overwrite=overwrite)
-    if data is not None:
-        mrc.set_data(data)
-    return mrc
-
-
-def read(name, mode='r'):
-    # TODO: make this do something!
-    pass
-
-
 class MrcFile(MrcInterpreter):
     
     """An object which represents an MRC / CCP4 map file.
     
-    The header and data of the file are presented as numpy arrays.
+    The header and data are handled as numpy arrays - see MrcObject for details.
     
-    Usage: TODO:
+    Usage:
+        To create a new MrcFile object, give a file name and optional mode. To
+        ensure the file is written to disk and closed correctly, it's best to
+        use the 'with' statement:
+        
+        >>> with MrcFile('tmp.mrc', 'w+') as mrc:
+        >>>     mrc.set_data(np.zeros((10, 10), dtype=np.int8))
+        
+        In mode 'r' or 'r+', the named file is opened from disk and read. In
+        mode 'w+' a new empty file is created and will be written to disk at the
+        end of the 'with' block (or when flush() or close() is called).
     
     """
     
     def __init__(self, name, mode='r', overwrite=False, **kwargs):
+        """Initialise a new MrcFile object.
+        
+        The given file name is opened in the given mode. For mode 'r' or 'r+'
+        the header, extended header and data are read from the file. For mode
+        'w+' a new file is created with a default header and empty extended
+        header and data arrays.
+        
+        Args:
+            name: The file name to open.
+            mode: The file mode to use. This should be one of the following:
+                'r' for read-only, 'r+' for read and write, or 'w+' for a new
+                empty file. The default is 'r'.
+            overwrite: Flag to force overwriting of an existing file if the mode
+                is 'w+'. If False and a file of the same name already exists,
+                the file is not overwritten and an exception is raised. The
+                default is False.
+        
+        Raises:
+            ValueError: The mode is not one of 'r', 'r+' or 'w+', or the file is
+                not a valid MRC file.
+            IOError: The mode is 'r' or 'r+' and the file does not exist, or the
+                mode is 'w+', the file already exists and overwrite is False.
+        """
         super(MrcFile, self).__init__(**kwargs)
         
         if mode not in ['r', 'r+', 'w+']:
@@ -58,10 +81,9 @@ class MrcFile(MrcInterpreter):
         
         try:
             if 'w' in mode:
-                self._create_default_fields()
+                self._create_default_attributes()
             else:
                 self._read_stream()
-                # TODO: add warning if file is too long?
         except Exception:
             self._close_file()
             raise

@@ -12,6 +12,7 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import unittest
 
+from mrcfile.constants import MAP_ID_OFFSET_BYTES
 from mrcfile.mrcinterpreter import MrcInterpreter
 from tests.test_mrcobject import MrcObjectTest
 
@@ -30,12 +31,12 @@ class MrcInterpreterTest(MrcObjectTest):
         
         # Set up parameters so MrcObject tests run on the MrcInterpreter class
         self.mrcobject = MrcInterpreter()
-        self.mrcobject._create_default_fields()
+        self.mrcobject._create_default_attributes()
     
     def test_incorrect_map_id(self):
         stream = io.BytesIO()
         stream.write(bytearray(1024))
-        stream.seek(208)
+        stream.seek(MAP_ID_OFFSET_BYTES)
         stream.write(b'map ')
         stream.seek(0)
         mrcinterpreter = MrcInterpreter(iostream=stream)
@@ -45,7 +46,7 @@ class MrcInterpreterTest(MrcObjectTest):
     def test_incorrect_machine_stamp(self):
         stream = io.BytesIO()
         stream.write(bytearray(1024))
-        stream.seek(208)
+        stream.seek(MAP_ID_OFFSET_BYTES)
         stream.write(b'MAP ')
         stream.seek(0)
         mrcinterpreter = MrcInterpreter(iostream=stream)
