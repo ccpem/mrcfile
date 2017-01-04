@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
 
 
 import os
+import warnings
 
 from .mrcinterpreter import MrcInterpreter
 
@@ -100,7 +101,13 @@ class MrcFile(MrcInterpreter):
         """Override _read_stream() to move back to start of file first."""
         self._iostream.seek(0)
         super(MrcFile, self)._read_stream()
-        # TODO: add warning if file is larger than expected?
+        
+        # Check if the file is the expected size.
+        extra_bytes = len(self._iostream.read())
+        if extra_bytes > 0:
+            msg = ("MRC file is {0} bytes larger than expected"
+                   .format(extra_bytes))
+            warnings.warn(msg, RuntimeWarning)
     
     def close(self):
         """Flush any changes to disk and close the file.

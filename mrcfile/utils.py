@@ -24,6 +24,52 @@ import sys
 
 import numpy as np
 
+from .constants import IMAGE_STACK_SPACEGROUP
+
+
+def data_dtype_from_header(header):
+    """Return the data dtype indicated by the given header.
+    
+    This method calls dtype_from_mode() to get the basic dtype, and then makes
+    sure that the byte order of the new dtype matches the byte order of the
+    header's mode field.
+    
+    Args:
+        header: An MRC header as a numpy record array.
+    
+    Returns:
+        The numpy dtype object for the data array corresponding to the given
+        header.
+    """
+    mode = header.mode
+    return dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
+
+
+def data_shape_from_header(header):
+    """Return the data shape indicated by the given header.
+    
+    Args:
+        header: An MRC header as a numpy record array.
+    
+    Returns:
+        The shape tuple for the data array corresponding to the given header.
+    """
+    nx = header.nx
+    ny = header.ny
+    nz = header.nz
+    mz = header.mz
+    ispg = header.ispg
+    
+    if spacegroup_is_volume_stack(ispg):
+        shape = (nz // mz, mz, ny, nx)
+    elif ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
+        # Use a 2D array for a single image
+        shape = (ny, nx)
+    else:
+        shape = (nz, ny, nx)
+    
+    return shape
+
 
 _dtype_to_mode = dict(f2=2, f4=2, i1=0, i2=1, u1=6, u2=6, c8=4)
 

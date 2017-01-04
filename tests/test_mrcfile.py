@@ -208,6 +208,28 @@ class MrcFileTest(MrcObjectTest):
         assert os.path.exists(self.temp_mrc_name)
         self.newmrc(self.temp_mrc_name, mode='w+', overwrite=True).close()
     
+    def test_warning_issued_if_file_is_too_large(self):
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
+            # Call internal _set_new_data() method to add an extra row of data
+            # without updating the header
+            mrc._set_new_data(np.arange(16, dtype=np.int16).reshape(4, 4))
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.newmrc(self.temp_mrc_name)
+            assert len(w) == 1
+            assert issubclass(w[0].category, RuntimeWarning)
+            assert "file is 8 bytes larger than expected" in str(w[0].message)
+    
+    def test_exception_raised_if_file_is_too_small(self):
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
+            assert mrc.header.mz == 2
+            mrc.header.mz = mrc.header.nz = 3
+        expected_error_msg = "Expected 72 bytes but could only read 48"
+        with self.assertRaisesRegexp(ValueError, expected_error_msg):
+            self.newmrc(self.temp_mrc_name)
+    
     def test_can_edit_header_in_read_write_mode(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))

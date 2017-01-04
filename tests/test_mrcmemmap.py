@@ -43,6 +43,16 @@ class MrcMemmapTest(MrcFileTest):
         with MrcMemmap(self.example_mrc_name) as mrc:
             assert repr(mrc) == "MrcMemmap('{0}', mode='r')".format(self.example_mrc_name)
     
+    def test_exception_raised_if_file_is_too_small(self):
+        """Override test to change expected error message."""
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
+            assert mrc.header.mz == 2
+            mrc.header.mz = mrc.header.nz = 3
+        expected_error_msg = "mmap length is greater than file size"
+        with self.assertRaisesRegexp(ValueError, expected_error_msg):
+            self.newmrc(self.temp_mrc_name)
+    
     def test_data_array_cannot_be_changed_after_closing_file(self):
         mrc = self.newmrc(self.temp_mrc_name, mode='w+')
         mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))

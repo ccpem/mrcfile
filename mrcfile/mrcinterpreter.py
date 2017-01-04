@@ -15,13 +15,12 @@ Classes:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-
 import numpy as np
 
 from . import utils
 from .dtypes import HEADER_DTYPE
 from .mrcobject import MrcObject
-from .constants import MAP_ID, IMAGE_STACK_SPACEGROUP
+from .constants import MAP_ID
 
 
 class MrcInterpreter(MrcObject):
@@ -161,29 +160,22 @@ class MrcInterpreter(MrcObject):
         """Read the data array from the stream.
         
         This method uses information from the header to set the data array's
-        shape and dtype correctly.
+        shape and dtype.
         """
-        mode = self.header.mode
-        dtype = utils.dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
+        dtype = utils.data_dtype_from_header(self.header)
+        shape = utils.data_shape_from_header(self.header)
         
-        # convert data dimensions from header into array shape
-        nx = self.header.nx
-        ny = self.header.ny
-        nz = self.header.nz
-        mz = self.header.mz
-        ispg = self.header.ispg
+        nbytes = dtype.itemsize
+        for axis_length in shape:
+            nbytes *= axis_length
         
-        if utils.spacegroup_is_volume_stack(ispg):
-            shape = (nz // mz, mz, ny, nx)
-        elif ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
-            # Use a 2D array for a single image
-            shape = (ny, nx)
-        else:
-            shape = (nz, ny, nx)
+        data_bytes = self._iostream.read(nbytes)
         
-        nbytes = nx * ny * nz * dtype.itemsize
-        data_str = self._iostream.read(nbytes)
-        self._data = np.fromstring(data_str, dtype=dtype).reshape(shape)
+        if len(data_bytes) < nbytes:
+            raise ValueError("Expected {0} bytes but could only read {1}"
+                             .format(nbytes, len(data_bytes)))
+        
+        self._data = np.fromstring(data_bytes, dtype=dtype).reshape(shape)
         self._data.flags.writeable = not self._read_only
     
     def close(self):

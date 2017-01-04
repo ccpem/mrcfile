@@ -157,6 +157,12 @@ class MrcObjectTest(unittest.TestCase):
         assert self.mrcobject.header.nz == 2
         assert self.mrcobject.header.mz == 1
     
+    def test_can_call_set_volume_when_already_a_volume(self):
+        self.mrcobject.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))
+        assert self.mrcobject.is_volume()
+        self.mrcobject.set_volume()
+        assert self.mrcobject.is_volume()
+    
     def test_switching_image_stack_to_volume(self):
         self.mrcobject.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))
         assert self.mrcobject.is_volume()
@@ -166,6 +172,13 @@ class MrcObjectTest(unittest.TestCase):
         assert self.mrcobject.is_volume()
         assert self.mrcobject.header.ispg == constants.VOLUME_SPACEGROUP
         assert self.mrcobject.header.nz == self.mrcobject.header.mz == 2
+    
+    def test_can_call_set_image_stack_when_already_an_image_stack(self):
+        self.mrcobject.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))
+        self.mrcobject.set_image_stack()
+        assert self.mrcobject.is_image_stack()
+        self.mrcobject.set_image_stack()
+        assert self.mrcobject.is_image_stack()
     
     def test_image_stack_with_new_3d_data_is_still_image_stack(self):
         self.mrcobject.set_data(np.arange(12, dtype=np.int16).reshape(2, 2, 3))

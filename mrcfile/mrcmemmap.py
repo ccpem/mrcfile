@@ -21,7 +21,6 @@ import numpy as np
 
 import mrcfile.utils as utils
 from .mrcfile import MrcFile
-from .constants import IMAGE_STACK_SPACEGROUP
 
 
 class MrcMemmap(MrcFile):
@@ -41,9 +40,8 @@ class MrcMemmap(MrcFile):
     If required, it is possible to create a very large empty file by creating a
     new MrcMemmap and then calling _open_memmap() to create the memmap array,
     which can then be filled slice-by-slice. Be aware that the contents of a
-    new, empty memmap array might depend on your platform, so the data values
-    could be garbage (or zeros) until new values have been written to all slices
-    of the array.
+    new, empty memmap array depend on your platform: the data values could be
+    garbage or zeros.
     
     """
     
@@ -84,8 +82,8 @@ class MrcMemmap(MrcFile):
             self._data.flush()
             self._iostream.flush()
             
-            # Seek to end so stream is left in the same position as normal
-            self._iostream.seek(0, os.SEEK_END)
+            # Seek to end of data block so stream is left in the same position as normal
+            self._iostream.seek(self._data.nbytes, os.SEEK_CUR)
     
     def _read_data(self):
         """Read the data block from the file.
@@ -94,24 +92,8 @@ class MrcMemmap(MrcFile):
         (block start position, endian-ness, file mode, array shape) and then
         opens the data as a numpy memmap array.
         """
-        
-        mode = self.header.mode
-        dtype = utils.dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
-        
-        # convert data dimensions from header into array shape
-        nx = self.header.nx
-        ny = self.header.ny
-        nz = self.header.nz
-        mz = self.header.mz
-        ispg = self.header.ispg
-        
-        if utils.spacegroup_is_volume_stack(ispg):
-            shape = (nz // mz, mz, ny, nx)
-        elif ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
-            # Use a 2D array for a single image
-            shape = (ny, nx)
-        else:
-            shape = (nz, ny, nx)
+        dtype = utils.data_dtype_from_header(self.header)
+        shape = utils.data_shape_from_header(self.header)
         
         self._open_memmap(dtype, shape)
     
@@ -126,6 +108,11 @@ class MrcMemmap(MrcFile):
                                mode=acc_mode,
                                offset=header_nbytes,
                                shape=shape)
+        
+        # memmap construction seeks to the end of the file. Move back to the
+        # end of the data block so the check on file size in
+        # MrcFile._read_stream() can work.
+        self._iostream.seek(header_nbytes + self._data.nbytes, os.SEEK_SET)
     
     def _close_data(self):
         """Delete the existing memmap array, if it exists.
