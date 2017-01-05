@@ -16,10 +16,11 @@ import unittest
 import numpy as np
 
 import mrcfile.utils as utils
+from .helpers import AssertRaisesRegexMixin
 from mrcfile.dtypes import HEADER_DTYPE
 
 
-class UtilsTest(unittest.TestCase):
+class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
     
     """Unit tests for mrcfile.utils"""
     
@@ -159,7 +160,7 @@ class UtilsTest(unittest.TestCase):
             assert machst == utils.machine_stamp_from_byte_order('>')
     
     def test_unknown_byte_order_raises_exception(self):
-        with self.assertRaisesRegexp(ValueError, "Unrecognised byte order indicator"):
+        with self.assertRaisesRegex(ValueError, "Unrecognised byte order indicator"):
             utils.machine_stamp_from_byte_order('|')
     
     def test_spacegroup_is_volume_stack(self):

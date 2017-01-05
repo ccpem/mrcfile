@@ -16,12 +16,13 @@ from datetime import datetime
 
 import numpy as np
 
+from .helpers import AssertRaisesRegexMixin
 from mrcfile import constants
 from mrcfile.mrcobject import MrcObject
 from mrcfile import utils
 
 
-class MrcObjectTest(unittest.TestCase):
+class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     
     """Unit tests for MrcObject class"""
     
@@ -40,7 +41,7 @@ class MrcObjectTest(unittest.TestCase):
         assert not self.mrcobject._read_only
         self.mrcobject._check_writeable() # should not throw
         self.mrcobject._read_only = True
-        with self.assertRaisesRegexp(ValueError, 'MRC object is read-only'):
+        with self.assertRaisesRegex(ValueError, 'MRC object is read-only'):
             self.mrcobject._check_writeable()
     
     def test_calling_setters_raises_exception_if_read_only(self):
@@ -48,7 +49,7 @@ class MrcObjectTest(unittest.TestCase):
         self.mrcobject._read_only = True
         
         def assert_read_only(setter, *args):
-            with self.assertRaisesRegexp(ValueError, 'MRC object is read-only'):
+            with self.assertRaisesRegex(ValueError, 'MRC object is read-only'):
                 setter(*args)
         
         assert_read_only(self.mrcobject.set_extended_header, None)
@@ -89,15 +90,15 @@ class MrcObjectTest(unittest.TestCase):
         assert data.dtype == 'i1'
     
     def test_setting_header_attribute_raises_exception(self):
-        with self.assertRaisesRegexp(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
             self.mrcobject.header = np.zeros(1)
     
     def test_setting_extended_header_attribute_raises_exception(self):
-        with self.assertRaisesRegexp(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
             self.mrcobject.extended_header = np.zeros(1)
     
     def test_setting_data_attribute_raises_exception(self):
-        with self.assertRaisesRegexp(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
             self.mrcobject.data = np.zeros(1)
     
     def test_setting_extended_header(self):
@@ -222,7 +223,7 @@ class MrcObjectTest(unittest.TestCase):
                                     .reshape(1, 1, 1, 1, 2))
     
     def assert_dtype_raises_exception(self, data):
-        with self.assertRaisesRegexp(ValueError, 'dtype'):
+        with self.assertRaisesRegex(ValueError, 'dtype'):
             self.mrcobject.set_data(data)
     
     def test_complex256_dtype_raises_exception(self):

@@ -12,9 +12,9 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import unittest
 
+from .test_mrcobject import MrcObjectTest
 from mrcfile.constants import MAP_ID_OFFSET_BYTES
 from mrcfile.mrcinterpreter import MrcInterpreter
-from tests.test_mrcobject import MrcObjectTest
 
 
 class MrcInterpreterTest(MrcObjectTest):
@@ -40,7 +40,7 @@ class MrcInterpreterTest(MrcObjectTest):
         stream.write(b'map ')
         stream.seek(0)
         mrcinterpreter = MrcInterpreter(iostream=stream)
-        with self.assertRaisesRegexp(ValueError, "Map ID string not found"):
+        with self.assertRaisesRegex(ValueError, "Map ID string not found"):
             mrcinterpreter._read_stream()
     
     def test_incorrect_machine_stamp(self):
@@ -50,7 +50,7 @@ class MrcInterpreterTest(MrcObjectTest):
         stream.write(b'MAP ')
         stream.seek(0)
         mrcinterpreter = MrcInterpreter(iostream=stream)
-        with self.assertRaisesRegexp(ValueError, "Unrecognised machine stamp: "
+        with self.assertRaisesRegex(ValueError, "Unrecognised machine stamp: "
                                                  "0x00 0x00 0x00 0x00"):
             mrcinterpreter._read_stream()
 

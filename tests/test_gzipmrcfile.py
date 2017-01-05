@@ -12,8 +12,8 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import unittest
 
+from .test_mrcfile import MrcFileTest
 from mrcfile.gzipmrcfile import GzipMrcFile
-from tests.test_mrcfile import MrcFileTest
 
 
 class GzipMrcFileTest(MrcFileTest):
@@ -43,7 +43,7 @@ class GzipMrcFileTest(MrcFileTest):
     def test_non_mrc_file_is_rejected(self):
         """Override test to change expected error message."""
         name = os.path.join(self.test_data, 'emd_3197.png')
-        with (self.assertRaisesRegexp(IOError, 'Not a gzipped file')):
+        with (self.assertRaisesRegex(IOError, 'Not a gzipped file')):
             GzipMrcFile(name)
     
     def test_repr(self):

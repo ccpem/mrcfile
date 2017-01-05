@@ -14,8 +14,8 @@ import unittest
 
 import numpy as np
 
+from .test_mrcfile import MrcFileTest
 from mrcfile.mrcmemmap import MrcMemmap
-from tests.test_mrcfile import MrcFileTest
 
 
 class MrcMemmapTest(MrcFileTest):
@@ -50,7 +50,7 @@ class MrcMemmapTest(MrcFileTest):
             assert mrc.header.mz == 2
             mrc.header.mz = mrc.header.nz = 3
         expected_error_msg = "mmap length is greater than file size"
-        with self.assertRaisesRegexp(ValueError, expected_error_msg):
+        with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
     
     def test_data_array_cannot_be_changed_after_closing_file(self):

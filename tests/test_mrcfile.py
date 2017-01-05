@@ -18,11 +18,11 @@ import warnings
 
 import numpy as np
 
+from . import helpers
+from .test_mrcobject import MrcObjectTest
 from mrcfile import MrcFile
 from mrcfile.mrcobject import (IMAGE_STACK_SPACEGROUP, VOLUME_SPACEGROUP,
                                VOLUME_STACK_SPACEGROUP)
-from tests import test_data
-from tests.test_mrcobject import MrcObjectTest
 
 
 # Doctest stuff commented out for now - would be nice to get it working!
@@ -57,7 +57,7 @@ class MrcFileTest(MrcObjectTest):
         super(MrcFileTest, self).setUp()
         
         # Set up test files and names to be used
-        self.test_data = test_data.get_test_data_path()
+        self.test_data = helpers.get_test_data_path()
         self.test_output = tempfile.mkdtemp()
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
@@ -92,7 +92,7 @@ class MrcFileTest(MrcObjectTest):
     
     def test_non_mrc_file_is_rejected(self):
         name = os.path.join(self.test_data, 'emd_3197.png')
-        with (self.assertRaisesRegexp(ValueError, 'Map ID string not found')):
+        with (self.assertRaisesRegex(ValueError, 'Map ID string not found')):
             self.newmrc(name)
     
     def test_repr(self):
@@ -148,13 +148,13 @@ class MrcFileTest(MrcObjectTest):
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         with self.newmrc(self.ext_header_mrc_name, mode='r') as mrc:
             assert not mrc.extended_header.flags.writeable
-            with self.assertRaisesRegexp(ValueError, 'read-only'):
+            with self.assertRaisesRegex(ValueError, 'read-only'):
                 mrc.extended_header.fill(b'a')
     
     def test_cannot_set_extended_header_in_read_only_mode(self):
         with self.newmrc(self.example_mrc_name, mode='r') as mrc:
             assert not mrc.extended_header.flags.writeable
-            with self.assertRaisesRegexp(ValueError, 'read-only'):
+            with self.assertRaisesRegex(ValueError, 'read-only'):
                 mrc.set_extended_header(np.zeros(5))
     
     def test_voxel_size_is_read_correctly(self):
@@ -227,7 +227,7 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.header.mz == 2
             mrc.header.mz = mrc.header.nz = 3
         expected_error_msg = "Expected 72 bytes but could only read 48"
-        with self.assertRaisesRegexp(ValueError, expected_error_msg):
+        with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
     
     def test_can_edit_header_in_read_write_mode(self):
@@ -295,7 +295,7 @@ class MrcFileTest(MrcObjectTest):
         with self.newmrc(self.temp_mrc_name, mode='r') as mrc:
             assert mrc.data[1,1] == 5
             assert not mrc.data.flags.writeable
-            with self.assertRaisesRegexp(ValueError, 'read-only'):
+            with self.assertRaisesRegex(ValueError, 'read-only'):
                 mrc.data[1,1] = 0
     
     def test_writing_image_mode_0(self):
