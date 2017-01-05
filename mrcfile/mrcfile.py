@@ -29,7 +29,7 @@ class MrcFile(MrcInterpreter):
     The header and data are handled as numpy arrays - see MrcObject for details.
     
     Usage:
-        To create a new MrcFile object, give a file name and optional mode. To
+        To create a new MrcFile object, pass a file name and optional mode. To
         ensure the file is written to disk and closed correctly, it's best to
         use the 'with' statement:
         

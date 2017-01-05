@@ -117,6 +117,26 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert self.mrcobject.extended_header.size == 0
         assert self.mrcobject.header.nsymbt == 0
     
+    def test_replacing_extended_header_different_size(self):
+        ext = np.array('example extended header', dtype='S')
+        self.mrcobject.set_extended_header(ext)
+        assert self.mrcobject.extended_header is ext
+        assert self.mrcobject.header.nsymbt == ext.nbytes
+        ext2 = np.array('second example extended header', dtype='S')
+        self.mrcobject.set_extended_header(ext2)
+        assert self.mrcobject.extended_header is ext2
+        assert self.mrcobject.header.nsymbt == ext2.nbytes
+    
+    def test_replacing_extended_header_same_size(self):
+        ext = np.array('example extended header', dtype='S')
+        self.mrcobject.set_extended_header(ext)
+        assert self.mrcobject.extended_header is ext
+        assert self.mrcobject.header.nsymbt == ext.nbytes
+        ext2 = np.array('EXAMPLE EXTENDED HEADER', dtype='S')
+        self.mrcobject.set_extended_header(ext2)
+        assert self.mrcobject.extended_header is ext2
+        assert self.mrcobject.header.nsymbt == ext2.nbytes
+    
     def test_header_is_correct_for_2d_data(self):
         x, y = 3, 2
         data = np.arange(y * x, dtype=np.int16).reshape(y, x)
@@ -200,6 +220,19 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert header.ny == header.my == y
         assert header.nz == z * nvol
         assert header.mz == z
+    
+    def test_volume_stack_spacegroup_is_preserved_for_4d_data(self):
+        x, y, z, nvol = 3, 4, 5, 6
+        vstack = (np.arange(nvol * z * y * x, dtype=np.int16)
+                  .reshape(nvol, z, y, x))
+        self.mrcobject.set_data(vstack)
+        spacegroup = 602
+        self.mrcobject.header.ispg = spacegroup
+        assert self.mrcobject.is_volume_stack()
+        
+        self.mrcobject.set_data(vstack.copy().reshape(x, z, y, nvol))
+        assert self.mrcobject.is_volume_stack()
+        assert self.mrcobject.header.ispg == spacegroup
     
     def test_switching_4d_data_to_image_stack_raises_exception(self):
         self.mrcobject.set_data(np.arange(24, dtype=np.int16)

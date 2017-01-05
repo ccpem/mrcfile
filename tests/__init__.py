@@ -9,20 +9,22 @@ from __future__ import (absolute_import, division, print_function,
 
 import unittest
 
-from .test_utils import UtilsTest
+from .test_gzipmrcfile import GzipMrcFileTest
+from .test_load_functions import LoadFunctionTest
 from .test_mrcobject import MrcObjectTest
 from .test_mrcinterpreter import MrcInterpreterTest
 from .test_mrcfile import MrcFileTest
-from .test_gzipmrcfile import GzipMrcFileTest
 from .test_mrcmemmap import MrcMemmapTest
+from .test_utils import UtilsTest
 
 test_classes = [
-    UtilsTest,
+    GzipMrcFileTest,
+    LoadFunctionTest,
     MrcObjectTest,
     MrcInterpreterTest,
     MrcFileTest,
-    GzipMrcFileTest,
-    MrcMemmapTest
+    MrcMemmapTest,
+    UtilsTest
 ]
 
 def load_tests(loader, tests, pattern):
