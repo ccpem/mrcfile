@@ -6,6 +6,9 @@
 /dist/
 /*.egg-info
 
+# Sphinx output
+/docs/_build
+
 # Test artifacts
 /.tox/
 .coverage
@@ -13,3 +16,4 @@
 # IDE files
 .project
 .pydevproject
+.settings/

@@ -7,7 +7,7 @@ mrcfile
 
 A pure Python implementation of the MRC2014 file format.
 
-For a full introduction and documentation, see https://github.com/ccpem/mrcfile TODO: readthedocs link instead!
+For a full introduction and documentation, see http://mrcfile.readthedocs.io/
 
 Basic usage:
     Examples assume that this package has been imported as `mrcfile` and numpy
