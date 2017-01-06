@@ -6,5 +6,6 @@ mrcfile.py
    :caption: Table of Contents:
    
    mrcfile readme <readme_link>
-   Package documentation <source/mrcfile>
+   MrcFile class <mrcfile_full>
+   Full source documentation <source/mrcfile>
 

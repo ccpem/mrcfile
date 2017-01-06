@@ -1,6 +1,11 @@
 mrcfile package
 ===============
 
+.. automodule:: mrcfile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -69,10 +74,3 @@ mrcfile.utils module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: mrcfile
-    :members:
-    :undoc-members:
-    :show-inheritance:

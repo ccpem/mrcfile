@@ -243,8 +243,6 @@ class MrcObject(object):
         You may give a single number, a 3-tuple (x, y ,z) or a modified version
         of the voxel_size array. The following examples are all equivalent:
         
-        >>> mrc
-        
         >>> mrc.voxel_size = 1.0
         
         >>> mrc.voxel_size = (1.0, 1.0, 1.0)
