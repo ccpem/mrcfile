@@ -1,9 +1,10 @@
-Table of Contents
-=================
+mrcfile.py
+==========
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Table of Contents:
    
-   source/modules
+   mrcfile readme <readme_link>
+   Package documentation <source/mrcfile>
 

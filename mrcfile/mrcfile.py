@@ -26,7 +26,8 @@ class MrcFile(MrcInterpreter):
     
     """An object which represents an MRC / CCP4 map file.
     
-    The header and data are handled as numpy arrays - see MrcObject for details.
+    The header and data are handled as numpy arrays - see :py:class:`MrcObject`
+    for details.
     
     Usage:
         To create a new MrcFile object, pass a file name and optional mode. To
