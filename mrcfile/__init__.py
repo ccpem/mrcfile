@@ -12,10 +12,10 @@ For a full introduction and documentation, see http://mrcfile.readthedocs.io/
 Functions
 ---------
 
-* new: Create a new MRC file.
-* open: Open an MRC file.
-* mmap: Open a memory-mapped MRC file (fast for large files).
-* validate: Validate an MRC file (not implemented yet!)
+* :func:`new`: Create a new MRC file.
+* :func:`open`: Open an MRC file.
+* :func:`mmap`: Open a memory-mapped MRC file (fast for large files).
+* :func:`validate`: Validate an MRC file (not implemented yet!)
 
 Basic usage
 -----------
