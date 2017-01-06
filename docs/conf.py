@@ -79,7 +79,8 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 
-# -- Options for Napoleon extension ---------------------------------------
+# -- Options for extensions -----------------------------------------------
+autodoc_member_order = 'bysource'
 napoleon_include_init_with_doc = True
 
 
