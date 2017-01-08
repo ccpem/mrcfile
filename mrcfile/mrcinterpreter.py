@@ -4,10 +4,11 @@
 mrcinterpreter
 --------------
 
-Module which exports the MrcInterpreter class.
+Module which exports the :class:`MrcInterpreter` class.
 
 Classes:
-    MrcInterpreter: An object which can interpret an I/O stream as MRC data.
+    :class:`MrcInterpreter`: An object which can interpret an I/O stream as MRC
+        data.
 
 """
 
@@ -27,7 +28,8 @@ class MrcInterpreter(MrcObject):
     
     """An object which interprets an I/O stream as MRC / CCP4 map data.
     
-    The header and data are handled as numpy arrays - see MrcObject for details.
+    The header and data are handled as numpy arrays - see
+    :class:`~mrcfile.mrcobject.MrcObject` for details.
     
     This class can be used directly, but it is mostly intended as a superclass
     to provide common stream-handling functionality. This can be used by
@@ -38,12 +40,14 @@ class MrcInterpreter(MrcObject):
     ensures that close() is called after the object is finished with.
     
     Methods:
-        flush
-        close
+    
+    * :meth:`flush`
+    * :meth:`close`
     
     Methods relevant to subclasses:
-        _read_stream
-        _read_data
+    
+    * :meth:`_read_stream`
+    * :meth:`_read_data`
     
     """
     

@@ -4,10 +4,11 @@
 mrcobject
 ---------
 
-Module which exports the MrcObject class.
+Module which exports the :class:`MrcObject` class.
 
 Classes:
-    MrcObject: An object representing image or volume data in the MRC format.
+    :class:`MrcObject`: An object representing image or volume data in the MRC
+        format.
 
 """
 
@@ -56,36 +57,39 @@ class MrcObject(object):
     to set the header fields to indicate that the statistics are undetermined.
     
     Attributes:
-        header
-        extended_header
-        data
-        voxel_size
+    
+    * :attr:`header`
+    * :attr:`extended_header`
+    * :attr:`data`
+    * :attr:`voxel_size`
     
     Methods:
-        set_extended_header
-        set_data
-        is_single_image
-        is_image_stack
-        is_volume
-        is_volume_stack
-        set_image_stack
-        set_volume
-        update_header_from_data
-        update_header_stats
-        reset_header_stats
-        print_header
+    
+    * :meth:`set_extended_header`
+    * :meth:`set_data`
+    * :meth:`is_single_image`
+    * :meth:`is_image_stack`
+    * :meth:`is_volume`
+    * :meth:`is_volume_stack`
+    * :meth:`set_image_stack`
+    * :meth:`set_volume`
+    * :meth:`update_header_from_data`
+    * :meth:`update_header_stats`
+    * :meth:`reset_header_stats`
+    * :meth:`print_header`
     
     Attributes and methods relevant to subclasses:
-        _read_only
-        _check_writeable
-        _create_default_attributes
-        _close_data
-        _set_new_data
+    
+    * :attr:`_read_only`
+    * :meth:`_check_writeable`
+    * :meth:`_create_default_attributes`
+    * :meth:`_close_data`
+    * :meth:`_set_new_data`
     
     """
     
     def __init__(self, **kwargs):
-        """Initialise a new MrcObject.
+        """Initialise a new :class:`MrcObject`.
         
         This initialiser deliberately avoids creating any arrays and simply sets
         the header, extended header and data attributes to None. This allows
@@ -124,9 +128,10 @@ class MrcObject(object):
     def _create_default_header(self):
         """Create a default MRC file header.
         
-        The header is initialised with standard file type and version information,
-        default values for some essential fields, and zeros elsewhere. The first
-        text label is also set to indicate the file was created by this module.
+        The header is initialised with standard file type and version
+        information, default values for some essential fields, and zeros
+        elsewhere. The first text label is also set to indicate the file was
+        created by this module.
         
         Returns:
             The new header, as a structured numpy record array.
@@ -145,8 +150,9 @@ class MrcObject(object):
         header.cellb.alpha = default_cell_angle
         header.cellb.beta = default_cell_angle
         header.cellb.gamma = default_cell_angle
-        # (this can also be achieved by assigning a 3-tuple to header.cellb directly
-        # but using the sub-fields individually is easier to read and understand)
+        # (this can also be achieved by assigning a 3-tuple to header.cellb
+        # directly but using the sub-fields individually is easier to read and
+        # understand)
         
         # Standard axes: columns = X, rows = Y, sections = Z
         header.mapc = 1
@@ -154,7 +160,8 @@ class MrcObject(object):
         header.maps = 3
         
         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        header.label[0] = '{0:40s}{1:>40s}'.format('Created by mrcfile.py', time)
+        header.label[0] = '{0:40s}{1:>40s}'.format('Created by mrcfile.py',
+                                                   time)
         header.nlabl = 1
         
         self.reset_header_stats()

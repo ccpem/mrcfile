@@ -20,8 +20,8 @@ Functions
 Basic usage
 -----------
 
-Examples assume that this package has been imported as `mrcfile` and numpy
-has been imported as `np`.
+Examples assume that this package has been imported as ``mrcfile`` and numpy
+has been imported as ``np``.
 
 To open an MRC file and read a slice of data:
 
@@ -70,8 +70,7 @@ import io
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
-
-__version__ = '0.0.2'
+from .version import __version__
 
 
 def new(name, data=None, gzip=False, overwrite=False):
@@ -79,17 +78,18 @@ def new(name, data=None, gzip=False, overwrite=False):
     
     Args:
         name: The file name to use.
-        data: Sata to put in the file, as a numpy array. The default is None, to
+        data: Data to put in the file, as a numpy array. The default is None, to
             create an empty file.
         gzip: If True, the new file will be compressed with gzip. It's good
             practice to name such files with a '.gz' extension but this is not
             enforced.
         overwrite: Flag to force overwriting of an existing file. If False and a
             file of the same name already exists, the file is not overwritten
-            and an exception is raised. The default is False.
+            and an exception is raised.
     
     Returns:
-        An MrcFile object (or a GzipMrcFile object if gzip=True).
+        An :class:`~mrcfile.mrcfile.MrcFile` object (or a
+        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if gzip=True).
     """
     NewMrc = GzipMrcFile if gzip else MrcFile
     mrc = NewMrc(name, mode='w+', overwrite=overwrite)
@@ -101,7 +101,7 @@ def new(name, data=None, gzip=False, overwrite=False):
 def open(name, mode='r'):  # @ReservedAssignment
     """Open an MRC file.
     
-    This function will open normal and gzip-compressed MRC files.
+    This function opens both normal and gzip-compressed MRC files.
     
     It is possible to use this function to create new MRC files (using mode
     'w+') but the 'new' function is more flexible.
@@ -113,7 +113,9 @@ def open(name, mode='r'):  # @ReservedAssignment
             The default is 'r'.
     
     Returns:
-        An MrcFile object (or a GzipMrcFile object if the file is gzipped).
+        An :class:`~mrcfile.mrcfile.MrcFile` object (or a
+        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if the file is
+        gzipped).
     """
     try:
         mrc = MrcFile(name, mode=mode)
@@ -132,17 +134,19 @@ def mmap(name, mode='r'):
     
     This can allow much faster opening of large files, because the data is only
     accessed on disk when a slice is read or written from the data array. See
-    the MrcMemmap class documentation for more information.
+    the :class:`~mrcfile.mrcmemmap.MrcMemmap` class documentation for more
+    information.
     
-    The MrcMemmap object returned by this function can be used in exactly the
-    same way as a normal MrcFile object.
+    The :class:`~mrcfile.mrcmemmap.MrcMemmap` object returned by this function
+    can be used in exactly the same way as a normal
+    :class:`~mrcfile.mrcfile.MrcFile` object.
     
     Args:
         name: The file name to open.
         mode: The file mode (one of 'r', 'r+' or 'w+').
     
     Returns:
-        An MrcMemmap object.
+        An :class:`~mrcfile.mrcmemmap.MrcMemmap` object.
     """
     return MrcMemmap(name, mode=mode)
 

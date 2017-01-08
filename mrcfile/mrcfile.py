@@ -4,10 +4,10 @@
 mrcfile
 -------
 
-Module which exports the MrcFile class.
+Module which exports the :class:`MrcFile` class.
 
 Classes:
-    MrcFile: An object which represents an MRC file.
+    :class:`MrcFile`: An object which represents an MRC file.
 
 """
 
@@ -44,7 +44,7 @@ class MrcFile(MrcInterpreter):
     """
     
     def __init__(self, name, mode='r', overwrite=False, **kwargs):
-        """Initialise a new MrcFile object.
+        """Initialise a new :class:`MrcFile` object.
         
         The given file name is opened in the given mode. For mode 'r' or 'r+'
         the header, extended header and data are read from the file. For mode

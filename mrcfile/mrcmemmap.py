@@ -4,10 +4,11 @@
 mrcmemmap
 ---------
 
-Module which exports the MrcMemmap class.
+Module which exports the :class:`MrcMemmap` class.
 
 Classes:
-    MrcMemmap: An MrcFile subclass that uses a memory-mapped data array.
+    :class:`MrcMemmap`: An MrcFile subclass that uses a memory-mapped data
+        array.
 
 """
 
@@ -31,7 +32,7 @@ class MrcMemmap(MrcFile):
     will only be read or written in small chunks when required. To access the
     contents of the array, use the array slice operator.
     
-    Usage is the same as for MrcFile.
+    Usage is the same as for :class:`~mrcfile.mrcfile.MrcFile`.
     
     Note that memmap arrays use a fairly small chunk size and so performance 
     could be poor on file systems that are optimised for infrequent large I/O

@@ -1,18 +1,23 @@
 # Copyright (c) 2016, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
+
 """
 utils
 -----
 
 Utility functions used by the other modules in the mrcfile package.
 
-Functions:
-    mode_from_dtype: Convert a numpy dtype to an MRC mode number.
-    dtype_from_mode: Convert an MRC mode number to a numpy dtype.
-    machine_stamp_from_byte_order: Get a machine stamp from a byte order
-        indicator.
-    spacegroup_is_volume_stack: Identify if a space group number represents a
-        volume stack.
+Functions
+---------
+
+* :func:`data_dtype_from_header`: 
+* :func:`data_shape_from_header`:
+* :func:`mode_from_dtype`: Convert a numpy dtype to an MRC mode number.
+* :func:`dtype_from_mode`: Convert an MRC mode number to a numpy dtype.
+* :func:`machine_stamp_from_byte_order`: Get a machine stamp from a byte order
+    indicator.
+* :func:`spacegroup_is_volume_stack`: Identify if a space group number
+    represents a volume stack.
 
 """
 

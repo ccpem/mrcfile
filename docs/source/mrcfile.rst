@@ -1,10 +1,17 @@
-mrcfile package
-===============
+====================
+Source documentation
+====================
+
+mrcfile -- Main package
+-----------------------
 
 .. automodule:: mrcfile
     :members:
     :undoc-members:
     :show-inheritance:
+    
+    Members
+    -------
 
 Submodules
 ----------

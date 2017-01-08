@@ -3,13 +3,15 @@
 
 from setuptools import setup
 
+from mrcfile.version import __version__
+
 def readme():
     with open('README.rst') as f:
         return f.read()
 
 setup(
     name='mrcfile',
-    version='0.0.2',
+    version=__version__,
     packages=['mrcfile'],
     install_requires=['numpy >= 1.11.0'],
     
@@ -22,7 +24,7 @@ setup(
     license='BSD',
     url='https://github.com/ccpem/mrcfile',
     classifiers = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',

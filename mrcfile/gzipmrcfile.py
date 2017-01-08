@@ -4,10 +4,10 @@
 gzipmrcfile
 -----------
 
-Module which exports the GzipMrcFile class.
+Module which exports the :class:`GzipMrcFile` class.
 
 Classes:
-    GzipMrcFile: An object which represents a gzipped MRC file.
+    :class:`GzipMrcFile`: An object which represents a gzipped MRC file.
 
 """
 
@@ -23,9 +23,9 @@ from .mrcfile import MrcFile
 
 class GzipMrcFile(MrcFile):
     
-    """MrcFile subclass for handling gzipped files.
+    """:class:`~mrcfile.mrcfile.MrcFile` subclass for handling gzipped files.
     
-    Usage is the same as for MrcFile.
+    Usage is the same as for :class:`~mrcfile.mrcfile.MrcFile`.
     
     """
     
