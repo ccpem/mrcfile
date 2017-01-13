@@ -60,12 +60,13 @@ https://github.com/ccpem/mrcfile
 Basic usage
 -----------
 
-The easiest way to open a file is with the `open`_ and `new`_ functions. These
-return an `MrcFile`_ object which represents an MRC file on disk.
+The easiest way to open a file is with the `mrcfile.open`_ and `mrcfile.new`_
+functions. These return an `MrcFile`_ object which represents an MRC file on
+disk.
 
-.. _open: http://mrcfile.readthedocs.io/en/latest/source/mrcfile.html#mrcfile.open
-.. _new: http://mrcfile.readthedocs.io/en/latest/source/mrcfile.html#mrcfile.new
-.. _MrcFile: http://mrcfile.readthedocs.io/en/latest/mrcfile_class.html
+.. _mrcfile.open: http://mrcfile.readthedocs.io/en/latest/source/mrcfile.html#mrcfile.open
+.. _mrcfile.new: http://mrcfile.readthedocs.io/en/latest/source/mrcfile.html#mrcfile.new
+.. _MrcFile: http://mrcfile.readthedocs.io/en/latest/mrcfile_api_overview.html
 
 To open an MRC file and read a slice of data::
 
