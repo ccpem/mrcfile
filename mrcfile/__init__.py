@@ -116,6 +116,17 @@ def open(name, mode='r'):  # @ReservedAssignment
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
         :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if the file is
         gzipped).
+    
+    Raises:
+        ValueError: The mode is not one of 'r', 'r+' or 'w+', or the file is
+            not a valid MRC file.
+        IOError: The mode is 'r' or 'r+' and the file does not exist, or the
+            mode is 'w+' and the file already exists. (Call :func:`new` with
+            overwrite=True to deliberately overwrite an existing file.)
+    
+    Warnings:
+        RuntimeWarning: The file appears to be a valid MRC file but the data
+            block is longer than expected from the dimensions in the header.
     """
     try:
         mrc = MrcFile(name, mode=mode)

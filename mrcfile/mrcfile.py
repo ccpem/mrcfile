@@ -66,6 +66,10 @@ class MrcFile(MrcInterpreter):
                 not a valid MRC file.
             IOError: The mode is 'r' or 'r+' and the file does not exist, or the
                 mode is 'w+', the file already exists and overwrite is False.
+        
+        Warnings:
+            RuntimeWarning: The file appears to be a valid MRC file but the data
+                block is longer than expected from the dimensions in the header.
         """
         super(MrcFile, self).__init__(**kwargs)
         
