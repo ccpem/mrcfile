@@ -185,7 +185,11 @@ class MrcObject(object):
         return self._extended_header
     
     def set_extended_header(self, extended_header):
-        """Replace the extended header."""
+        """Replace the extended header.
+        
+        If you set the extended header you should also set the header.exttyp
+        field to indicate the type of extended header.
+        """
         self._check_writeable()
         self._extended_header = extended_header
         self.header.nsymbt = extended_header.nbytes

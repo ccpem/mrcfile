@@ -1,0 +1,24 @@
+Planned or possible future developments for mrcfile.py
+======================================================
+
+* File validation according to MRC2014 standard
+  - correct MAP id string?
+  - valid machine stamp?
+  - correct file size?
+  - valid mode number?
+  - axis sizes sensible and match spacegroup?
+  - axis swap numbers are valid?
+  - cell size and angles are reasonable?
+  - header statistics are correct?
+  - nlabl matches number of labels?
+  - valid format version number?
+  - valid extended header size for given exttyp?
+
+* Fixing of invalid files
+
+* Handling of different extended header types
+
+* Handling of different MRC format versions
+
+* Data axis swapping (would need clarity about whether header fields such as
+  cell size and dimensions apply to axes before or after swapping)

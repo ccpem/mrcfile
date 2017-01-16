@@ -118,6 +118,12 @@ intepretation can be switched by calling
 :meth:`~mrcfile.mrcobject.MrcObject.set_image_stack` and
 :meth:`~mrcfile.mrcobject.MrcObject.set_volume`.
 
+Note that the MRC format allows the data axes to be swapped using the header's
+``mapc``, ``mapr`` and ``maps`` fields. This library does not attempt to swap
+the axes and simply assigns the columns to X, rows to Y and sections to Z. (The
+data array is indexed in C style, so data values can be accessed using
+``mrc.data[z][y][x]``.)
+
 Data types
 ~~~~~~~~~~
 
