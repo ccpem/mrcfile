@@ -248,7 +248,9 @@ class MrcObject(object):
         
         The voxel size is returned as a structured numpy record array with three
         fields (x, y and z). Note that changing the voxel_size array in-place
-        will *not* change the voxel size in the file.
+        will *not* change the voxel size in the file -- to prevent this being
+        overlooked accidentally, the writeable flag is set to False on the
+        voxel_size array.
         
         To set the voxel size, assign a new value to the voxel_size attribute.
         You may give a single number, a 3-tuple (x, y ,z) or a modified version
@@ -259,6 +261,7 @@ class MrcObject(object):
         >>> mrc.voxel_size = (1.0, 1.0, 1.0)
         
         >>> vox_sizes = mrc.voxel_size
+        >>> vox_sizes.flags.writeable = True
         >>> vox_sizes.x = 1.0
         >>> vox_sizes.y = 1.0
         >>> vox_sizes.z = 1.0

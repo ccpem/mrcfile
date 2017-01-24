@@ -445,6 +445,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert mrcobject.voxel_size.z == 0.0
         
         voxel_size = mrcobject.voxel_size
+        voxel_size.flags.writeable = True
         voxel_size.x = 1.1
         voxel_size.y = 2.2
         voxel_size.z = 3.3
