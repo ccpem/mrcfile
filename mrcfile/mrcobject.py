@@ -419,7 +419,15 @@ class MrcObject(object):
         self.header.dmean = -2
         self.header.rms = -1
     
-    def print_header(self):
-        """Print the contents of all header fields."""
+    def print_header(self, print_file=None):
+        """Print the contents of all header fields.
+        
+        Args:
+            print_file: The output text stream to use for printing the header.
+                This is passed directly to the ``file`` argument of Python's
+                ``print()`` function. The default is ``None``, which means
+                output will be printed to ``sys.stdout``.
+        """
         for item in self.header.dtype.names:
-            print('{0:15s} : {1}'.format(item, self.header[item]))
+            print('{0:15s} : {1}'.format(item, self.header[item]),
+                  file=print_file)

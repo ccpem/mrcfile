@@ -9,6 +9,7 @@ Tests for mrcobject.py
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import io
 import sys
 import unittest
 import warnings
@@ -458,6 +459,16 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert label.startswith('Created by mrcfile.py    ')
         time = label[-40:].strip()
         datetime.strptime(time, '%Y-%m-%d %H:%M:%S') # will throw if bad format
+    
+    def test_print_header(self):
+        print_stream = io.StringIO()
+        self.mrcobject.print_header(print_stream)
+        output = print_stream.getvalue()
+        print_stream.close()
+        out_lines = output.split('\n')
+        # Number of lines is different in python 2 and 3 due to different numpy
+        # output formatting - just check for both possibilities for now
+        assert len(out_lines) == 32 or len(out_lines) == 34
 
 
 if __name__ == '__main__':
