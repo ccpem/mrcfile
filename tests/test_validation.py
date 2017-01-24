@@ -186,7 +186,15 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         print_output = self.print_stream.getvalue()
         assert "Invalid axis mapping: found [-200, 3, 4]" in print_output
     
-    def test_mz_for_volume_stack(self):
+    def test_mz_correct_for_volume_stack(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.set_data(np.arange(120, dtype=np.float32).reshape(3, 2, 4, 5))
+        with warnings.catch_warnings(record=True):
+            result = mrcfile.validate(self.temp_mrc_name,
+                                      print_file=self.print_stream)
+            assert result == True
+    
+    def test_mz_incorrect_for_volume_stack(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:
             mrc.set_data(np.arange(120, dtype=np.float32).reshape(3, 2, 4, 5))
             mrc.header.mz = 5
