@@ -67,7 +67,7 @@ class MrcFile(MrcInterpreter):
             IOError: The mode is 'r' or 'r+' and the file does not exist, or the
                 mode is 'w+', the file already exists and overwrite is False.
         
-        Warnings:
+        Warns:
             RuntimeWarning: The file appears to be a valid MRC file but the data
                 block is longer than expected from the dimensions in the header.
         """

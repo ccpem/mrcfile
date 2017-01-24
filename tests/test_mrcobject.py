@@ -295,10 +295,12 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_complex64_dtype_is_preserved_in_mode_4(self):
         data = np.arange(6, dtype=np.complex64).reshape(3, 2)
-        warnings.simplefilter('ignore', np.ComplexWarning)
-        self.mrcobject.set_data(data)
-        assert self.mrcobject.data.dtype == np.complex64
-        assert self.mrcobject.header.mode == 4
+        # Suppress complex casting warnings from statistics calculations
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            self.mrcobject.set_data(data)
+            assert self.mrcobject.data.dtype == np.complex64
+            assert self.mrcobject.header.mode == 4
     
     def test_uint16_dtype_is_preserved_in_mode_6(self):
         data = np.arange(6, dtype=np.uint16).reshape(3, 2)

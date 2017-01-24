@@ -45,6 +45,9 @@ def data_dtype_from_header(header):
     Returns:
         The numpy dtype object for the data array corresponding to the given
         header.
+    
+    Raises:
+        ValueError: There is no corresponding dtype for the given mode.
     """
     mode = header.mode
     return dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)

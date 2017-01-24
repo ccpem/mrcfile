@@ -10,6 +10,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -34,6 +35,11 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.gzip_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
+    
+    def tearDown(self):
+        if os.path.exists(self.test_output):
+            shutil.rmtree(self.test_output)
+        super(LoadFunctionTest, self).tearDown()
     
     def test_normal_opening(self):
         with mrcfile.open(self.example_mrc_name) as mrc:

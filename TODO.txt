@@ -1,20 +1,13 @@
 Planned or possible future developments for mrcfile.py
 ======================================================
 
-* File validation according to MRC2014 standard
-  - correct MAP id string?
-  - valid machine stamp?
-  - correct file size?
-  - valid mode number?
-  - axis sizes sensible and match spacegroup?
-  - axis swap numbers are valid?
-  - cell size and angles are reasonable?
-  - header statistics are correct?
-  - nlabl matches number of labels?
-  - valid format version number?
-  - valid extended header size for given exttyp?
+* Lazy loading for high-performance filesystems - like mmap, but using much
+  larger chunk sizes (mmap uses 4 KB chunks which cause inefficent access on
+  high-performance parallel filesystems).
 
 * Fixing of invalid files
+
+* Helper methods for handling header labels
 
 * Handling of different extended header types
 

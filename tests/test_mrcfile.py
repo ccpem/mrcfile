@@ -397,19 +397,26 @@ class MrcFileTest(MrcObjectTest):
     def test_writing_image_mode_4_native_byte_order(self):
         data = create_test_complex64_array()
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_native.mrc')
-        self.write_file_then_read_and_assert_data_unchanged(name, data)
+        # Suppress complex casting warnings from statistics calculations
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            self.write_file_then_read_and_assert_data_unchanged(name, data)
     
     def test_writing_image_mode_4_little_endian(self):
         data = create_test_complex64_array().astype('<c8')
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_le.mrc')
-        self.write_file_then_read_and_assert_data_unchanged(name, data)
+        # Suppress complex casting warnings from statistics calculations
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            self.write_file_then_read_and_assert_data_unchanged(name, data)
     
     def test_writing_image_mode_4_big_endian(self):
         data = create_test_complex64_array().astype('>c8')
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_be.mrc')
         # Suppress complex casting warnings from statistics calculations
-        warnings.simplefilter('ignore', np.ComplexWarning)
-        self.write_file_then_read_and_assert_data_unchanged(name, data)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            self.write_file_then_read_and_assert_data_unchanged(name, data)
     
     def test_writing_image_mode_4_with_inf_and_nan(self):
         # Make an array of test data
@@ -424,7 +431,10 @@ class MrcFileTest(MrcObjectTest):
         
         # Write the data to a file and test it's read back correctly
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_inf_nan.mrc')
-        self.write_file_then_read_and_assert_data_unchanged(name, data)
+        # Suppress complex casting warnings from statistics calculations
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", np.ComplexWarning)
+            self.write_file_then_read_and_assert_data_unchanged(name, data)
     
     def test_writing_image_mode_6_native_byte_order(self):
         data = np.linspace(0, 65535, 90, dtype=np.int16).reshape(9, 10)

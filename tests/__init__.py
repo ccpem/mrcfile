@@ -16,6 +16,7 @@ from .test_mrcinterpreter import MrcInterpreterTest
 from .test_mrcfile import MrcFileTest
 from .test_mrcmemmap import MrcMemmapTest
 from .test_utils import UtilsTest
+from .test_validation import ValidationTest
 
 test_classes = [
     GzipMrcFileTest,
@@ -24,7 +25,8 @@ test_classes = [
     MrcInterpreterTest,
     MrcFileTest,
     MrcMemmapTest,
-    UtilsTest
+    UtilsTest,
+    ValidationTest
 ]
 
 def load_tests(loader, tests, pattern):
