@@ -53,6 +53,13 @@ class MrcInterpreterTest(MrcObjectTest):
         with self.assertRaisesRegex(ValueError, "Unrecognised machine stamp: "
                                                  "0x00 0x00 0x00 0x00"):
             mrcinterpreter._read_stream()
+    
+    def test_stream_too_short(self):
+        stream = io.BytesIO()
+        stream.write(bytearray(1023))
+        mrcinterpreter = MrcInterpreter(iostream=stream)
+        with self.assertRaisesRegex(ValueError, "Couldn't read enough bytes for MRC header"):
+            mrcinterpreter._read_stream()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,24 @@
 mrcfile.py API overview
 =======================
 
+.. testsetup:: *
+
+   import os
+   import shutil
+   import tempfile
+   
+   import numpy as np
+   import mrcfile
+   
+   old_cwd = os.getcwd()
+   tempdir = tempfile.mkdtemp()
+   os.chdir(tempdir)
+
+.. testcleanup:: *
+
+   os.chdir(old_cwd)
+   shutil.rmtree(tempdir)
+
 Using MrcFile objects
 ---------------------
 
@@ -11,23 +29,179 @@ MRC files should usually be opened using the :func:`mrcfile.new` or
 :func:`mrcfile.open` functions. These return an instance of the
 :class:`~mrcfile.mrcfile.MrcFile` class, which represents an MRC file on disk
 and makes the file's header, extended header and data available for read and
-write access as numpy arrays.
+write access as ``numpy`` arrays:
 
-MrcFile objects always encapsulate a file on disk, and should be closed when
-they are finished with by calling
-:meth:`~mrcfile.mrcinterpreter.MrcInterpreter.close`. MrcFile supports Python's
-context manager so MrcFile objects can conveniently be created and automatically
-closed using Python's ``with`` keyword (like normal Python file objects).
+.. doctest::
 
-There is also a :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` method that
-ensures the MRC data has been written to disk but leaves the file open.
+   >>> # First, create a simple dataset
+   >>> import numpy as np
+   >>> example_data = np.arange(12, dtype=np.int8).reshape(3, 4)
 
-:class:`~mrcfile.gzipmrcfile.GzipMrcFile` objects can be created by opening a
-gzip file with the :func:`mrcfile.open` function, or using ``gzip=True`` as an
-argument to :func:`mrcfile.new`. :class:`~mrcfile.mrcmemmap.MrcMemmap` objects
-can be created using the :func:`mrcfile.mmap` function. All of the classes
-in the mrcfile package can also be instantiated by calling the class directly,
-if necessary, but the top-level :mod:`mrcfile` functions are preferred.
+   >>> # Make a new MRC file and write the data to it:
+   >>> import mrcfile
+   >>> with mrcfile.new('tmp.mrc') as mrc:
+   ...     mrc.set_data(example_data)
+   ... 
+   >>> # The file is now saved on disk. Open it again and check the data:
+   >>> with mrcfile.open('tmp.mrc') as mrc:
+   ...     mrc.data
+   array([[ 0,  1,  2,  3],
+          [ 4,  5,  6,  7],
+          [ 8,  9, 10, 11]], dtype=int8)
+
+The :func:`~mrcfile.new` and :func:`~mrcfile.open` functions can also handle
+gzipped files very easily:
+
+.. doctest::
+
+   >>> # Make a new gzipped MRC file:
+   >>> with mrcfile.new('tmp.mrc.gz', gzip=True) as mrc:
+   ...     mrc.set_data(example_data * 2)
+   ... 
+   >>> # Open it again with the normal open function:
+   >>> with mrcfile.open('tmp.mrc.gz') as mrc:
+   ...     mrc.data
+   array([[ 0,  2,  4,  6],
+          [ 8, 10, 12, 14],
+          [16, 18, 20, 22]], dtype=int8)
+
+:class:`~mrcfile.mrcfile.MrcFile` objects should be closed when they are
+finished with, to ensure any changes are flushed to disk and the underlying file
+object is closed:
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> # do things...
+   >>> mrc.close()
+
+As we saw in the examples above, :class:`~mrcfile.mrcfile.MrcFile` objects
+support Python's ``with`` statement, which will ensure the file is closed
+properly after use (like a normal Python file object). It's generally a good
+idea to use ``with`` if possible, but sometimes when running Python
+interactively (as in some of these examples), it's more convenient to open a
+file and keep using it without having to work in an indented block. If you do
+this, remember to close the file at the end!
+
+There's also a :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` method that
+writes the MRC data to disk but leaves the file open:
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> # do things...
+   >>> mrc.flush()  # make sure changes are written to disk
+   >>> # continue using the file...
+   >>> mrc.close()  # close the file when finished
+
+With very large files, it might be helpful to use the :func:`mrcfile.mmap`
+function to open the file, which will open the data as a memory-mapped ``numpy``
+array. The contents of the array are only read from disk as needed, so this
+allows large files to be opened quickly. Parts of the data can then be read and
+written by slicing the array:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> # Open the file in memory-mapped mode
+   >>> mrc = mrcfile.mmap('tmp.mrc', mode='r+')
+   >>> # Now read part of the data by slicing
+   >>> mrc.data[1:3]
+   memmap([[ 4,  5,  6,  7],
+           [ 8,  9, 10, 11]], dtype=int8)
+
+   >>> # Set some values by assigning to a slice
+   >>> mrc.data[:,1:3] = 0
+
+   >>> # Read the entire array - with large files this might take a while!
+   >>> mrc.data[:]
+   memmap([[ 0,  0,  0,  3],
+           [ 4,  0,  0,  7],
+           [ 8,  0,  0, 11]], dtype=int8)
+   >>> mrc.close()
+
+For most purposes, the top-level functions in :mod:`mrcfile` should be all you
+need to open MRC files, but it is also possible to directly instantiate
+:class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
+:class:`~mrcfile.gzipmrcfile.GzipMrcFile` and
+:class:`~mrcfile.mrcmemmap.MrcMemmap`:
+
+.. doctest::
+
+   >>> with mrcfile.MrcFile('tmp.mrc') as mrc:
+   ...     mrc
+   MrcFile('tmp.mrc', mode='r')
+
+   >>> with mrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
+   ...     mrc
+   GzipMrcFile('tmp.mrc.gz', mode='r')
+
+   >>> with mrcfile.MrcMemmap('tmp.mrc') as mrc:
+   ...     mrc
+   MrcMemmap('tmp.mrc', mode='r')
+
+File modes
+~~~~~~~~~~
+
+:class:`~mrcfile.mrcfile.MrcFile` objects can be opened in three modes: ``r``,
+``r+`` and ``w+``. These correspond to the standard Python file modes, so ``r``
+opens a file in read-only mode:
+
+.. doctest::
+
+   >>> # The default mode is 'r', for read-only access:
+   >>> mrc = mrcfile.open('tmp.mrc')
+   >>> mrc
+   MrcFile('tmp.mrc', mode='r')
+   >>> mrc.set_data(example_data)
+   Traceback (most recent call last):
+   ...
+   ValueError: MRC object is read-only
+   >>> mrc.close()
+
+``r+`` opens it for reading and writing:
+
+.. doctest::
+
+   >>> # Using mode 'r+' allows read and write access:
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> mrc
+   MrcFile('tmp.mrc', mode='r+')
+   >>> mrc.set_data(example_data)
+   >>> mrc.data
+   array([[ 0,  1,  2,  3],
+          [ 4,  5,  6,  7],
+          [ 8,  9, 10, 11]], dtype=int8)
+   >>> mrc.close()
+
+and ``w+`` opens a new, empty file (also for both reading and writing):
+
+.. doctest::
+
+   >>> # Mode 'w+' creates a new empty file:
+   >>> mrc = mrcfile.open('empty.mrc', mode='w+')
+   >>> mrc
+   MrcFile('empty.mrc', mode='w+')
+   >>> mrc.data
+   array([], dtype=int8)
+   >>> mrc.close()
+
+The :func:`~mrcfile.new` function is effectively shorthand for
+``open(name, mode='w+')``:
+
+.. doctest::
+
+   >>> # Make a new file
+   >>> mrc = mrcfile.new('empty.mrc')
+   Traceback (most recent call last):
+   ...
+   IOError: File 'empty.mrc' already exists; set overwrite=True to overwrite it
+   >>> # Ooops, we've already got a file with that name!
+   >>> # If we're sure we want to overwrite it, we can try again:
+   >>> mrc = mrcfile.new('empty.mrc', overwrite=True)
+   >>> mrc
+   MrcFile('empty.mrc', mode='w+')
+   >>> mrc.close()
 
 Accessing the header and data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,19 +307,25 @@ MRC mode numbers are given in the documentation for
 some types cannot be used in MRC files, including integer types of more than 16
 bits, or float types of more than 32 bits. Many numpy array creation routines
 use int64 or float64 dtypes by default, which means you will need to give a
-dtype argument to ensure the array can be used in an MRC file::
-
-    # This does not work
-    >>> mrc.set_data(np.zeros((10, 10)))
-    Traceback (most recent call last):
-      ...
-    ValueError: dtype 'float64' cannot be converted to an MRC file mode
-    
-    # But this does
-    >>> mrc.set_data(np.zeros((10, 10), dtype=np.int16))
-    >>> 
+dtype argument to ensure the array can be used in an MRC file:
 
 .. _data types: https://docs.scipy.org/doc/numpy/reference/arrays.dtypes.html
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> # This does not work
+   >>> mrc.set_data(np.zeros((3, 10)))
+   Traceback (most recent call last):
+   ...
+   ValueError: dtype 'float64' cannot be converted to an MRC file mode
+   >>> # But this does
+   >>> mrc.set_data(np.zeros((3, 10), dtype=np.int16))
+   >>> mrc.data
+   array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], dtype=int16)
+   >>> mrc.close()
 
 Class hierarchy
 ---------------

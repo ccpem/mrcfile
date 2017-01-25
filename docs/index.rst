@@ -12,4 +12,3 @@ You can also look at the :doc:`full source code documentation <source/mrcfile>`.
    readme
    mrcfile_api_overview
    Full source documentation <source/mrcfile>
-

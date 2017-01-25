@@ -123,6 +123,9 @@ class MrcInterpreter(MrcObject):
         # Read 1024 bytes from the stream
         header_str = self._iostream.read(HEADER_DTYPE.itemsize)
         
+        if len(header_str) < HEADER_DTYPE.itemsize:
+            raise ValueError("Couldn't read enough bytes for MRC header")
+        
         # Use a recarray to allow access to fields as attributes
         # (e.g. header.mode instead of header['mode'])
         header = np.rec.fromstring(header_str, dtype=HEADER_DTYPE, shape=())

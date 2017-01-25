@@ -83,6 +83,7 @@ todo_include_todos = False
 
 # -- Options for extensions -----------------------------------------------
 autodoc_member_order = 'bysource'
+doctest_test_doctest_blocks = ''
 napoleon_include_init_with_doc = True
 
 
