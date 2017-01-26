@@ -10,14 +10,18 @@ Utility functions used by the other modules in the mrcfile package.
 Functions
 ---------
 
-* :func:`data_dtype_from_header`: 
-* :func:`data_shape_from_header`:
+* :func:`data_dtype_from_header`: Work out the data dtype from an MRC header
+* :func:`data_shape_from_header`: Work out the data array shape from an MRC
+      header
 * :func:`mode_from_dtype`: Convert a numpy dtype to an MRC mode number.
 * :func:`dtype_from_mode`: Convert an MRC mode number to a numpy dtype.
 * :func:`machine_stamp_from_byte_order`: Get a machine stamp from a byte order
-    indicator.
+      indicator.
+* :func:`byte_orders_equal`: Compare two byte order indicators for equal
+      endianness.
+* :func:`normalise_byte_order`: Convert a byte order indicator to '<' or '>'.
 * :func:`spacegroup_is_volume_stack`: Identify if a space group number
-    represents a volume stack.
+      represents a volume stack.
 
 """
 
@@ -47,7 +51,7 @@ def data_dtype_from_header(header):
         header.
     
     Raises:
-        ValueError: There is no corresponding dtype for the given mode.
+        ValueError: If there is no corresponding dtype for the given mode.
     """
     mode = header.mode
     return dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
@@ -86,13 +90,13 @@ def mode_from_dtype(dtype):
     
     The conversion is as follows:
     
-    float16   -> mode 2 (data will be widened to 32 bits in the file)
-    float32   -> mode 2
-    int8      -> mode 0
-    int16     -> mode 1
-    uint8     -> mode 6 (data will be widened to 16 bits in the file)
-    uint16    -> mode 6
-    complex64 -> mode 4
+    * float16   -> mode 2 (data will be widened to 32 bits in the file)
+    * float32   -> mode 2
+    * int8      -> mode 0
+    * int16     -> mode 1
+    * uint8     -> mode 6 (data will be widened to 16 bits in the file)
+    * uint16    -> mode 6
+    * complex64 -> mode 4
     
     Note that there is no numpy dtype which corresponds to MRC mode 3.
     
@@ -103,7 +107,7 @@ def mode_from_dtype(dtype):
         The MRC mode number.
     
     Raises:
-        ValueError: There is no corresponding MRC mode for the given dtype.
+        ValueError: If there is no corresponding MRC mode for the given dtype.
     """
     kind_and_size = dtype.kind + str(dtype.itemsize)
     if kind_and_size in _dtype_to_mode:
@@ -126,11 +130,11 @@ def dtype_from_mode(mode):
     
     The conversion is as follows:
     
-    mode 0 -> int8
-    mode 1 -> int16
-    mode 2 -> float32
-    mode 4 -> complex64
-    mode 6 -> uint16
+    * mode 0 -> int8
+    * mode 1 -> int16
+    * mode 2 -> float32
+    * mode 4 -> complex64
+    * mode 6 -> uint16
     
     Note that mode 3 is not supported as there is no matching numpy dtype.
     
@@ -143,7 +147,7 @@ def dtype_from_mode(mode):
         The numpy dtype object corresponding to the given mode.
     
     Raises:
-        ValueError: There is no corresponding dtype for the given mode.
+        ValueError: If there is no corresponding dtype for the given mode.
     """
     mode = int(mode)
     if mode in _mode_to_dtype:
@@ -169,7 +173,7 @@ def machine_stamp_from_byte_order(byte_order='='):
         is '=', the native byte order is used.
     
     Raises:
-        ValueError: The byte order indicator is unrecognised.
+        ValueError: If the byte order indicator is unrecognised.
     """
     # If byte order is '=', replace it with the system-native order
     byte_order = normalise_byte_order(byte_order)
@@ -191,7 +195,7 @@ def byte_orders_equal(a, b):
         True if the byte order indicators represent the same endianness.
     
     Raises:
-        ValueError: A byte order indicator is not recognised.
+        ValueError: If the byte order indicator is not recognised.
     """
     return normalise_byte_order(a) == normalise_byte_order(b)
 
@@ -202,11 +206,13 @@ def normalise_byte_order(byte_order):
         byte_order: One of '=', '<' or '>'.
     
     Returns:
-        '<' if byte_order is '<', or '=' on a little-endian machine.
-        '>' if byte_order is '>', or '=' on a big-endian machine.
+        '<' if the byte order indicator represents little-endian data, or '>' if
+        it represents big-endian. Therefore on a little-endian machine, '=' will
+        be converted to '<', but on a big-endian machine it will be converted to
+        '>'.
     
     Raises:
-        ValueError: byte_order is not one of '=', '<' or '>'.
+        ValueError: If byte_order is not one of '=', '<' or '>'.
     """
     if byte_order not in ('<', '>', '='):
         raise ValueError("Unrecognised byte order indicator '{0}'"

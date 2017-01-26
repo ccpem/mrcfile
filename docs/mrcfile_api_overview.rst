@@ -45,6 +45,7 @@ write access as ``numpy`` arrays:
    >>> # The file is now saved on disk. Open it again and check the data:
    >>> with mrcfile.open('tmp.mrc') as mrc:
    ...     mrc.data
+   ... 
    array([[ 0,  1,  2,  3],
           [ 4,  5,  6,  7],
           [ 8,  9, 10, 11]], dtype=int8)
@@ -61,6 +62,7 @@ gzipped files very easily:
    >>> # Open it again with the normal open function:
    >>> with mrcfile.open('tmp.mrc.gz') as mrc:
    ...     mrc.data
+   ... 
    array([[ 0,  2,  4,  6],
           [ 8, 10, 12, 14],
           [16, 18, 20, 22]], dtype=int8)
@@ -130,14 +132,17 @@ need to open MRC files, but it is also possible to directly instantiate
 
    >>> with mrcfile.MrcFile('tmp.mrc') as mrc:
    ...     mrc
+   ... 
    MrcFile('tmp.mrc', mode='r')
 
    >>> with mrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
    ...     mrc
+   ... 
    GzipMrcFile('tmp.mrc.gz', mode='r')
 
    >>> with mrcfile.MrcMemmap('tmp.mrc') as mrc:
    ...     mrc
+   ... 
    MrcMemmap('tmp.mrc', mode='r')
 
 File modes
@@ -155,7 +160,7 @@ opens a file in read-only mode:
    MrcFile('tmp.mrc', mode='r')
    >>> mrc.set_data(example_data)
    Traceback (most recent call last):
-   ...
+     ...
    ValueError: MRC object is read-only
    >>> mrc.close()
 
@@ -194,7 +199,7 @@ The :func:`~mrcfile.new` function is effectively shorthand for
    >>> # Make a new file
    >>> mrc = mrcfile.new('empty.mrc')
    Traceback (most recent call last):
-   ...
+     ...
    IOError: File 'empty.mrc' already exists; set overwrite=True to overwrite it
    >>> # Ooops, we've already got a file with that name!
    >>> # If we're sure we want to overwrite it, we can try again:
@@ -209,21 +214,101 @@ Accessing the header and data
 The header and data arrays can be accessed using the
 :attr:`~mrcfile.mrcobject.MrcObject.header`,
 :attr:`~mrcfile.mrcobject.MrcObject.extended_header` and 
-:attr:`~mrcfile.mrcobject.MrcObject.data` attributes. These attributes are
-read-only and cannot be assigned to directly, but (unless the file mode is 'r')
-the arrays can be modified in-place. The extended header and data arrays can
-also be completely replaced by calling the
-:meth:`~mrcfile.mrcobject.MrcObject.set_extended_header` and
-:meth:`~mrcfile.mrcobject.MrcObject.set_data` methods.
+:attr:`~mrcfile.mrcobject.MrcObject.data` attributes:
 
-The header is a numpy `record array`_, meaning that fields can be accessed as
-normal attributes, for example ``mrc.header.nx`` for the number of columns in
-the map.
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
 
-.. _record array: https://docs.scipy.org/doc/numpy/user/basics.rec.html#record-arrays
+   >>> mrc = mrcfile.open('tmp.mrc')
+   >>> mrc.header
+   rec.array((4, 3, 1, ...),
+             dtype=[('nx', ...)])
+   >>> mrc.extended_header
+   array([], 
+         dtype='|V1')
+   >>> mrc.data
+   array([[ 0,  1,  2,  3],
+          [ 4,  5,  6,  7],
+          [ 8,  9, 10, 11]], dtype=int8)
+   >>> mrc.close()
+
+These attributes are read-only and cannot be assigned to directly, but (unless
+the file mode is ``r``) the arrays can be modified in-place:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> # A new data array cannot be assigned directly to the data attribute
+   >>> mrc.data = np.ones_like(example_data)
+   Traceback (most recent call last):
+     ...
+   AttributeError: can't set attribute
+   >>> # But the data can be modified by assigning to a slice or index
+   >>> mrc.data[0, 0] = 10
+   >>> mrc.data
+   array([[10,  1,  2,  3],
+          [ 4,  5,  6,  7],
+          [ 8,  9, 10, 11]], dtype=int8)
+   >>> # All of the data values can be replaced this way, as long as the data
+   >>> # size, shape and type are not changed
+   >>> mrc.data[:] = np.ones_like(example_data)
+   >>> mrc.data
+   array([[1, 1, 1, 1],
+          [1, 1, 1, 1],
+          [1, 1, 1, 1]], dtype=int8)
+   >>> mrc.close()
+
+To replace the data or extended header completely, call the 
+:meth:`~mrcfile.mrcobject.MrcObject.set_data` and
+:meth:`~mrcfile.mrcobject.MrcObject.set_extended_header` methods:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> data_3d = np.linspace(-1000, 1000, 20, dtype=np.int16).reshape(2, 2, 5)
+   >>> mrc.set_data(data_3d)
+   >>> mrc.data
+   array([[[-1000,  -894,  -789,  -684,  -578],
+           [ -473,  -368,  -263,  -157,   -52]],
+          [[   52,   157,   263,   368,   473],
+           [  578,   684,   789,   894,  1000]]], dtype=int16)
+   >>> # Setting a new data array updates the header dimensions to match
+   >>> mrc.header.nx
+   array(5, dtype=int32)
+   >>> mrc.header.ny
+   array(2, dtype=int32)
+   >>> mrc.header.nz
+   array(2, dtype=int32)
+   >>> # We can also set the extended header in the same way
+   >>> string_array = np.fromstring(b'The extended header can hold any kind of numpy array', dtype='S52')
+   >>> mrc.set_extended_header(string_array)
+   >>> mrc.extended_header
+   array(['The extended header can hold any kind of numpy array'], 
+         dtype='|S52')
+   >>> # Setting the extended header updates the header's nsymbt field to match
+   >>> mrc.header.nsymbt
+   array(52, dtype=int32)
+   >>> mrc.close()
+
+Note that setting an extended header does not automatically set or change the
+header's ``exttyp`` field. You should set this yourself to identify the type
+of extended header you are using.
 
 For a quick overview of the contents of a file's header, call
-:meth:`~mrcfile.mrcobject.MrcObject.print_header`.
+:meth:`~mrcfile.mrcobject.MrcObject.print_header`:
+
+.. doctest::
+
+   >>> with mrcfile.open('tmp.mrc') as mrc:
+   ...     mrc.print_header()
+   ... 
+   nx              : 5
+   ny              : 2
+   nz              : 2
+   mode            : 1
+   nxstart ...
 
 Voxel size
 ~~~~~~~~~~
@@ -231,22 +316,214 @@ Voxel size
 The voxel (or pixel) size in the file can be accessed using the
 :attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute, which returns a numpy
 record array with three fields, ``x``, ``y`` and ``z``, for the voxel size in
-each dimension. (The sizes are not stored directly in the MRC header, but are
-calculated when required from the header's cell and grid size fields.) You can
-also set the voxel size by assigning to the
-:attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute, using a single number
-(for an isotropic voxel size), a 3-tuple or a single-item record array with
-``x``, ``y`` and ``z`` fields. This will set a new cell size in the MRC header
-so that the grid spacing matches the given values.
+each dimension:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> with mrcfile.open('tmp.mrc') as mrc:
+   ...     mrc.voxel_size
+   ... 
+   rec.array(( 0.,  0.,  0.),
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+In a new file, the voxel size is zero by default. To set the voxel size, you can
+assign to the :attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute, using a
+single number (for an isotropic voxel size), a 3-tuple or a single-item record
+array with ``x``, ``y`` and ``z`` fields (which must be in that order):
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
+   >>> # Set a new isotropic voxel size:
+   >>> mrc.voxel_size = 1.0
+   >>> mrc.voxel_size
+   rec.array(( 1.,  1.,  1.),
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+   >>> # Set an anisotropic voxel size using a tuple:
+   >>> mrc.voxel_size = (1.0, 2.0, 3.0)
+   >>> mrc.voxel_size
+   rec.array(( 1.,  2.,  3.),
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+   >>> # And set a different anisotropic voxel size using a record array:
+   >>> mrc.voxel_size = np.rec.array(( 4.,  5.,  6.), dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+   >>> mrc.voxel_size
+   rec.array(( 4.,  5.,  6.),
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+   >>> mrc.close()
+
+The sizes are not stored directly in the MRC header, but are calculated when
+required from the header's cell and grid size fields. The voxel size can
+therefore be changed by altering the cell size:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
+   >>> # Check the current voxel size in X:
+   >>> mrc.voxel_size.x
+   array(4.0, dtype=float32)
+
+   >>> # And check the current cell dimensions:
+   >>> mrc.header.cella
+   rec.array(( 20.,  10.,  6.), 
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+   >>> # Now change the cell's X length:
+   >>> mrc.header.cella.x = 10
+
+   >>> # And we see the voxel size has also changed:
+   >>> mrc.voxel_size.x
+   array(2.0, dtype=float32)
+
+   >>> mrc.close()
+
+Equivalently, the cell size will be changed if a new voxel size is given:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
+   >>> # Check the current cell dimensions:
+   >>> mrc.header.cella
+   rec.array(( 10.,  10.,  6.), 
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+   >>> # Set a new voxel size:
+   >>> mrc.voxel_size = 1.0
+
+   >>> # And our cell size has been updated:
+   >>> mrc.header.cella
+   rec.array(( 5.,  2.,  1.), 
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+   >>> mrc.close()
+
+Because the voxel size array is calculated on demand, assigning back to it
+wouldn't work so it's flagged as read-only:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
+   >>> # This doesn't work
+   >>> mrc.voxel_size.x = 2.0
+   Traceback (most recent call last):
+     ...
+   ValueError: assignment destination is read-only
+
+   >>> # But you can do this
+   >>> vsize = mrc.voxel_size.copy()
+   >>> vsize.x = 2.0
+   >>> mrc.voxel_size = vsize
+   >>> mrc.voxel_size
+   rec.array(( 2.,  1.,  1.), 
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+   >>> mrc.close()
+
+Note that the calculated voxel size will change if the grid size is changed by
+replacing the data array:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
+   >>> # Check the current voxel size:
+   >>> mrc.voxel_size
+   rec.array(( 2.,  1.,  1.), 
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+   >>> # And the current data dimensions:
+   >>> mrc.data.shape
+   (2, 2, 5)
+
+   >>> # Replace the data with an array with a different shape:
+   >>> mrc.set_data(example_data)
+   >>> mrc.data.shape
+   (3, 4)
+
+   >>> # ...and the voxel size has changed:
+   >>> mrc.voxel_size
+   rec.array(( 2.5,  0.66666669,  1.), 
+             dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+   >>> mrc.close()
 
 Keeping the header and data in sync
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When a new data array is given (using
 :meth:`~mrcfile.mrcobject.MrcObject.set_data` or the ``data`` argument to
-:func:`~mrcfile.new`), the header is automatically updated to ensure the file
-is valid. If the data array is modified in place, for example by editing values
-or changing the shape or dtype attributes, the header will no longer be correct.
+:func:`mrcfile.new`), the header is automatically updated to ensure the file is
+is valid:
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   
+   >>> # Check the current data shape and header dimensions match
+   >>> mrc.data.shape
+   (3, 4)
+   >>> mrc.header.nx
+   array(4, dtype=int32)
+   >>> mrc.header.nx == mrc.data.shape[-1]  # X axis is always the last in shape
+   True
+
+   >>> # Let's also check the maximum value recorded in the header
+   >>> mrc.header.dmax
+   array(11.0, dtype=float32)
+   >>> mrc.header.dmax == mrc.data.max()
+   True
+
+   >>> # Now set a data array with a different shape, and check the header again
+   >>> mrc.set_data(data_3d)
+   >>> mrc.data.shape
+   (2, 2, 5)
+   >>> mrc.header.nx
+   array(5, dtype=int32)
+   >>> mrc.header.nx == mrc.data.shape[-1]
+   True
+
+   >>> # The data statistics are updated as well
+   >>> mrc.header.dmax
+   array(1000.0, dtype=float32)
+   >>> mrc.header.dmax == mrc.data.max()
+   True
+   >>> mrc.close()
+
+If the data array is modified in place, for example by editing values
+or changing the shape or dtype attributes, the header will no longer be correct:
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> mrc.data.shape
+   (2, 2, 5)
+   
+   >>> # Change the data shape in-place and check the header
+   >>> mrc.data.shape = (5, 4)
+   >>> mrc.header.nx == mrc.data.shape[-1]
+   False
+
+   >>> # We'll also change some values and check the data statistics
+   >>> mrc.data[2:] = 0
+   >>> mrc.data.max()
+   0
+   >>> mrc.header.dmax == mrc.data.max()
+   False
+   >>> mrc.close()
+
+Note that the header is deliberately not updated automatically except when
+:meth:`~mrcfile.mrcobject.MrcObject.set_data` is called, so if you need to
+override any of the automatic header values you can do.
+
 To keep the header in sync with the data, three methods can be used to update
 the header:
 
@@ -265,6 +542,49 @@ the header:
   large and you do not want to wait for ``update_header_stats()`` to run, you
   can call this method to reset the header's statistics fields to indicate that
   the values are undetermined.
+
+The file we just saved had an invalid header, but of course, that's what's used
+by ``mrcfile`` to work out how to read the file from disk! When we open the file
+again, our change to the shape has disappeared:
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   >>> mrc.data.shape
+   (2, 2, 5)
+
+   >>> # Let's change the shape again, as we did before
+   >>> mrc.data.shape = (5, 4)
+   >>> mrc.header.nx == mrc.data.shape[-1]
+   False
+
+   >>> # Now let's update the dimensions:
+   >>> mrc.update_header_from_data()
+   >>> mrc.header.nx
+   array(4, dtype=int32)
+   >>> mrc.header.nx == mrc.data.shape[-1]
+   True
+
+   >>> # The data statistics are still incorrect:
+   >>> mrc.header.dmax
+   array(1000.0, dtype=float32)
+   >>> mrc.header.dmax == mrc.data.max()
+   False
+
+   >>> # So let's update those as well:
+   >>> mrc.update_header_stats()
+   >>> mrc.header.dmax
+   array(0.0, dtype=float32)
+   >>> mrc.header.dmax == mrc.data.max()
+   True
+   >>> mrc.close()
+
+In general, if you're changing the shape, type or endianness of the data, it's
+easiest to use :meth:`~mrcfile.mrcobject.MrcObject.set_data` and the header will
+be kept up to date for you. If you start changing values in the data, remember
+that the statistics in the header will be out of date until you call
+:meth:`~mrcfile.mrcobject.MrcObject.update_header_stats` or
+:meth:`~mrcfile.mrcobject.MrcObject.reset_header_stats`.
 
 Data dimensionality
 ~~~~~~~~~~~~~~~~~~~
@@ -315,16 +635,17 @@ dtype argument to ensure the array can be used in an MRC file:
 
    >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
    >>> # This does not work
-   >>> mrc.set_data(np.zeros((3, 10)))
+   >>> mrc.set_data(np.zeros((4, 5)))
    Traceback (most recent call last):
-   ...
+     ...
    ValueError: dtype 'float64' cannot be converted to an MRC file mode
    >>> # But this does
-   >>> mrc.set_data(np.zeros((3, 10), dtype=np.int16))
+   >>> mrc.set_data(np.zeros((4, 5), dtype=np.int16))
    >>> mrc.data
-   array([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], dtype=int16)
+   array([[0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0]], dtype=int16)
    >>> mrc.close()
 
 Class hierarchy

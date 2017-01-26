@@ -62,10 +62,11 @@ class MrcFile(MrcInterpreter):
                 default is False.
         
         Raises:
-            ValueError: The mode is not one of 'r', 'r+' or 'w+', or the file is
-                not a valid MRC file.
-            IOError: The mode is 'r' or 'r+' and the file does not exist, or the
-                mode is 'w+', the file already exists and overwrite is False.
+            ValueError: If the mode is not one of 'r', 'r+' or 'w+', or the file
+                is not a valid MRC file.
+            IOError: If the mode is 'r' or 'r+' and the file does not exist, or
+                if the mode is 'w+', the file already exists and overwrite is
+                False.
         
         Warns:
             RuntimeWarning: The file appears to be a valid MRC file but the data

@@ -72,7 +72,8 @@ To open an MRC file and read a slice of data::
 
     >>> import mrcfile
     >>> with mrcfile.open('tests/test_data/EMD-3197.map') as mrc:
-    >>>     mrc.data[10,10]
+    ...     mrc.data[10,10]
+    ... 
     array([ 2.58179283,  3.1406002 ,  3.64495397,  3.63812137,  3.61837363,
             4.0115056 ,  3.66981959,  2.07317996,  0.1251585 , -0.87975615,
             0.12517013,  2.07319379,  3.66982722,  4.0115037 ,  3.61837196,
@@ -81,15 +82,10 @@ To open an MRC file and read a slice of data::
 To create a new file with a 2D data array, and change some values::
 
     >>> with mrcfile.new('tmp.mrc') as mrc:
-    >>>     mrc.set_data(np.zeros((5, 5), dtype=np.int8))
-    >>>     mrc.data
-    array([[0, 0, 0, 0, 0],
-           [0, 0, 0, 0, 0],
-           [0, 0, 0, 0, 0],
-           [0, 0, 0, 0, 0],
-           [0, 0, 0, 0, 0]], dtype=int8)
-    >>>     mrc.data[1:4,1:4] = 10
-    >>>     mrc.data
+    ...     mrc.set_data(np.zeros((5, 5), dtype=np.int8))
+    ...     mrc.data[1:4,1:4] = 10
+    ...     mrc.data
+    ... 
     array([[ 0,  0,  0,  0,  0],
            [ 0, 10, 10, 10,  0],
            [ 0, 10, 10, 10,  0],
@@ -110,10 +106,17 @@ Full documentation is available at http://mrcfile.readthedocs.org
 Contributing
 ------------
 
-Issues: https://github.com/ccpem/mrcfile/issues
+Please use the GitHub issue tracker for bug reports and feature requests:
+https://github.com/ccpem/mrcfile/issues
 
 Code contributions are also welcome, please submit pull requests to the GitHub
 repository.
+
+To run the test suite, from the directory which contains the ``mrcfile`` and
+``tests`` packages, run ``python -m unittest tests``. (Or, if you have `tox`_,
+Python 2.7 and Python 3.5 installed, run ``tox``.)
+
+.. _tox: http://tox.readthedocs.org
 
 Licence
 -------

@@ -105,7 +105,7 @@ class MrcInterpreter(MrcObject):
         of the data block.
         
         Raises:
-            ValueError: The file is not a valid MRC file.
+            ValueError: If the file is not a valid MRC file.
         """
         self._read_header()
         self._read_extended_header()
@@ -118,7 +118,7 @@ class MrcInterpreter(MrcObject):
         will be advanced by 1024 bytes.
         
         Raises:
-            ValueError: The file is not a valid MRC file.
+            ValueError: If the file is not a valid MRC file.
         """
         # Read 1024 bytes from the stream
         header_str = self._iostream.read(HEADER_DTYPE.itemsize)
