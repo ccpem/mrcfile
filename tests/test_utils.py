@@ -159,6 +159,54 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
         else:
             assert machst == utils.machine_stamp_from_byte_order('>')
     
+    def test_normalise_little_endian_byte_order(self):
+        assert utils.normalise_byte_order('<') == '<'
+    
+    def test_normalise_big_endian_byte_order(self):
+        assert utils.normalise_byte_order('>') == '>'
+    
+    def test_normalise_native_byte_order(self):
+        if sys.byteorder == 'little':
+            assert utils.normalise_byte_order('=') == '<'
+        else:
+            assert utils.normalise_byte_order('=') == '>'
+    
+    def test_normalise_unknown_byte_orders(self):
+        for byte_order in ['|', 'I', 'other', 'S', 'N', 'L', 'B']:
+            with self.assertRaisesRegex(ValueError,
+                                        "Unrecognised byte order indicator"):
+                utils.normalise_byte_order(byte_order)
+    
+    def test_native_byte_orders_equal(self):
+        assert utils.byte_orders_equal('=', '=')
+    
+    def test_little_byte_order_equals_native(self):
+        assert utils.byte_orders_equal('<', '=') == (sys.byteorder == 'little')
+    
+    def test_big_byte_order_equals_native(self):
+        assert utils.byte_orders_equal('>', '=') == (sys.byteorder == 'big')
+    
+    def test_little_byte_orders_equal(self):
+        assert utils.byte_orders_equal('<', '<')
+    
+    def test_big_byte_orders_equal(self):
+        assert utils.byte_orders_equal('>', '>')
+    
+    def test_unequal_byte_orders(self):
+        assert not utils.byte_orders_equal('>', '<')
+    
+    def test_equality_of_invalid_byte_orders(self):
+        for pair in [('|', '<'),
+                     ('|', '>'),
+                     ('|', '='),
+                     ('<', '|'),
+                     ('>', '|'),
+                     ('=', '|'),
+                     ('|', '|')]:
+            with self.assertRaisesRegex(ValueError,
+                                        "Unrecognised byte order indicator"):
+                utils.byte_orders_equal(*pair)
+    
     def test_unknown_byte_order_raises_exception(self):
         with self.assertRaisesRegex(ValueError, "Unrecognised byte order indicator"):
             utils.machine_stamp_from_byte_order('|')

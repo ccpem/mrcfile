@@ -172,14 +172,48 @@ def machine_stamp_from_byte_order(byte_order='='):
         ValueError: The byte order indicator is unrecognised.
     """
     # If byte order is '=', replace it with the system-native order
-    if byte_order == '=':
-        byte_order = '<' if sys.byteorder == 'little' else '>'
+    byte_order = normalise_byte_order(byte_order)
     
     if byte_order in _byte_order_to_machine_stamp:
         return _byte_order_to_machine_stamp[byte_order]
     else:
         raise ValueError("Unrecognised byte order "
                          "indicator '{0}'".format(byte_order))
+
+def byte_orders_equal(a, b):
+    """Work out if the byte order indicators represent the same endianness.
+    
+    Args:
+        a, b: The byte order indicators: one of '=', '<' or '>', as
+            defined and used by numpy dtype objects.
+    
+    Returns:
+        True if the byte order indicators represent the same endianness.
+    
+    Raises:
+        ValueError: A byte order indicator is not recognised.
+    """
+    return normalise_byte_order(a) == normalise_byte_order(b)
+
+def normalise_byte_order(byte_order):
+    """Convert a numpy byte order indicator to one of '<' or '>'.
+    
+    Args:
+        byte_order: One of '=', '<' or '>'.
+    
+    Returns:
+        '<' if byte_order is '<', or '=' on a little-endian machine.
+        '>' if byte_order is '>', or '=' on a big-endian machine.
+    
+    Raises:
+        ValueError: byte_order is not one of '=', '<' or '>'.
+    """
+    if byte_order not in ('<', '>', '='):
+        raise ValueError("Unrecognised byte order indicator '{0}'"
+                         .format(byte_order))
+    if byte_order == '=':
+        return '<' if sys.byteorder == 'little' else '>'
+    return byte_order
 
 def spacegroup_is_volume_stack(ispg):
     """Identify if the given space group number represents a volume stack.

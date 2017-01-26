@@ -324,16 +324,39 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_header_byte_order_is_unchanged_by_data_with_native_order(self):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
         header = self.mrcobject.header
+        original_mapc = int(header.mapc)
         assert header.mode.dtype.byteorder == data.dtype.byteorder
         self.mrcobject.set_data(data)
         assert header.mode.dtype.byteorder == data.dtype.byteorder
+        assert header.mode == 2
+        assert header.mapc == original_mapc
+    
+    def test_header_byte_order_is_unchanged_by_data_with_no_order(self):
+        data = np.arange(6, dtype=np.int8).reshape(3, 2)
+        header = self.mrcobject.header
+        original_mapc = int(header.mapc)
+        original_order = header.mode.dtype.byteorder
+        self.mrcobject.set_data(data)
+        assert header.mode.dtype.byteorder == original_order
+        assert header.mode == 0
+        assert header.mapc == original_mapc
     
     def test_header_byte_order_is_changed_by_data_with_opposite_order(self):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
+        orig_byte_order = data.dtype.byteorder
         header = self.mrcobject.header
-        assert header.mode.dtype.byteorder == data.dtype.byteorder
+        original_mapc = int(header.mapc)
+        assert header.mode.dtype.byteorder == orig_byte_order
+        
         self.mrcobject.set_data(data.newbyteorder())
-        assert header.mode.dtype.byteorder != data.dtype.byteorder
+        assert header.mode.dtype.byteorder != orig_byte_order
+        assert header.mode == 2
+        assert header.mapc == original_mapc
+        
+        self.mrcobject.set_data(data)
+        assert header.mode.dtype.byteorder == orig_byte_order
+        assert header.mode == 2
+        assert header.mapc == original_mapc
     
     def test_new_header_stats_are_undetermined(self):
         header = self.mrcobject.header

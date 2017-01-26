@@ -12,6 +12,8 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import unittest
 
+import numpy as np
+
 from .test_mrcobject import MrcObjectTest
 from mrcfile.constants import MAP_ID_OFFSET_BYTES
 from mrcfile.mrcinterpreter import MrcInterpreter
@@ -60,6 +62,20 @@ class MrcInterpreterTest(MrcObjectTest):
         mrcinterpreter = MrcInterpreter(iostream=stream)
         with self.assertRaisesRegex(ValueError, "Couldn't read enough bytes for MRC header"):
             mrcinterpreter._read_stream()
+    
+    def test_stream_writing_and_reading(self):
+        stream = io.BytesIO()
+        data = np.arange(30, dtype=np.int16).reshape(5, 6)
+        with MrcInterpreter(iostream=stream) as mrc:
+            mrc._create_default_attributes()
+            mrc.set_data(data)
+        stream.seek(0)
+        with MrcInterpreter(iostream=stream) as mrc:
+            mrc._read_stream()
+            np.testing.assert_array_equal(data, mrc.data)
+            assert mrc.header.mode == 1
+            mrc.set_data(data * 2)
+            assert mrc.header.mode == 1
 
 
 if __name__ == '__main__':

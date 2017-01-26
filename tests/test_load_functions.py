@@ -109,6 +109,13 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                 mrcfile.open(self.gzip_mrc_name)
         finally:
             mrcfile.GzipMrcFile.__init__ = old_init
+    
+    def test_switching_mode(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.set_data(np.arange(12, dtype=np.int8).reshape(3, 4))
+        with mrcfile.open(self.temp_mrc_name, mode='r+') as mrc:
+            mrc.set_data(np.arange(20, dtype=np.int16).reshape(2, 2, 5))
+            assert mrc.header.mode == 1
 
 
 if __name__ == '__main__':
