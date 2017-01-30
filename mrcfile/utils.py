@@ -66,15 +66,14 @@ def data_shape_from_header(header):
     Returns:
         The shape tuple for the data array corresponding to the given header.
     """
-    nx = header.nx
-    ny = header.ny
-    nz = header.nz
-    mz = header.mz
-    ispg = header.ispg
+    nx = int(header.nx)
+    ny = int(header.ny)
+    nz = int(header.nz)
+    mz = int(header.mz)
     
-    if spacegroup_is_volume_stack(ispg):
+    if spacegroup_is_volume_stack(header.ispg):
         shape = (nz // mz, mz, ny, nx)
-    elif ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
+    elif header.ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
         # Use a 2D array for a single image
         shape = (ny, nx)
     else:

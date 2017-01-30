@@ -54,13 +54,15 @@ class MrcInterpreter(MrcObject):
     def __init__(self, iostream=None, **kwargs):
         """Initialise a new MrcInterpreter object.
         
-        This initialiser deliberately avoids reading the stream, to allow
-        subclasses to call super().__init__() at the start of their initialisers
-        (probably before the stream has been opened). Subclasses should set the
-        _iostream attribute themselves and call _read_stream() when ready.
+        This initialiser reads the stream if it is given. In general, subclasses
+        should call super().__init__() without giving an iostream argument, then
+        set the _iostream attribute themselves and call _read_stream() when
+        ready.
         
         To use the MrcInterpreter class directly, pass a stream when creating
-        the object and then call _read_stream() or _create_default_attributes().
+        the object (or for a write-only stream, create an MrcInterpreter with no
+        stream, call _create_default_attributes() and set the _iostream
+        attribute directly).
         
         Args:
             iostream: The I/O stream to use to read and write MRC data. The
@@ -68,8 +70,11 @@ class MrcInterpreter(MrcObject):
         """
         super(MrcInterpreter, self).__init__(**kwargs)
         
-        # Initialise iostream if given
         self._iostream = iostream
+        
+        # If iostream is given, initialise by reading it
+        if self._iostream is not None:
+            self._read_stream()
     
     def __enter__(self):
         """Called by the context manager at the start of a 'with' block.
@@ -159,7 +164,7 @@ class MrcInterpreter(MrcObject):
         If there is no extended header, a zero-length array is assigned to the
         extended_header attribute.
         """
-        ext_header_str = self._iostream.read(self.header.nsymbt)
+        ext_header_str = self._iostream.read(int(self.header.nsymbt))
         self._extended_header = np.fromstring(ext_header_str, dtype='V1')
         self._extended_header.flags.writeable = not self._read_only
     

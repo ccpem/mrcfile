@@ -41,9 +41,8 @@ class MrcInterpreterTest(MrcObjectTest):
         stream.seek(MAP_ID_OFFSET_BYTES)
         stream.write(b'map ')
         stream.seek(0)
-        mrcinterpreter = MrcInterpreter(iostream=stream)
         with self.assertRaisesRegex(ValueError, "Map ID string not found"):
-            mrcinterpreter._read_stream()
+            MrcInterpreter(iostream=stream)
     
     def test_incorrect_machine_stamp(self):
         stream = io.BytesIO()
@@ -51,27 +50,25 @@ class MrcInterpreterTest(MrcObjectTest):
         stream.seek(MAP_ID_OFFSET_BYTES)
         stream.write(b'MAP ')
         stream.seek(0)
-        mrcinterpreter = MrcInterpreter(iostream=stream)
         with self.assertRaisesRegex(ValueError, "Unrecognised machine stamp: "
                                                  "0x00 0x00 0x00 0x00"):
-            mrcinterpreter._read_stream()
+            MrcInterpreter(iostream=stream)
     
     def test_stream_too_short(self):
         stream = io.BytesIO()
         stream.write(bytearray(1023))
-        mrcinterpreter = MrcInterpreter(iostream=stream)
         with self.assertRaisesRegex(ValueError, "Couldn't read enough bytes for MRC header"):
-            mrcinterpreter._read_stream()
+            MrcInterpreter(iostream=stream)
     
     def test_stream_writing_and_reading(self):
         stream = io.BytesIO()
         data = np.arange(30, dtype=np.int16).reshape(5, 6)
-        with MrcInterpreter(iostream=stream) as mrc:
+        with MrcInterpreter() as mrc:
+            mrc._iostream = stream
             mrc._create_default_attributes()
             mrc.set_data(data)
         stream.seek(0)
         with MrcInterpreter(iostream=stream) as mrc:
-            mrc._read_stream()
             np.testing.assert_array_equal(data, mrc.data)
             assert mrc.header.mode == 1
             mrc.set_data(data * 2)
