@@ -7,4 +7,5 @@ install: pip install tox-travis sphinx
 script:
   - tox
   - cd docs
-  - make clean html doctest
+  - make clean html
+  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then make doctest; fi

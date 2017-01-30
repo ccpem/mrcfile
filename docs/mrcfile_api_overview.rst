@@ -285,7 +285,7 @@ To replace the data or extended header completely, call the
    >>> string_array = np.fromstring(b'The extended header can hold any kind of numpy array', dtype='S52')
    >>> mrc.set_extended_header(string_array)
    >>> mrc.extended_header
-   array(['The extended header can hold any kind of numpy array'], 
+   array([b'The extended header can hold any kind of numpy array'], 
          dtype='|S52')
    >>> # Setting the extended header updates the header's nsymbt field to match
    >>> mrc.header.nsymbt
