@@ -28,8 +28,7 @@ It allows MRC files to be created and opened easily using a very simple API,
 which exposes the file's header and data as `numpy`_ arrays. The code runs in
 Python 2 and 3 and is fully unit-tested.
 
-.. _MRC2014 file format: MRC2014_
-.. _MRC2014: http://www.ccpem.ac.uk/mrc_format/mrc2014.php
+.. _MRC2014 file format: http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 .. _numpy: http://www.numpy.org/
 
 The intent of this library is to allow users and developers to read and write

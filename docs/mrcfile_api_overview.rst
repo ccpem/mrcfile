@@ -590,50 +590,150 @@ Data dimensionality
 ~~~~~~~~~~~~~~~~~~~
 
 MRC files can be used to store several types of data: single images, image
-stacks, volumes and volume stacks. If you set a new data array in an MrcFile
-object (using :meth:`~mrcfile.mrcobject.MrcObject.set_data` or the ``data``
-argument to :func:`~mrcfile.new`), it will be treated as follows:
+stacks, volumes and volume stacks. These are distinguished by the dimensionality
+of the data array and the space group number (the header's ``ispg`` field):
 
-* 2D data array: single image, space group 0.
-* 3D data array: volume, space group 1, unless the file already contains an
-  image stack in which case new 3D data continues to be treated as an image
-  stack.
-* 4D data array: volume stack, space group 401.
+============  ==========  ===========
+Data type     Dimensions  Space group
+============  ==========  ===========
+Single image      2           0
+Image stack       3           0
+Volume            3         1--230 (1 for normal EM data)
+Volume stack      4        401--630 (401 for normal EM data)
+============  ==========  ===========
 
-Any other number of data dimensions will raise an exception.
-
-The dimensionality of an existing MrcFile can be identified by checking the data
-array's shape and the ``ispg`` field in the header, or more conveniently using
-the :meth:`~mrcfile.mrcobject.MrcObject.is_single_image`,
+:class:`~mrcfile.mrcfile.MrcFile` objects have methods to allow easy
+identification of the data type:
+:meth:`~mrcfile.mrcobject.MrcObject.is_single_image`,
 :meth:`~mrcfile.mrcobject.MrcObject.is_image_stack`,
 :meth:`~mrcfile.mrcobject.MrcObject.is_volume` and
-:meth:`~mrcfile.mrcobject.MrcObject.is_volume_stack` methods. For 3D data, the
-intepretation can be switched by calling
-:meth:`~mrcfile.mrcobject.MrcObject.set_image_stack` and
-:meth:`~mrcfile.mrcobject.MrcObject.set_volume`.
+:meth:`~mrcfile.mrcobject.MrcObject.is_volume_stack`.
 
-Note that the MRC format allows the data axes to be swapped using the header's
-``mapc``, ``mapr`` and ``maps`` fields. This library does not attempt to swap
-the axes and simply assigns the columns to X, rows to Y and sections to Z. (The
-data array is indexed in C style, so data values can be accessed using
-``mrc.data[z][y][x]``.)
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc')
+
+   >>> # The file currently contains two-dimensional data
+   >>> mrc.data.shape
+   (5, 4)
+   >>> len(mrc.data.shape)
+   2
+
+   >>> # This is intepreted as a single image
+   >>> mrc.is_single_image()
+   True
+   >>> mrc.is_image_stack()
+   False
+   >>> mrc.is_volume()
+   False
+   >>> mrc.is_volume_stack()
+   False
+
+   >>> mrc.close()
+
+If a file already contains image or image stack data, new three-dimensional data
+is treated as an image stack; otherwise, 3D data is treated as a volume by
+default:
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+   
+   >>> # New 3D data in an existing image file is treated as an image stack:
+   >>> mrc.set_data(data_3d)
+   >>> len(mrc.data.shape)
+   3
+   >>> mrc.is_volume()
+   False
+   >>> mrc.is_image_stack()
+   True
+   >>> int(mrc.header.ispg)
+   0
+   >>> mrc.close()
+
+   >>> # But normally, 3D data is treated as a volume:
+   >>> mrc = mrcfile.new('tmp.mrc', overwrite=True)
+   >>> mrc.set_data(data_3d)
+   >>> mrc.is_volume()
+   True
+   >>> mrc.is_image_stack()
+   False
+   >>> int(mrc.header.ispg)
+   1
+   >>> mrc.close()
+
+Call :meth:`~mrcfile.mrcobject.MrcObject.set_image_stack` and 
+:meth:`~mrcfile.mrcobject.MrcObject.set_volume` to change the interpretation of
+3D data. (Note: as well as changing ``ispg``, these methods also change ``mz``
+to be 1 for image stacks and equal to ``nz`` for volumes.)
+
+.. doctest::
+
+   >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
+   >>> # Change the file to represent an image stack:
+   >>> mrc.set_image_stack()
+   >>> mrc.is_volume()
+   False
+   >>> mrc.is_image_stack()
+   True
+   >>> int(mrc.header.ispg)
+   0
+
+   >>> # And now change it back to representing a volume:
+   >>> mrc.set_volume()
+   >>> mrc.is_volume()
+   True
+   >>> mrc.is_image_stack()
+   False
+   >>> int(mrc.header.ispg)
+   1
+
+   >>> mrc.close()
+
+Note that the `MRC format`_ allows the data axes to be swapped using the
+header's ``mapc``, ``mapr`` and ``maps`` fields. This library does not attempt
+to swap the axes and simply assigns the columns to X, rows to Y and sections to
+Z. (The data array is indexed in C style, so data values can be accessed using
+``mrc.data[z][y][x]``.) In general, EM data is written using the default
+axes, but crystallographic data files might use swapped axes in certain space
+groups -- if this might matter to you, you should check the ``mapc``, ``mapr``
+and ``maps`` fields after opening the file and consider transposing the data
+array if necessary.
+
+.. _MRC format: http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 
 Data types
 ~~~~~~~~~~
 
 Various numpy `data types`_ can be used for MRC data arrays. The conversions to
-MRC mode numbers are given in the documentation for
-:func:`~mrcfile.utils.mode_from_dtype`. The important point to note is that
-some types cannot be used in MRC files, including integer types of more than 16
-bits, or float types of more than 32 bits. Many numpy array creation routines
-use int64 or float64 dtypes by default, which means you will need to give a
-dtype argument to ensure the array can be used in an MRC file:
+MRC mode numbers are:
 
 .. _data types: https://docs.scipy.org/doc/numpy/reference/arrays.dtypes.html
+
+=========  ========
+Data type  MRC mode
+=========  ========
+float16       2 (note that data will be widened to 32 bits in the file)
+float32       2
+int8          0
+int16         1
+uint8         6 (note that data will be widened to 16 bits in the file)
+uint16        6
+complex64     4
+=========  ========
+
+(Mode 3 is not supported since there is no corresponding numpy dtype.)
+
+No other data types are accepted, including integer types of more than 16 bits,
+or float types of more than 32 bits. Many numpy array creation routines use
+int64 or float64 dtypes by default, which means you will need to give a
+``dtype`` argument to ensure the array can be used in an MRC file:
 
 .. doctest::
 
    >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
+
    >>> # This does not work
    >>> mrc.set_data(np.zeros((4, 5)))
    Traceback (most recent call last):
@@ -646,6 +746,7 @@ dtype argument to ensure the array can be used in an MRC file:
           [0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0],
           [0, 0, 0, 0, 0]], dtype=int16)
+
    >>> mrc.close()
 
 Class hierarchy

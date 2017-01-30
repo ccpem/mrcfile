@@ -304,20 +304,49 @@ class MrcObject(object):
         self.header.cella.z = z_size * self.header.mz
     
     def is_single_image(self):
+        """Identify whether the file represents a single image.
+        
+        Returns:
+            True if the data array is two-dimensional.
+        """
         return self.data.ndim == 2
     
     def is_image_stack(self):
+        """Identify whether the file represents a stack of images.
+        
+        Returns:
+            True if the data array is three-dimensional and the space group is
+            zero.
+        """
         return (self.data.ndim == 3
                 and self.header.ispg == IMAGE_STACK_SPACEGROUP)
     
     def is_volume(self):
+        """Identify whether the file represents a volume.
+        
+        Returns:
+            True if the data array is three-dimensional and the space group is
+            not zero.
+        """
         return (self.data.ndim == 3
                 and self.header.ispg != IMAGE_STACK_SPACEGROUP)
     
     def is_volume_stack(self):
+        """Identify whether the file represents a stack of volumes.
+        
+        Returns:
+            True if the data array is four-dimensional.
+        """
         return self.data.ndim == 4
     
     def set_image_stack(self):
+        """Change three-dimensional data to represent an image stack.
+        
+        This method changes the space group number (``header.ispg``) to zero.
+        
+        Raises:
+            ValueError: If the data array is not three-dimensional.
+        """
         self._check_writeable()
         if self.data.ndim != 3:
             raise ValueError('Only 3D data can be changed into an image stack')
@@ -325,6 +354,14 @@ class MrcObject(object):
         self.header.mz = 1
     
     def set_volume(self):
+        """Change three-dimensional data to represent a volume.
+        
+        If the space group was previously zero (representing an image stack),
+        this method sets it to one. Otherwise the space group is not changed.
+        
+        Raises:
+            ValueError: If the data array is not three-dimensional.
+        """
         self._check_writeable()
         if self.data.ndim != 3:
             raise ValueError('Only 3D data can be changed into a volume')
