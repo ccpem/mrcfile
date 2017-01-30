@@ -62,11 +62,10 @@ class MrcFile(MrcInterpreter):
                 default is False.
         
         Raises:
-            ValueError: If the mode is not one of 'r', 'r+' or 'w+', or the file
-                is not a valid MRC file.
-            IOError: If the mode is 'r' or 'r+' and the file does not exist, or
-                if the mode is 'w+', the file already exists and overwrite is
-                False.
+            ValueError: If the mode is not one of 'r', 'r+' or 'w+', the file is
+                not a valid MRC file, or if the mode is 'w+', the file already
+                exists and overwrite is False.
+            OSError: If the mode is 'r' or 'r+' and the file does not exist.
         
         Warns:
             RuntimeWarning: The file appears to be a valid MRC file but the data
@@ -78,7 +77,7 @@ class MrcFile(MrcInterpreter):
             raise ValueError("Mode '{0}' not supported".format(mode))
         
         if ('w' in mode and os.path.exists(name) and not overwrite):
-            raise IOError("File '{0}' already exists; set overwrite=True "
+            raise ValueError("File '{0}' already exists; set overwrite=True "
                           "to overwrite it".format(name))
         
         self._mode = mode

@@ -77,9 +77,9 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert not os.path.exists(self.temp_mrc_name)
         open(self.temp_mrc_name, 'w+').close()
         assert os.path.exists(self.temp_mrc_name)
-        with self.assertRaisesRegex(IOError, "already exists"):
+        with self.assertRaisesRegex(ValueError, "already exists"):
             mrcfile.new(self.temp_mrc_name)
-        with self.assertRaisesRegex(IOError, "already exists"):
+        with self.assertRaisesRegex(ValueError, "already exists"):
             mrcfile.new(self.temp_mrc_name, overwrite=False)
         mrcfile.new(self.temp_mrc_name, overwrite=True).close()
     

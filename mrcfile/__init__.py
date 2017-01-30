@@ -122,11 +122,11 @@ def open(name, mode='r'):  # @ReservedAssignment
         gzipped).
     
     Raises:
-        ValueError: The mode is not one of 'r', 'r+' or 'w+', or the file is
-            not a valid MRC file.
-        IOError: The mode is 'r' or 'r+' and the file does not exist, or the
-            mode is 'w+' and the file already exists. (Call :func:`new` with
-            overwrite=True to deliberately overwrite an existing file.)
+        ValueError: The mode is not one of 'r', 'r+' or 'w+', the file is
+            not a valid MRC file, , or the mode is 'w+' and the file already
+            exists. (Call :func:`new` with overwrite=True to deliberately
+            overwrite an existing file.)
+        OSError: The mode is 'r' or 'r+' and the file does not exist.
     
     Warns:
         RuntimeWarning: The file appears to be a valid MRC file but the data
@@ -215,7 +215,7 @@ def validate(name, print_file=None):
         format specification in any way.
     
     Raises:
-        IOError: The file does not exist or cannot be opened.
+        OSError: The file does not exist or cannot be opened.
         ValueError: The file is seriously invalid, because it has no format ID
             string, an incorrect machine stamp or is smaller than expected from
             the header.

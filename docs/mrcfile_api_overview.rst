@@ -200,7 +200,7 @@ The :func:`~mrcfile.new` function is effectively shorthand for
    >>> mrc = mrcfile.new('empty.mrc')
    Traceback (most recent call last):
      ...
-   IOError: File 'empty.mrc' already exists; set overwrite=True to overwrite it
+   ValueError: File 'empty.mrc' already exists; set overwrite=True to overwrite it
    >>> # Ooops, we've already got a file with that name!
    >>> # If we're sure we want to overwrite it, we can try again:
    >>> mrc = mrcfile.new('empty.mrc', overwrite=True)

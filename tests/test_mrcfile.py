@@ -192,14 +192,14 @@ class MrcFileTest(MrcObjectTest):
     
     def test_cannot_use_invalid_file_modes(self):
         for mode in ('w', 'a', 'a+'):
-            with self.assertRaises(ValueError):
+            with self.assertRaisesRegex(ValueError, "Mode '.+' not supported"):
                 self.newmrc(self.temp_mrc_name, mode=mode)
     
     def test_cannot_accidentally_overwrite_file(self):
         assert not os.path.exists(self.temp_mrc_name)
         open(self.temp_mrc_name, 'w+').close()
         assert os.path.exists(self.temp_mrc_name)
-        with self.assertRaises(IOError):
+        with self.assertRaisesRegex(ValueError, "already exists"):
             self.newmrc(self.temp_mrc_name, mode='w+')
     
     def test_can_deliberately_overwrite_file(self):
