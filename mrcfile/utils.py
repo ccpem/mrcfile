@@ -176,12 +176,7 @@ def machine_stamp_from_byte_order(byte_order='='):
     """
     # If byte order is '=', replace it with the system-native order
     byte_order = normalise_byte_order(byte_order)
-    
-    if byte_order in _byte_order_to_machine_stamp:
-        return _byte_order_to_machine_stamp[byte_order]
-    else:
-        raise ValueError("Unrecognised byte order "
-                         "indicator '{0}'".format(byte_order))
+    return _byte_order_to_machine_stamp[byte_order]
 
 def byte_orders_equal(a, b):
     """Work out if the byte order indicators represent the same endianness.
