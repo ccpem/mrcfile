@@ -1,5 +1,5 @@
-mrcfile.py API overview
-=======================
+Usage Guide
+===========
 
 .. testsetup:: *
 
@@ -748,6 +748,9 @@ int64 or float64 dtypes by default, which means you will need to give a
           [0, 0, 0, 0, 0]], dtype=int16)
 
    >>> mrc.close()
+
+API overview
+============
 
 Class hierarchy
 ---------------

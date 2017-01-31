@@ -122,14 +122,14 @@ def open(name, mode='r'):  # @ReservedAssignment
         gzipped).
     
     Raises:
-        ValueError: The mode is not one of 'r', 'r+' or 'w+', the file is
+        ValueError: If the mode is not one of 'r', 'r+' or 'w+', the file is
             not a valid MRC file, , or the mode is 'w+' and the file already
             exists. (Call :func:`new` with overwrite=True to deliberately
             overwrite an existing file.)
-        OSError: The mode is 'r' or 'r+' and the file does not exist.
+        OSError: If the mode is 'r' or 'r+' and the file does not exist.
     
     Warns:
-        RuntimeWarning: The file appears to be a valid MRC file but the data
+        RuntimeWarning: If the file appears to be a valid MRC file but the data
             block is longer than expected from the dimensions in the header.
     """
     try:
@@ -215,13 +215,13 @@ def validate(name, print_file=None):
         format specification in any way.
     
     Raises:
-        OSError: The file does not exist or cannot be opened.
-        ValueError: The file is seriously invalid, because it has no format ID
-            string, an incorrect machine stamp or is smaller than expected from
-            the header.
+        OSError: If the file does not exist or cannot be opened.
+        ValueError: If the file is seriously invalid, because it has no format
+            ID string, an incorrect machine stamp or is smaller than expected
+            from the header.
     
     Warns:
-        RuntimeWarning: The file appears to be a valid MRC file but the data
+        RuntimeWarning: If the file appears to be a valid MRC file but the data
             block is longer than expected from the dimensions in the header.
             This information will also be printed to the output stream.
     """
