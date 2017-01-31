@@ -749,6 +749,22 @@ int64 or float64 dtypes by default, which means you will need to give a
 
    >>> mrc.close()
 
+Validating MRC files
+--------------------
+
+MRC files can be validated with :func:`mrcfile.validate`:
+
+.. doctest::
+
+   >>> mrcfile.validate('tmp.mrc')
+   True
+
+Serious errors (such as a corrupt file) will cause an exception to be raised.
+More minor errors will cause messages to be printed to the console, and
+:func:`~mrcfile.validate` will return ``False``.
+
+Examples to follow...
+
 API overview
 ============
 
