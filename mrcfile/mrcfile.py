@@ -144,32 +144,33 @@ class MrcFile(MrcInterpreter):
         
         The tests are:
         
-        #. File size: The size of the file on disk should match the expected size
-           calculated from the MRC header.
+        #. File size: The size of the file on disk should match the expected
+           size calculated from the MRC header.
         #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
-           ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must all
-           be positive numbers.
-        #. Axis mapping: Header fields ``mapc``, ``mapr`` and ``maps`` must contain
-           the values 1, 2, and 3 (in any order).
+           ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must
+           all be positive numbers.
+        #. Axis mapping: Header fields ``mapc``, ``mapr`` and ``maps`` must
+           contain the values 1, 2, and 3 (in any order).
         #. Volume stack dimensions: If the spacegroup is in the range 401--630,
-           representing a volume stack, the ``nz`` field should be exactly divisible
-           by ``mz`` to represent the number of volumes in the stack.
-        #. Header labels: The ``nlabl`` field should be set to indicate the number
-           of labels in use, and the labels in use should appear first in the label
-           array.
-        #. MRC format version: The ``nversion`` field should be 20140 for compliance
-           with the MRC2014 standard.
-        #. Extended header type: If an extended header is present, the ``exttyp``
-           field should be set to indicate the type of extended header.
-        #. Data statistics: The statistics in the header should be correct for the
-           actual data in the file, or marked as undetermined.
+           representing a volume stack, the ``nz`` field should be exactly
+           divisible by ``mz`` to represent the number of volumes in the stack.
+        #. Header labels: The ``nlabl`` field should be set to indicate the
+           number of labels in use, and the labels in use should appear first in
+           the label array.
+        #. MRC format version: The ``nversion`` field should be 20140 for
+           compliance with the MRC2014 standard.
+        #. Extended header type: If an extended header is present, the
+           ``exttyp`` field should be set to indicate the type of extended
+           header.
+        #. Data statistics: The statistics in the header should be correct for
+           the actual data in the file, or marked as undetermined.
         
         Args:
             name: The file name to open and validate.
-            print_file: The output text stream to use for printing messages about
-                the validation. This is passed directly to the ``file`` argument of
-                Python's ``print()`` function. The default is ``None``, which means
-                output will be printed to ``sys.stdout``.
+            print_file: The output text stream to use for printing messages 
+                about the validation. This is passed directly to the ``file``
+                argument of Python's ``print()`` function. The default is
+                ``None``, which means output will be printed to ``sys.stdout``.
         
         Returns:
             True if the file is valid, False if the file does not meet the MRC

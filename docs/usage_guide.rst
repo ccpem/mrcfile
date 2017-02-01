@@ -771,11 +771,72 @@ MRC files can be validated with :func:`mrcfile.validate`:
    >>> mrcfile.validate('tmp.mrc')
    True
 
-Serious errors (such as a corrupt file) will cause an exception to be raised.
-More minor errors will cause messages to be printed to the console, and
-:func:`~mrcfile.validate` will return ``False``.
+This works equally well for gzipped files:
 
-Examples to follow...
+.. doctest::
+
+   >>> mrcfile.validate('tmp.mrc.gz')
+   True
+
+Serious errors (such as a corrupt file) will cause an exception to be raised as
+the file is opened:
+
+.. doctest::
+
+   >>> # First, let's make the file invalid
+   >>> with mrcfile.open('tmp.mrc', mode='r+') as mrc:
+   ...     mrc.header.map = b'bad '
+   ... 
+
+   >>> # Now when we try to validate it, we'll get an exception:
+   >>> mrcfile.validate('tmp.mrc')
+   Traceback (most recent call last):
+      ...
+   ValueError: Map ID string not found - not an MRC file, or file is corrupt
+
+More minor errors will cause messages to be printed to the console, and
+:func:`~mrcfile.validate` will return ``False``:
+
+.. doctest::
+
+   >>> # Let's make a file which is valid except for the header's mz value
+   >>> with mrcfile.new('tmp.mrc', overwrite=True) as mrc:
+   ...     mrc.set_data(example_data)
+   ...     mrc.header.mz = -1
+   ... 
+
+   >>> # Now it should fail validation and print a helpful message
+   >>> mrcfile.validate('tmp.mrc')
+   Header field 'mz' is negative
+   False
+
+Normally, messages are printed to ``sys.stdout`` (as normal for Python ``print``
+calls). :func:`~mrcfile.validate` has an optional ``print_file`` argument which
+allows any text stream to be used for the output instead:
+
+.. doctest::
+
+   >>> # Create a text stream to capture the output
+   >>> import io
+   >>> output = io.StringIO()
+
+   >>> # Now validate the file...
+   >>> mrcfile.validate('tmp.mrc', print_file=output)
+   False
+
+   >>> # ...and check the output separately
+   >>> print(output.getvalue().strip())
+   Header field 'mz' is negative
+
+Behind the scenes, :func:`mrcfile.validate` calls :func:`mrcfile.open` and then
+:meth:`MrcFile.validate() <mrcfile.mrcfile.MrcFile.validate>`. If you already
+have an :class:`~mrcfile.mrcfile.MrcFile` open, you can call this directly to
+check the file -- but note that the file size test might be inaccurate unless
+you call :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` first. Also,
+:meth:`MrcFile.validate() <mrcfile.mrcfile.MrcFile.validate>` doesn't check for
+serious problems which would stop the file being opened. To ensure the file is
+valid, it's best to flush the file and then validate it using
+:func:`mrcfile.validate`.
 
 API overview
 ============
@@ -830,5 +891,6 @@ Methods:
 * :meth:`~mrcfile.mrcobject.MrcObject.update_header_stats`
 * :meth:`~mrcfile.mrcobject.MrcObject.reset_header_stats`
 * :meth:`~mrcfile.mrcobject.MrcObject.print_header`
+* :meth:`~mrcfile.mrcfile.MrcFile.validate`
 * :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush`
 * :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.close`
