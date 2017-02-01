@@ -166,7 +166,7 @@ class MrcFileTest(MrcObjectTest):
     def test_stream_can_be_read_again(self):
         with self.newmrc(self.example_mrc_name) as mrc:
             orig_data = mrc.data.copy()
-            mrc._read_stream()
+            mrc._read()
             np.testing.assert_array_equal(orig_data, mrc.data)
     
     ############################################################################
@@ -180,13 +180,13 @@ class MrcFileTest(MrcObjectTest):
             mrc.set_data(orig_data.copy())
             mrc.flush()
             np.testing.assert_array_equal(orig_data, mrc.data)
-            mrc._read_stream()
+            mrc._read()
             np.testing.assert_array_equal(orig_data, mrc.data)
-            mrc._read_stream()
+            mrc._read()
             mrc.flush()
             mrc.flush()
-            mrc._read_stream()
-            mrc._read_stream()
+            mrc._read()
+            mrc._read()
             mrc.flush()
             np.testing.assert_array_equal(orig_data, mrc.data)
     

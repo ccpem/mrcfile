@@ -109,11 +109,6 @@ class MrcMemmap(MrcFile):
                                mode=acc_mode,
                                offset=header_nbytes,
                                shape=shape)
-        
-        # memmap construction seeks to the end of the file. Move back to the
-        # end of the data block so the check on file size in
-        # MrcFile._read_stream() can work.
-        self._iostream.seek(header_nbytes + self._data.nbytes, os.SEEK_SET)
     
     def _close_data(self):
         """Delete the existing memmap array, if it exists.

@@ -474,3 +474,130 @@ class MrcObject(object):
         for item in self.header.dtype.names:
             print('{0:15s} : {1}'.format(item, self.header[item]),
                   file=print_file)
+    
+    def validate(self, print_file=None):
+        """Validate this MrcObject.
+        
+        This method runs a series of tests to check whether this object complies
+        with the MRC2014 format specification:
+        
+        #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
+           ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must
+           all be positive numbers.
+        #. Axis mapping: Header fields ``mapc``, ``mapr`` and ``maps`` must
+           contain the values 1, 2, and 3 (in any order).
+        #. Volume stack dimensions: If the spacegroup is in the range 401--630,
+           representing a volume stack, the ``nz`` field should be exactly
+           divisible by ``mz`` to represent the number of volumes in the stack.
+        #. Header labels: The ``nlabl`` field should be set to indicate the
+           number of labels in use, and the labels in use should appear first in
+           the label array (that is, there should be no blank labels between
+           text-filled ones).
+        #. MRC format version: The ``nversion`` field should be 20140 for
+           compliance with the MRC2014 standard.
+        #. Extended header type: If an extended header is present, the
+           ``exttyp`` field should be set to indicate the type of extended
+           header.
+        #. Data statistics: The statistics in the header should be correct for
+           the actual data, or marked as undetermined.
+        
+        Args:
+            print_file: The output text stream to use for printing messages
+                about the validation. This is passed directly to the ``file``
+                argument of Python's ``print()`` function. The default is
+                ``None``, which means output will be printed to ``sys.stdout``.
+        
+        Returns:
+            True if this MrcObject  is valid, False if it does not meet the MRC
+            format specification in any way.
+        """
+        valid = True
+        
+        def log(message):
+            print(message, file=print_file)
+        
+        # Check map dimensions and other fields are non-negative
+        for field in ['nx', 'ny', 'nz', 'mx', 'my', 'mz', 'ispg', 'nlabl']:
+            if self.header[field] < 0:
+                log("Header field '{0}' is negative".format(field))
+                valid = False
+        
+        # Check cell dimensions are non-negative
+        for field in ['x', 'y', 'z']:
+            if self.header.cella[field] < 0:
+                log("Cell dimension '{0}' is negative".format(field))
+                valid = False
+        
+        # Check axis mapping is valid
+        axes = set()
+        for field in ['mapc', 'mapr', 'maps']:
+            axes.add(int(self.header[field]))
+        if axes != set([1, 2, 3]):
+            log("Invalid axis mapping: found {0}, should be [1, 2, 3]"
+                .format(sorted(list(axes))))
+            valid = False
+        
+        # Check mz value for volume stacks
+        if utils.spacegroup_is_volume_stack(self.header.ispg):
+            if self.header.nz % self.header.mz != 0:
+                log("Error in dimensions for volume stack: nz should be "
+                    "divisible by mz. Found nz = {0}, mz = {1})"
+                    .format(self.header.nz, self.header.mz))
+                valid = False
+        
+        # Check nlabl is correct
+        count = 0
+        seen_empty_label = False
+        for label in self.header.label:
+            if len(label.strip()) > 0:
+                count += 1
+                if seen_empty_label:
+                    log("Error in header labels: empty labels appear between "
+                        "text-containing labels")
+                    valid = False
+            else:
+                seen_empty_label = True
+        if count != self.header.nlabl:
+            log("Error in header labels: nlabl is {0} "
+                "but {1} labels contain text".format(self.header.nlabl, count))
+            valid = False
+        
+        # Check MRC format version
+        if self.header.nversion != MRC_FORMAT_VERSION:
+            log("File does not declare MRC format version 20140: nversion = {0}"
+                .format(self.header.nversion))
+            valid = False
+        
+        # Check extended header type is set to a known value
+        valid_exttypes = ['CCP4', 'MRCO', 'SERI', 'AGAR', 'FEI1']
+        if self.header.nsymbt > 0 and self.header.exttyp not in valid_exttypes:
+            log("Extended header type is undefined or unrecognised: exttyp = "
+                "'{0}'".format(self.header.exttyp.item().decode('ascii')))
+            valid = False
+        
+        # Check data statistics
+        real_rms = real_min = real_max = real_mean = 0
+        if len(self.data > 0):
+            real_rms = self.data.std()
+            real_min = self.data.min()
+            real_max = self.data.max()
+            real_mean = self.data.mean()
+        if (self.header.rms >= 0 and not np.isclose(real_rms, self.header.rms)):
+            log("Error in data statistics: RMS deviation is {0} but the value "
+                "in the header is {1}".format(real_rms, self.header.rms))
+            valid = False
+        if self.header.dmin < self.header.dmax and self.header.dmin != real_min:
+            log("Error in data statistics: minimum is {0} but the value "
+                "in the header is {1}".format(real_min, self.header.dmin))
+            valid = False
+        if self.header.dmin < self.header.dmax and self.header.dmax != real_max:
+            log("Error in data statistics: maximum is {0} but the value "
+                "in the header is {1}".format(real_max, self.header.dmax))
+            valid = False
+        if (self.header.dmean > min(self.header.dmin, self.header.dmax)
+            and not np.isclose(real_mean, self.header.dmean)):
+            log("Error in data statistics: mean is {0} but the value "
+                "in the header is {1}".format(real_mean, self.header.dmean))
+            valid = False
+        
+        return valid

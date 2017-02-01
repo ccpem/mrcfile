@@ -89,7 +89,7 @@ class MrcFile(MrcInterpreter):
             if 'w' in mode:
                 self._create_default_attributes()
             else:
-                self._read_stream()
+                self._read()
         except Exception:
             self._close_file()
             raise
@@ -102,17 +102,29 @@ class MrcFile(MrcInterpreter):
         """Open a file object to use as the I/O stream."""
         self._iostream = open(name, self._mode + 'b')
     
-    def _read_stream(self):
-        """Override _read_stream() to move back to start of file first."""
+    def _read(self):
+        """Override _read() to move back to start of file first."""
         self._iostream.seek(0)
-        super(MrcFile, self)._read_stream()
+        super(MrcFile, self)._read()
         
         # Check if the file is the expected size.
-        extra_bytes = len(self._iostream.read())
-        if extra_bytes > 0:
+        actual_size = self._get_file_size()
+        expected_size = (self.header.nbytes
+                         + self.extended_header.nbytes
+                         + self.data.nbytes)
+        
+        if actual_size > expected_size:
             msg = ("MRC file is {0} bytes larger than expected"
-                   .format(extra_bytes))
+                   .format(actual_size - expected_size))
             warnings.warn(msg, RuntimeWarning)
+    
+    def _get_file_size(self):
+        """Return the size of the underlying file object, in bytes."""
+        pos = self._iostream.tell()
+        self._iostream.seek(0, os.SEEK_END)
+        size = self._iostream.tell()
+        self._iostream.seek(pos, os.SEEK_SET)
+        return size
     
     def close(self):
         """Flush any changes to disk and close the file.
@@ -126,3 +138,55 @@ class MrcFile(MrcInterpreter):
     def _close_file(self):
         """Close the file object."""
         self._iostream.close()
+    
+    def validate(self, print_file=None):
+        """Validate this MRC file.
+        
+        The tests are:
+        
+        #. File size: The size of the file on disk should match the expected size
+           calculated from the MRC header.
+        #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
+           ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must all
+           be positive numbers.
+        #. Axis mapping: Header fields ``mapc``, ``mapr`` and ``maps`` must contain
+           the values 1, 2, and 3 (in any order).
+        #. Volume stack dimensions: If the spacegroup is in the range 401--630,
+           representing a volume stack, the ``nz`` field should be exactly divisible
+           by ``mz`` to represent the number of volumes in the stack.
+        #. Header labels: The ``nlabl`` field should be set to indicate the number
+           of labels in use, and the labels in use should appear first in the label
+           array.
+        #. MRC format version: The ``nversion`` field should be 20140 for compliance
+           with the MRC2014 standard.
+        #. Extended header type: If an extended header is present, the ``exttyp``
+           field should be set to indicate the type of extended header.
+        #. Data statistics: The statistics in the header should be correct for the
+           actual data in the file, or marked as undetermined.
+        
+        Args:
+            name: The file name to open and validate.
+            print_file: The output text stream to use for printing messages about
+                the validation. This is passed directly to the ``file`` argument of
+                Python's ``print()`` function. The default is ``None``, which means
+                output will be printed to ``sys.stdout``.
+        
+        Returns:
+            True if the file is valid, False if the file does not meet the MRC
+            format specification in any way.
+        """
+        valid = super(MrcFile, self).validate(print_file=print_file)
+        
+        # Check file size
+        file_size = self._get_file_size()
+        mrc_size = (self.header.nbytes
+                    + self.extended_header.nbytes
+                    + self.data.nbytes)
+        if (file_size != mrc_size):
+            print("File is larger than expected. Actual size: {0} bytes; "
+                  "expected size: {1} bytes (calculated from header)"
+                  .format(file_size, mrc_size),
+                  file=print_file)
+            valid = False
+        
+        return valid

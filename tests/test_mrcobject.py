@@ -325,9 +325,11 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
         header = self.mrcobject.header
         original_mapc = int(header.mapc)
-        assert header.mode.dtype.byteorder == data.dtype.byteorder
+        assert utils.byte_orders_equal(header.mode.dtype.byteorder,
+                                       data.dtype.byteorder)
         self.mrcobject.set_data(data)
-        assert header.mode.dtype.byteorder == data.dtype.byteorder
+        assert utils.byte_orders_equal(header.mode.dtype.byteorder,
+                                       data.dtype.byteorder)
         assert header.mode == 2
         assert header.mapc == original_mapc
     
@@ -346,15 +348,18 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         orig_byte_order = data.dtype.byteorder
         header = self.mrcobject.header
         original_mapc = int(header.mapc)
-        assert header.mode.dtype.byteorder == orig_byte_order
+        assert utils.byte_orders_equal(header.mode.dtype.byteorder,
+                                       orig_byte_order)
         
         self.mrcobject.set_data(data.newbyteorder())
-        assert header.mode.dtype.byteorder != orig_byte_order
+        assert not utils.byte_orders_equal(header.mode.dtype.byteorder,
+                                           orig_byte_order)
         assert header.mode == 2
         assert header.mapc == original_mapc
         
         self.mrcobject.set_data(data)
-        assert header.mode.dtype.byteorder == orig_byte_order
+        assert utils.byte_orders_equal(header.mode.dtype.byteorder,
+                                       orig_byte_order)
         assert header.mode == 2
         assert header.mapc == original_mapc
     
@@ -493,6 +498,14 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         # Number of lines is different in python 2 and 3 due to different numpy
         # output formatting - just check for both possibilities for now
         assert len(out_lines) == 32 or len(out_lines) == 34
+    
+    def test_validate(self):
+        self.mrcobject.header.ispg = -10
+        print_stream = io.StringIO()
+        result = self.mrcobject.validate(print_file=print_stream)
+        assert result == False
+        print_output = print_stream.getvalue()
+        assert "Header field 'ispg' is negative" in print_output
 
 
 if __name__ == '__main__':

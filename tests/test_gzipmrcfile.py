@@ -39,6 +39,9 @@ class GzipMrcFileTest(MrcFileTest):
         # Set up parameters so MrcObject tests run on the GzipMrcFile class
         obj_mrc_name = os.path.join(self.test_output, 'test_mrcobject.mrc')
         self.mrcobject = GzipMrcFile(obj_mrc_name, 'w+', overwrite=True)
+        # Flush and re-read to ensure underlying file is valid gzip
+        self.mrcobject.flush()
+        self.mrcobject._read()
     
     def test_non_mrc_file_is_rejected(self):
         """Override test to change expected error message."""

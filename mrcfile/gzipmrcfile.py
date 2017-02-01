@@ -43,13 +43,24 @@ class GzipMrcFile(MrcFile):
         self._iostream.close()
         self._fileobj.close()
     
-    def _read_stream(self):
-        """Override _read_stream() to ensure gzip file is in read mode."""
+    def _read(self):
+        """Override _read() to ensure gzip file is in read mode."""
+        self._ensure_readable_gzip_stream()
+        super(GzipMrcFile, self)._read()
+    
+    def _ensure_readable_gzip_stream(self):
+        """Make sure _iostream is a gzip stream that can be read."""
         if self._iostream.mode != gzip.READ:
             self._iostream.close()
             self._fileobj.seek(0)
             self._iostream = gzip.GzipFile(fileobj=self._fileobj, mode='rb')
-        super(GzipMrcFile, self)._read_stream()
+    
+    def _get_file_size(self):
+        """Override _get_file_size() to avoid seeking from end."""
+        self._ensure_readable_gzip_stream()
+        pos = self._iostream.tell()
+        extra = len(self._iostream.read())
+        return pos + extra
     
     def flush(self):
         """Override flush() since GzipFile objects need special handling."""
@@ -63,4 +74,5 @@ class GzipMrcFile(MrcFile):
             self._iostream.write(self.extended_header.tobytes())
             self._iostream.write(self.data.tobytes())
             self._iostream.flush()
+            self._fileobj.truncate()
 

@@ -169,9 +169,15 @@ def mmap(name, mode='r'):
 def validate(name, print_file=None):
     """Validate an MRC file.
     
-    This function first opens the file by calling :func:`open`, then runs a
-    series of tests to check whether the file complies with the MRC2014 format
-    specification. Using the :func:`open` function like this has two
+    This function first opens the file by calling :func:`open`, then calls
+    :meth:`~mrcfile.mrcfile.MrcFile.validate`, which runs a series of tests to
+    check whether the file complies with the MRC2014 format specification. If
+    the file is completely valid, this function returns ``True``, otherwise it
+    returns ``False``. Messages explaining the validation result will be printed
+    to ``sys.stdout`` by default, but if a text stream is given (using the
+    ``print_file`` argument) output will be printed to that instead.
+    
+    Opening the file with :func:`open` as the first step in validation has two
     implications:
     
     * gzipped MRC files can also be validated.
@@ -225,105 +231,5 @@ def validate(name, print_file=None):
             block is longer than expected from the dimensions in the header.
             This information will also be printed to the output stream.
     """
-    valid = True
-    
-    def log(message):
-        print(message, file=print_file)
-    
     with open(name) as mrc:
-        # Check file size
-        mrc._iostream.seek(0)
-        mrc._iostream.read()
-        file_size = mrc._iostream.tell()
-        mrc_size = mrc.header.nbytes + mrc.extended_header.nbytes + mrc.data.nbytes
-        if (file_size != mrc_size):
-            log("File is larger than expected. Actual size: {0} bytes; "
-                "expected size: {1} bytes (calculated from header)"
-                .format(file_size, mrc_size))
-            valid = False
-        
-        # Check map dimensions and other fields are non-negative
-        for field in ['nx', 'ny', 'nz', 'mx', 'my', 'mz', 'ispg', 'nlabl']:
-            if mrc.header[field] < 0:
-                log("Header field '{0}' is negative".format(field))
-                valid = False
-        
-        # Check cell dimensions are non-negative
-        for field in ['x', 'y', 'z']:
-            if mrc.header.cella[field] < 0:
-                log("Cell dimension '{0}' is negative".format(field))
-                valid = False
-        
-        # Check axis mapping is valid
-        axes = set()
-        for field in ['mapc', 'mapr', 'maps']:
-            axes.add(int(mrc.header[field]))
-        if axes != set([1, 2, 3]):
-            log("Invalid axis mapping: found {0}, should be [1, 2, 3]"
-                .format(sorted(list(axes))))
-            valid = False
-        
-        # Check mz value for volume stacks
-        if spacegroup_is_volume_stack(mrc.header.ispg):
-            if mrc.header.nz % mrc.header.mz != 0:
-                log("Error in dimensions for volume stack: nz should be "
-                    "divisible by mz. Found nz = {0}, mz = {1})"
-                    .format(mrc.header.nz, mrc.header.mz))
-                valid = False
-        
-        # Check nlabl is correct
-        count = 0
-        seen_empty_label = False
-        for label in mrc.header.label:
-            if len(label.strip()) > 0:
-                count += 1
-                if seen_empty_label:
-                    log("Error in header labels: empty labels appear between "
-                        "text-containing labels")
-                    valid = False
-            else:
-                seen_empty_label = True
-        if count != mrc.header.nlabl:
-            log("Error in header labels: nlabl is {0} "
-                "but {1} labels contain text".format(mrc.header.nlabl, count))
-            valid = False
-        
-        # Check MRC format version
-        if mrc.header.nversion != MRC_FORMAT_VERSION:
-            log("File does not declare MRC format version 20140: nversion = {0}"
-                .format(mrc.header.nversion))
-            valid = False
-        
-        # Check extended header type is set to a known value
-        valid_exttypes = ['CCP4', 'MRCO', 'SERI', 'AGAR', 'FEI1']
-        if mrc.header.nsymbt > 0 and mrc.header.exttyp not in valid_exttypes:
-            log("Extended header type is undefined or unrecognised: exttyp = "
-                "'{0}'".format(mrc.header.exttyp.item().decode('ascii')))
-            valid = False
-        
-        # Check data statistics
-        real_rms = real_min = real_max = real_mean = 0
-        if len(mrc.data > 0):
-            real_rms = mrc.data.std()
-            real_min = mrc.data.min()
-            real_max = mrc.data.max()
-            real_mean = mrc.data.mean()
-        if (mrc.header.rms >= 0 and not np.isclose(real_rms, mrc.header.rms)):
-            log("Error in data statistics: RMS deviation is {0} but the value "
-                "in the header is {1}".format(real_rms, mrc.header.rms))
-            valid = False
-        if mrc.header.dmin < mrc.header.dmax and mrc.header.dmin != real_min:
-            log("Error in data statistics: minimum is {0} but the value "
-                "in the header is {1}".format(real_min, mrc.header.dmin))
-            valid = False
-        if mrc.header.dmin < mrc.header.dmax and mrc.header.dmax != real_max:
-            log("Error in data statistics: maximum is {0} but the value "
-                "in the header is {1}".format(real_max, mrc.header.dmax))
-            valid = False
-        if (mrc.header.dmean > min(mrc.header.dmin, mrc.header.dmax)
-            and not np.isclose(real_mean, mrc.header.dmean)):
-            log("Error in data statistics: mean is {0} but the value "
-                "in the header is {1}".format(real_mean, mrc.header.dmean))
-            valid = False
-    
-    return valid
+        return mrc.validate(print_file=print_file)

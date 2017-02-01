@@ -46,7 +46,7 @@ class MrcInterpreter(MrcObject):
     
     Methods relevant to subclasses:
     
-    * :meth:`_read_stream`
+    * :meth:`_read`
     * :meth:`_read_data`
     
     """
@@ -56,8 +56,7 @@ class MrcInterpreter(MrcObject):
         
         This initialiser reads the stream if it is given. In general, subclasses
         should call super().__init__() without giving an iostream argument, then
-        set the _iostream attribute themselves and call _read_stream() when
-        ready.
+        set the _iostream attribute themselves and call _read() when ready.
         
         To use the MrcInterpreter class directly, pass a stream when creating
         the object (or for a write-only stream, create an MrcInterpreter with no
@@ -74,7 +73,7 @@ class MrcInterpreter(MrcObject):
         
         # If iostream is given, initialise by reading it
         if self._iostream is not None:
-            self._read_stream()
+            self._read()
     
     def __enter__(self):
         """Called by the context manager at the start of a 'with' block.
@@ -102,7 +101,7 @@ class MrcInterpreter(MrcObject):
         except Exception:
             pass
     
-    def _read_stream(self):
+    def _read(self):
         """Read the header, extended header and data from the I/O stream.
         
         Before calling this method, the stream should be open and positioned at
