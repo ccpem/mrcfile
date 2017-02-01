@@ -1,6 +1,18 @@
 Usage Guide
 ===========
 
+Beta version warning!
+---------------------
+
+Please note: this library is currently in beta: the API and usage
+instructions could still change before the first stable release.
+
+If you have any feedback or suggestions for improvement (about the API, design,
+usability, documentation or anything else), please raise issues on the
+`GitHub issue tracker`_ or email colin.palmer@stfc.ac.uk.
+
+.. _GitHub issue tracker: https://github.com/ccpem/mrcfile/issues
+
 .. testsetup:: *
 
    import os
