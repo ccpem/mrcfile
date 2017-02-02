@@ -22,7 +22,7 @@ mrcfile.py
 .. start_of_main_text
 
 mrcfile.py is a Python implementation of the `MRC2014 file format`_, which is
-used to store image and volume data in the field of structural biology.
+used in structural biology to store image and volume data.
 
 It allows MRC files to be created and opened easily using a very simple API,
 which exposes the file's header and data as `numpy`_ arrays. The code runs in

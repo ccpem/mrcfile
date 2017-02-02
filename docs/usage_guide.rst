@@ -842,10 +842,10 @@ valid, it's best to flush the file and then validate it using
 :func:`mrcfile.validate`.
 
 API overview
-============
+------------
 
 Class hierarchy
----------------
+~~~~~~~~~~~~~~~
 
 The following classes are provided by the mrcfile.py library:
 
@@ -871,7 +871,7 @@ The following classes are provided by the mrcfile.py library:
   array sizes are changed.
 
 MrcFile attributes and methods
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Attributes:
 
