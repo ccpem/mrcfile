@@ -108,6 +108,9 @@ writes the MRC data to disk but leaves the file open:
    >>> # continue using the file...
    >>> mrc.close()  # close the file when finished
 
+Memory-mapped files
+"""""""""""""""""""
+
 With very large files, it might be helpful to use the :func:`mrcfile.mmap`
 function to open the file, which will open the data as a memory-mapped ``numpy``
 array. The contents of the array are only read from disk as needed, so this
@@ -125,11 +128,11 @@ written by slicing the array:
            [ 8,  9, 10, 11]], dtype=int8)
 
    >>> # Set some values by assigning to a slice
-   >>> mrc.data[:,1:3] = 0
+   >>> mrc.data[1:3,1:3] = 0
 
    >>> # Read the entire array - with large files this might take a while!
    >>> mrc.data[:]
-   memmap([[ 0,  0,  0,  3],
+   memmap([[ 0,  1,  2,  3],
            [ 4,  0,  0,  7],
            [ 8,  0,  0, 11]], dtype=int8)
    >>> mrc.close()

@@ -65,7 +65,7 @@ disk.
 
 .. _mrcfile.open: http://mrcfile.readthedocs.io/en/latest/source/mrcfile.html#mrcfile.open
 .. _mrcfile.new: http://mrcfile.readthedocs.io/en/latest/source/mrcfile.html#mrcfile.new
-.. _MrcFile: http://mrcfile.readthedocs.io/en/latest/mrcfile_api_overview.html
+.. _MrcFile: http://mrcfile.readthedocs.io/en/latest/usage_guide.html#using-mrcfile-objects
 
 To open an MRC file and read a slice of data::
 
