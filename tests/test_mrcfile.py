@@ -427,11 +427,11 @@ class MrcFileTest(MrcObjectTest):
         data = create_test_complex64_array()
         
         # Set some unusual values
-        data[4][0] = (0+0j) * np.nan # =(nan+nan*j)
-        data[4][1] = (1+1j) * np.inf # =(inf+inf*j)
-        data[4][2] = (-1-1j) * np.inf # =(-inf-inf*j)
-        data[4][3] = (1-1j) * np.inf # =(inf-inf*j)
-        data[4][4] = (-1+1j) * np.inf # =(-inf+inf*j)
+        data[4][0] = (0 + 0j) * np.nan   # =(nan+nan*j)
+        data[4][1] = (1 + 1j) * np.inf   # =(inf+inf*j)
+        data[4][2] = (-1 - 1j) * np.inf  # =(-inf-inf*j)
+        data[4][3] = (1 - 1j) * np.inf   # =(inf-inf*j)
+        data[4][4] = (-1 + 1j) * np.inf  # =(-inf+inf*j)
         
         # Write the data to a file and test it's read back correctly
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_inf_nan.mrc')

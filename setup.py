@@ -23,7 +23,7 @@ setup(
     long_description=readme(),
     license='BSD',
     url='https://github.com/ccpem/mrcfile',
-    classifiers = [
+    classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',

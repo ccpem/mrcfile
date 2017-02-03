@@ -40,7 +40,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_check_writeable(self):
         assert not self.mrcobject._read_only
-        self.mrcobject._check_writeable() # should not throw
+        self.mrcobject._check_writeable()  # should not throw
         self.mrcobject._read_only = True
         with self.assertRaisesRegex(ValueError, 'MRC object is read-only'):
             self.mrcobject._check_writeable()
@@ -487,7 +487,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         label = self.mrcobject.header.label[0].decode()
         assert label.startswith('Created by mrcfile.py    ')
         time = label[-40:].strip()
-        datetime.strptime(time, '%Y-%m-%d %H:%M:%S') # will throw if bad format
+        datetime.strptime(time, '%Y-%m-%d %H:%M:%S')  # will throw if bad format
     
     def test_print_header(self):
         print_stream = io.StringIO()

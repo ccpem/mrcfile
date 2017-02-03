@@ -34,7 +34,7 @@ class MrcMemmap(MrcFile):
     
     Usage is the same as for :class:`~mrcfile.mrcfile.MrcFile`.
     
-    Note that memmap arrays use a fairly small chunk size and so performance 
+    Note that memmap arrays use a fairly small chunk size and so performance
     could be poor on file systems that are optimised for infrequent large I/O
     operations.
     
@@ -83,7 +83,8 @@ class MrcMemmap(MrcFile):
             self._data.flush()
             self._iostream.flush()
             
-            # Seek to end of data block so stream is left in the same position as normal
+            # Seek to end of data block so stream is left in the same position
+            # as normal
             self._iostream.seek(self._data.nbytes, os.SEEK_CUR)
     
     def _read_data(self):

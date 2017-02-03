@@ -78,7 +78,7 @@ class MrcFile(MrcInterpreter):
         
         if ('w' in mode and os.path.exists(name) and not overwrite):
             raise ValueError("File '{0}' already exists; set overwrite=True "
-                          "to overwrite it".format(name))
+                             "to overwrite it".format(name))
         
         self._mode = mode
         self._read_only = (self._mode == 'r')
@@ -167,7 +167,7 @@ class MrcFile(MrcInterpreter):
         
         Args:
             name: The file name to open and validate.
-            print_file: The output text stream to use for printing messages 
+            print_file: The output text stream to use for printing messages
                 about the validation. This is passed directly to the ``file``
                 argument of Python's ``print()`` function. The default is
                 ``None``, which means output will be printed to ``sys.stdout``.

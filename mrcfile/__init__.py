@@ -67,13 +67,10 @@ from __future__ import (absolute_import, division, print_function,
 
 import io
 
-import numpy as np
-
 from .constants import MRC_FORMAT_VERSION
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
-from .utils import spacegroup_is_volume_stack
 from .version import __version__
 
 

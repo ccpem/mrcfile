@@ -51,7 +51,7 @@ class MrcInterpreterTest(MrcObjectTest):
         stream.write(b'MAP ')
         stream.seek(0)
         with self.assertRaisesRegex(ValueError, "Unrecognised machine stamp: "
-                                                 "0x00 0x00 0x00 0x00"):
+                                                "0x00 0x00 0x00 0x00"):
             MrcInterpreter(iostream=stream)
     
     def test_stream_too_short(self):

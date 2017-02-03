@@ -75,4 +75,3 @@ class GzipMrcFile(MrcFile):
             self._iostream.write(self.data.tobytes())
             self._iostream.flush()
             self._fileobj.truncate()
-
