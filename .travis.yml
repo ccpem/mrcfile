@@ -3,9 +3,5 @@ language: python
 python:
   - "2.7"
   - "3.5"
-install: pip install tox-travis sphinx
-script:
-  - tox
-  - cd docs
-  - make clean html
-  - if [[ $TRAVIS_PYTHON_VERSION == 3.5 ]]; then make doctest; fi
+install: pip install tox-travis
+script: tox
