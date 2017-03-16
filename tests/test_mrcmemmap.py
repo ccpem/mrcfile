@@ -53,6 +53,12 @@ class MrcMemmapTest(MrcFileTest):
         with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
     
+    def test_data_is_not_copied_unnecessarily(self):
+        """Override test because data has to be copied for mmap."""
+        data = np.arange(6, dtype=np.int16).reshape(1, 2, 3)
+        self.mrcobject.set_data(data)
+        assert self.mrcobject.data is not data
+    
     def test_data_array_cannot_be_changed_after_closing_file(self):
         mrc = self.newmrc(self.temp_mrc_name, mode='w+')
         mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))

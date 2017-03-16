@@ -232,6 +232,6 @@ class MrcInterpreter(MrcObject):
             self._iostream.seek(0)
             self._iostream.write(self.header)
             self._iostream.write(self.extended_header)
-            self._iostream.write(self.data)
+            self._iostream.write(np.ascontiguousarray(self.data))
             self._iostream.truncate()
             self._iostream.flush()

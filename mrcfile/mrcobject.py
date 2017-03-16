@@ -213,16 +213,9 @@ class MrcObject(object):
         mode = utils.mode_from_dtype(data.dtype)
         new_dtype = (utils.dtype_from_mode(mode)
                      .newbyteorder(data.dtype.byteorder))
-        if new_dtype == data.dtype:
-            new_data = data
-        else:
-            new_data = np.empty_like(data, dtype=new_dtype)
-            
-            # Use 'safe' casting to copy the data. This should guarantee we are
-            # not accidentally performing a narrowing type conversion and
-            # potentially losing data. If this fails there is probably an error
-            # in the logic which converts MRC modes to and from dtypes.
-            np.copyto(new_data, data, casting='safe')
+        
+        # Copy the data if necessary to ensure correct dtype and C ordering
+        new_data = np.asanyarray(data, new_dtype, order='C')
         
         # Replace the old data array with the new one, and update the header
         self._close_data()

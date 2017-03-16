@@ -321,6 +321,11 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert self.mrcobject.data.dtype == np.uint16
         assert self.mrcobject.header.mode == 6
     
+    def test_data_is_not_copied_unnecessarily(self):
+        data = np.arange(6, dtype=np.int16).reshape(1, 2, 3)
+        self.mrcobject.set_data(data)
+        assert self.mrcobject.data is data
+    
     def test_header_byte_order_is_unchanged_by_data_with_native_order(self):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
         header = self.mrcobject.header
@@ -362,6 +367,14 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
                                        orig_byte_order)
         assert header.mode == 2
         assert header.mapc == original_mapc
+    
+    def test_non_c_contiguous_data_is_made_c_contiguous(self):
+        x, y, z = 4, 3, 2
+        data = np.arange(z * y * x, dtype=np.int16).reshape(z, y, x).transpose()
+        assert data.flags.c_contiguous == False
+        self.mrcobject.set_data(data)
+        assert self.mrcobject.data.flags.c_contiguous == True
+        assert self.mrcobject.data is not data
     
     def test_new_header_stats_are_undetermined(self):
         header = self.mrcobject.header

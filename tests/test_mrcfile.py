@@ -524,6 +524,49 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.header.ny == mrc.header.my == y
             assert mrc.header.mz == z
             assert mrc.header.nz == z * nvol
+    
+    def test_data_transposed_in_place_is_written_without_errors(self):
+        # Quite unlikely that anyone will mess with the data array like this,
+        # but still worth making sure the flush() call is robust!
+        x, y, z = 10, 9, 5
+        img = np.linspace(-32768, 32767, x * y, dtype=np.int16).reshape(y, x)
+        vol = img // np.arange(1, 6, dtype=np.int16).reshape(z, 1, 1)
+        transposed_vol = vol.transpose()
+        
+        # Write data and confirm it's C-contiguous
+        mrc = self.newmrc(self.temp_mrc_name, mode='w+')
+        mrc.set_data(vol)
+        mrc.flush()
+        assert mrc.data.flags.c_contiguous == True
+        
+        # Transpose the data array in-place
+        strides = mrc.data.strides
+        mrc.data.shape = mrc.data.shape[::-1]
+        mrc.data.strides = strides[::-1]
+        # Check this is an effective way to do in-place transpose()
+        np.testing.assert_array_equal(transposed_vol, mrc.data)
+        
+        # Confirm data is no longer C-contiguous
+        assert mrc.data.flags.c_contiguous == False
+        
+        # Flush and close should work without errors
+        mrc.flush()
+        mrc.close()
+    
+    def test_transposed_data_is_made_contiguous_on_set(self):
+        # Quite unlikely that anyone will mess with the data array like this,
+        # but still worth making sure the flush() call is robust!
+        x, y, z = 10, 9, 5
+        img = np.linspace(-32768, 32767, x * y, dtype=np.int16).reshape(y, x)
+        vol = img // np.arange(1, 6, dtype=np.int16).reshape(z, 1, 1)
+        vol = vol.transpose()
+        
+        assert vol.flags.c_contiguous == False
+        
+        # Write data and confirm it's C-contiguous
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(vol)
+            assert mrc.data.flags.c_contiguous == True
 
 
 def create_test_float32_array(dtype=np.float32):
