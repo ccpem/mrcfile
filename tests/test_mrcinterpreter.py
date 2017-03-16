@@ -11,6 +11,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import io
 import unittest
+import warnings
 
 import numpy as np
 
@@ -73,6 +74,41 @@ class MrcInterpreterTest(MrcObjectTest):
             assert mrc.header.mode == 1
             mrc.set_data(data * 2)
             assert mrc.header.mode == 1
+    
+    def test_permissive_read_mode_with_wrong_map_id_and_machine_stamp(self):
+        stream = io.BytesIO()
+        stream.write(bytearray(1024))
+        stream.seek(MAP_ID_OFFSET_BYTES)
+        stream.write(b'map ')
+        stream.seek(0)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            
+            MrcInterpreter(iostream=stream, permissive=True)
+            
+            assert len(w) == 2
+            assert "Map ID string not found" in str(w[0].message)
+            assert "Unrecognised machine stamp" in str(w[1].message)
+    
+    def test_permissive_read_mode_with_file_too_small(self):
+        stream = io.BytesIO()
+        mrc = MrcInterpreter()
+        mrc._iostream = stream
+        mrc._create_default_attributes()
+        mrc.set_data(np.arange(12, dtype=np.int16).reshape(1, 3, 4))
+        mrc.close()
+        stream.seek(-1, io.SEEK_CUR)
+        stream.truncate()
+        stream.seek(0)
+        
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            
+            MrcInterpreter(iostream=stream, permissive=True)
+            
+            assert len(w) == 1
+            assert ("Expected 24 bytes in data block but could only read 23"
+                    in str(w[0].message))
 
 
 if __name__ == '__main__':

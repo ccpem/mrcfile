@@ -108,15 +108,16 @@ class MrcFile(MrcInterpreter):
         super(MrcFile, self)._read()
         
         # Check if the file is the expected size.
-        actual_size = self._get_file_size()
-        expected_size = (self.header.nbytes
-                         + self.extended_header.nbytes
-                         + self.data.nbytes)
-        
-        if actual_size > expected_size:
-            msg = ("MRC file is {0} bytes larger than expected"
-                   .format(actual_size - expected_size))
-            warnings.warn(msg, RuntimeWarning)
+        if self.data is not None:
+            actual_size = self._get_file_size()
+            expected_size = (self.header.nbytes
+                             + self.extended_header.nbytes
+                             + self.data.nbytes)
+            
+            if actual_size > expected_size:
+                msg = ("MRC file is {0} bytes larger than expected"
+                       .format(actual_size - expected_size))
+                warnings.warn(msg, RuntimeWarning)
     
     def _get_file_size(self):
         """Return the size of the underlying file object, in bytes."""
@@ -144,8 +145,13 @@ class MrcFile(MrcInterpreter):
         
         The tests are:
         
-        #. File size: The size of the file on disk should match the expected
-           size calculated from the MRC header.
+        #. MRC format ID string: The ``map`` field in the header should
+           contain "MAP ".
+        #. Machine stamp: The machine stamp should contain one of
+           ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
+           ``0x11 0x11 0x00 0x00``.
+        #. MRC mode: the ``mode`` field should be one of the supported mode
+           numbers: 0, 1, 2, 4 or 6.
         #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
            ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must
            all be positive numbers.
@@ -164,6 +170,8 @@ class MrcFile(MrcInterpreter):
            header.
         #. Data statistics: The statistics in the header should be correct for
            the actual data in the file, or marked as undetermined.
+        #. File size: The size of the file on disk should match the expected
+           size calculated from the MRC header.
         
         Args:
             name: The file name to open and validate.
@@ -178,15 +186,20 @@ class MrcFile(MrcInterpreter):
         """
         valid = super(MrcFile, self).validate(print_file=print_file)
         
-        # Check file size
-        file_size = self._get_file_size()
-        mrc_size = (self.header.nbytes
-                    + self.extended_header.nbytes
-                    + self.data.nbytes)
-        if (file_size != mrc_size):
-            print("File is larger than expected. Actual size: {0} bytes; "
-                  "expected size: {1} bytes (calculated from header)"
-                  .format(file_size, mrc_size),
+        if self.data is not None:
+            # Check file size
+            file_size = self._get_file_size()
+            mrc_size = (self.header.nbytes
+                        + self.extended_header.nbytes
+                        + self.data.nbytes)
+            if (file_size != mrc_size):
+                print("File is larger than expected. Actual size: {0} bytes; "
+                      "expected size: {1} bytes (calculated from header)"
+                      .format(file_size, mrc_size),
+                      file=print_file)
+                valid = False
+        else:
+            print("Data block could not be read - file size not checked",
                   file=print_file)
             valid = False
         

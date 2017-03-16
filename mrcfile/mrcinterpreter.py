@@ -16,6 +16,8 @@ Classes:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import warnings
+
 import numpy as np
 
 from . import utils
@@ -51,7 +53,7 @@ class MrcInterpreter(MrcObject):
     
     """
     
-    def __init__(self, iostream=None, **kwargs):
+    def __init__(self, iostream=None, permissive=False, **kwargs):
         """Initialise a new MrcInterpreter object.
         
         This initialiser reads the stream if it is given. In general, subclasses
@@ -70,6 +72,7 @@ class MrcInterpreter(MrcObject):
         super(MrcInterpreter, self).__init__(**kwargs)
         
         self._iostream = iostream
+        self._permissive = permissive
         
         # If iostream is given, initialise by reading it
         if self._iostream is not None:
@@ -139,17 +142,20 @@ class MrcInterpreter(MrcObject):
         
         # Check this is an MRC file, and read machine stamp to get byte order
         if header.map != MAP_ID:
-            raise ValueError('Map ID string not found - not an MRC file, '
-                             'or file is corrupt')
+            msg = "Map ID string not found - not an MRC file, or file is corrupt"
+            if self._permissive:
+                warnings.warn(msg, RuntimeWarning)
+            else:
+                raise ValueError(msg)
         
-        machst = header.machst
-        if machst[0] == 0x44 and machst[1] in (0x44, 0x41):
-            byte_order = '<'
-        elif (machst[0] == 0x11 and machst[1] == 0x11):
-            byte_order = '>'
-        else:
-            pretty_bytes = ' '.join('0x{:02x}'.format(byte) for byte in machst)
-            raise ValueError('Unrecognised machine stamp: ' + pretty_bytes)
+        try:
+            byte_order = utils.byte_order_from_machine_stamp(header.machst)
+        except ValueError as err:
+            if self._permissive:
+                byte_order = '<' # try little-endian as a sensible default
+                warnings.warn(str(err), RuntimeWarning)
+            else:
+                raise
         
         # Create a new dtype with the correct byte order and update the header
         header.dtype = header.dtype.newbyteorder(byte_order)
@@ -173,7 +179,17 @@ class MrcInterpreter(MrcObject):
         This method uses information from the header to set the data array's
         shape and dtype.
         """
-        dtype = utils.data_dtype_from_header(self.header)
+        try:
+            dtype = utils.data_dtype_from_header(self.header)
+        except ValueError as err:
+            if self._permissive:
+                warnings.warn("{0} - data block cannot be read".format(err),
+                              RuntimeWarning)
+                self._data = None
+                return
+            else:
+                raise
+        
         shape = utils.data_shape_from_header(self.header)
         
         nbytes = dtype.itemsize
@@ -183,10 +199,16 @@ class MrcInterpreter(MrcObject):
         data_bytes = self._iostream.read(nbytes)
         
         if len(data_bytes) < nbytes:
-            raise ValueError("Expected {0} bytes but could only read {1}"
-                             .format(nbytes, len(data_bytes)))
+            msg = ("Expected {0} bytes in data block but could only read {1}"
+                   .format(nbytes, len(data_bytes)))
+            if self._permissive:
+                warnings.warn(msg, RuntimeWarning)
+                self._data = None
+                return
+            else:
+                raise ValueError(msg)
         
-        self._data = np.fromstring(data_bytes, dtype=dtype).reshape(shape)
+        self._data = np.frombuffer(data_bytes, dtype=dtype).reshape(shape)
         self._data.flags.writeable = not self._read_only
     
     def close(self):

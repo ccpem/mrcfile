@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import os
+import warnings
 
 import numpy as np
 
@@ -94,7 +95,17 @@ class MrcMemmap(MrcFile):
         (block start position, endian-ness, file mode, array shape) and then
         opens the data as a numpy memmap array.
         """
-        dtype = utils.data_dtype_from_header(self.header)
+        try:
+            dtype = utils.data_dtype_from_header(self.header)
+        except ValueError as err:
+            if self._permissive:
+                warnings.warn("{0} - data block not read".format(err),
+                              RuntimeWarning)
+                self._data = None
+                return
+            else:
+                raise
+        
         shape = utils.data_shape_from_header(self.header)
         
         self._open_memmap(dtype, shape)

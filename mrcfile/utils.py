@@ -155,6 +155,28 @@ def dtype_from_mode(mode):
         raise ValueError("Unrecognised mode '{0}'".format(mode))
 
 
+def byte_order_from_machine_stamp(machst):
+    """Return the byte order corresponding to the given machine stamp.
+    
+    Args:
+        machst: The machine stamp, as a bytearray or a numpy array of bytes.
+    
+    Returns:
+        ``<`` if the machine stamp represents little-endian data, or ``>`` if
+        it represents big-endian.
+    
+    Raises:
+        ValueError: If the machine stamp is invalid.
+    """
+    if machst[0] == 0x44 and machst[1] in (0x44, 0x41):
+        return '<'
+    elif (machst[0] == 0x11 and machst[1] == 0x11):
+        return '>'
+    else:
+        pretty_bytes = " ".join("0x{:02x}".format(byte) for byte in machst)
+        raise ValueError("Unrecognised machine stamp: " + pretty_bytes)
+
+
 _byte_order_to_machine_stamp = {'<': bytearray((0x44, 0x44, 0, 0)),
                                 '>': bytearray((0x11, 0x11, 0, 0))}
 

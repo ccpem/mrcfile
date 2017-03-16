@@ -95,6 +95,16 @@ class MrcFileTest(MrcObjectTest):
         with (self.assertRaisesRegex(ValueError, 'Map ID string not found')):
             self.newmrc(name)
     
+    def test_non_mrc_file_gives_correct_warnings_in_permissive_mode(self):
+        name = os.path.join(self.test_data, 'emd_3197.png')
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.newmrc(name, permissive=True)
+            assert len(w) == 3
+            assert "Map ID string not found" in str(w[0].message)
+            assert "Unrecognised machine stamp" in str(w[1].message)
+            assert "Unrecognised mode" in str(w[2].message)
+    
     def test_repr(self):
         with self.newmrc(self.example_mrc_name) as mrc:
             expected = "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
@@ -226,7 +236,8 @@ class MrcFileTest(MrcObjectTest):
             mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
             assert mrc.header.mz == 2
             mrc.header.mz = mrc.header.nz = 3
-        expected_error_msg = "Expected 72 bytes but could only read 48"
+        expected_error_msg = ("Expected 72 bytes in data block "
+                              "but could only read 48")
         with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
     

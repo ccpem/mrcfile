@@ -481,6 +481,13 @@ class MrcObject(object):
         This method runs a series of tests to check whether this object complies
         with the MRC2014 format specification:
         
+        #. MRC format ID string: The header's ``map`` field must contain
+           "MAP ".
+        #. Machine stamp: The machine stamp should contain one of
+           ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
+           ``0x11 0x11 0x00 0x00``.
+        #. MRC mode: the ``mode`` field should be one of the supported mode
+           numbers: 0, 1, 2, 4 or 6.
         #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
            ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must
            all be positive numbers.
@@ -515,6 +522,28 @@ class MrcObject(object):
         
         def log(message):
             print(message, file=print_file)
+        
+        # Check map ID string
+        if self.header.map != MAP_ID:
+            log("Map ID string is incorrect: found {0}, should be {1}"
+                .format(self.header.map, MAP_ID))
+            valid = False
+        
+        # Check machine stamp
+        try:
+            utils.byte_order_from_machine_stamp(self.header.machst)
+        except ValueError:
+            pretty_bytes = " ".join("0x{:02x}".format(byte)
+                                    for byte in self.header.machst)
+            log("Invalid machine stamp: " + pretty_bytes)
+            valid = False
+        
+        # Check mode is valid
+        try:
+            utils.dtype_from_mode(self.header.mode)
+        except ValueError:
+            log("Invalid mode: {0}".format(self.header.mode))
+            valid = False
         
         # Check map dimensions and other fields are non-negative
         for field in ['nx', 'ny', 'nz', 'mx', 'my', 'mz', 'ispg', 'nlabl']:
@@ -576,28 +605,29 @@ class MrcObject(object):
             valid = False
         
         # Check data statistics
-        real_rms = real_min = real_max = real_mean = 0
-        if len(self.data > 0):
-            real_rms = self.data.std()
-            real_min = self.data.min()
-            real_max = self.data.max()
-            real_mean = self.data.mean()
-        if (self.header.rms >= 0 and not np.isclose(real_rms, self.header.rms)):
-            log("Error in data statistics: RMS deviation is {0} but the value "
-                "in the header is {1}".format(real_rms, self.header.rms))
-            valid = False
-        if self.header.dmin < self.header.dmax and self.header.dmin != real_min:
-            log("Error in data statistics: minimum is {0} but the value "
-                "in the header is {1}".format(real_min, self.header.dmin))
-            valid = False
-        if self.header.dmin < self.header.dmax and self.header.dmax != real_max:
-            log("Error in data statistics: maximum is {0} but the value "
-                "in the header is {1}".format(real_max, self.header.dmax))
-            valid = False
-        if (self.header.dmean > min(self.header.dmin, self.header.dmax)
-            and not np.isclose(real_mean, self.header.dmean)):
-            log("Error in data statistics: mean is {0} but the value "
-                "in the header is {1}".format(real_mean, self.header.dmean))
-            valid = False
+        if self.data is not None:
+            real_rms = real_min = real_max = real_mean = 0
+            if len(self.data > 0):
+                real_rms = self.data.std()
+                real_min = self.data.min()
+                real_max = self.data.max()
+                real_mean = self.data.mean()
+            if (self.header.rms >= 0 and not np.isclose(real_rms, self.header.rms)):
+                log("Error in data statistics: RMS deviation is {0} but the value "
+                    "in the header is {1}".format(real_rms, self.header.rms))
+                valid = False
+            if self.header.dmin < self.header.dmax and self.header.dmin != real_min:
+                log("Error in data statistics: minimum is {0} but the value "
+                    "in the header is {1}".format(real_min, self.header.dmin))
+                valid = False
+            if self.header.dmin < self.header.dmax and self.header.dmax != real_max:
+                log("Error in data statistics: maximum is {0} but the value "
+                    "in the header is {1}".format(real_max, self.header.dmax))
+                valid = False
+            if (self.header.dmean > min(self.header.dmin, self.header.dmax)
+                and not np.isclose(real_mean, self.header.dmean)):
+                log("Error in data statistics: mean is {0} but the value "
+                    "in the header is {1}".format(real_mean, self.header.dmean))
+                valid = False
         
         return valid

@@ -80,46 +80,45 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                         "Extended header type is undefined or "
                                         "unrecognised: exttyp = ''")
     
-    def test_incorrect_map_id(self):
-        with mrcfile.new(self.temp_mrc_name) as mrc:
-            mrc.header.map = b'fake'
-        with self.assertRaisesRegex(ValueError, "Map ID string not found"):
-            mrcfile.validate(self.temp_mrc_name)
-    
-    def test_incorrect_machine_stamp(self):
-        with mrcfile.new(self.temp_mrc_name) as mrc:
-            mrc.header.machst = bytearray(b'    ')
-        with self.assertRaisesRegex(ValueError, "Unrecognised machine stamp"):
-            mrcfile.validate(self.temp_mrc_name)
-    
-    def test_invalid_mode(self):
-        with mrcfile.new(self.temp_mrc_name) as mrc:
-            mrc.set_data(np.arange(12, dtype=np.float32).reshape(1, 3, 4))
-            mrc.header.mode = 8
-        with self.assertRaisesRegex(ValueError, "Unrecognised mode"):
-            mrcfile.validate(self.temp_mrc_name)
-    
-    def test_file_too_small(self):
-        with mrcfile.new(self.temp_mrc_name) as mrc:
-            mrc.set_data(np.arange(12, dtype=np.float32).reshape(1, 3, 4))
-            mrc.header.nz = 2
-        with self.assertRaisesRegex(ValueError, "Expected \d+ bytes but could only read \d+"):
-            mrcfile.validate(self.temp_mrc_name)
-    
-    def test_file_too_large(self):
-        with mrcfile.new(self.temp_mrc_name) as mrc:
-            mrc.set_data(np.arange(36, dtype=np.float32).reshape(3, 3, 4))
-            mrc.header.nz = 2
+    def check_temp_mrc_invalid_with_warning(self, message):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
             result = mrcfile.validate(self.temp_mrc_name,
                                       print_file=self.print_stream)
             assert result == False
             print_output = self.print_stream.getvalue()
-            assert "larger than expected" in print_output
+            assert message.lower() in print_output.lower()
             assert len(w) == 1
             assert issubclass(w[0].category, RuntimeWarning)
-            assert "larger than expected" in str(w[0].message)
+            assert message in str(w[0].message)
+    
+    def test_incorrect_map_id(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.header.map = b'fake'
+        self.check_temp_mrc_invalid_with_warning("Map ID string")
+    
+    def test_incorrect_machine_stamp(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.header.machst = bytearray(b'    ')
+        self.check_temp_mrc_invalid_with_warning("machine stamp")
+    
+    def test_invalid_mode(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.set_data(np.arange(12, dtype=np.float32).reshape(1, 3, 4))
+            mrc.header.mode = 8
+        self.check_temp_mrc_invalid_with_warning("mode")
+    
+    def test_file_too_small(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.set_data(np.arange(12, dtype=np.float32).reshape(1, 3, 4))
+            mrc.header.nz = 2
+        self.check_temp_mrc_invalid_with_warning("data block")
+    
+    def test_file_too_large(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.set_data(np.arange(36, dtype=np.float32).reshape(3, 3, 4))
+            mrc.header.nz = 2
+        self.check_temp_mrc_invalid_with_warning("larger than expected")
     
     def test_negative_mx(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:

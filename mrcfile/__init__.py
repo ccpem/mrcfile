@@ -66,8 +66,9 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import io
+import os
 
-from .constants import MRC_FORMAT_VERSION
+from .constants import MRC_FORMAT_VERSION, MAP_ID, MAP_ID_OFFSET_BYTES
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
@@ -99,7 +100,7 @@ def new(name, data=None, gzip=False, overwrite=False):
     return mrc
 
 
-def open(name, mode='r'):  # @ReservedAssignment
+def open(name, mode='r', permissive=False):  # @ReservedAssignment
     """Open an MRC file.
     
     This function opens both normal and gzip-compressed MRC files.
@@ -119,29 +120,26 @@ def open(name, mode='r'):  # @ReservedAssignment
         gzipped).
     
     Raises:
-        ValueError: If the mode is not one of 'r', 'r+' or 'w+', the file is
-            not a valid MRC file, , or the mode is 'w+' and the file already
-            exists. (Call :func:`new` with overwrite=True to deliberately
-            overwrite an existing file.)
+        ValueError: If the mode is not one of 'r', 'r+' or 'w+', or the file
+            is not a valid MRC file, , or the mode is 'w+' and the file
+            already exists. (Call :func:`new` with overwrite=True to
+            deliberately overwrite an existing file.)
         OSError: If the mode is 'r' or 'r+' and the file does not exist.
     
     Warns:
         RuntimeWarning: If the file appears to be a valid MRC file but the data
             block is longer than expected from the dimensions in the header.
     """
-    try:
-        mrc = MrcFile(name, mode=mode)
-    except ValueError as orig_err:
+    NewMrc = MrcFile
+    if os.path.exists(name):
         with io.open(name, 'rb') as f:
-            magic = f.read(2)
-        if magic == b'\x1f\x8b':
-            mrc = GzipMrcFile(name, mode=mode)
-        else:
-            raise orig_err
-    return mrc
+            start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
+        if start[:2] == b'\x1f\x8b' and start[-len(MAP_ID):] != MAP_ID:
+            NewMrc = GzipMrcFile
+    return NewMrc(name, mode=mode, permissive=permissive)
 
 
-def mmap(name, mode='r'):
+def mmap(name, mode='r', permissive=False):
     """Open a memory-mapped MRC file.
     
     This can allow much faster opening of large files, because the data is only
@@ -160,7 +158,7 @@ def mmap(name, mode='r'):
     Returns:
         An :class:`~mrcfile.mrcmemmap.MrcMemmap` object.
     """
-    return MrcMemmap(name, mode=mode)
+    return MrcMemmap(name, mode=mode, permissive=permissive)
 
 
 def validate(name, print_file=None):
@@ -174,20 +172,19 @@ def validate(name, print_file=None):
     to ``sys.stdout`` by default, but if a text stream is given (using the
     ``print_file`` argument) output will be printed to that instead.
     
-    Opening the file with :func:`open` as the first step in validation has two
-    implications:
-    
-    * gzipped MRC files can also be validated.
-    * files which are badly invalid will raise a ValueError before reaching the
-      rest of the validation tests. This will happen if the file does not have
-      the correct format ID string, has an invalid machine stamp, is smaller
-      than expected, or the mode number is not recognised.
+    Because the file is opened by calling :func:`open`, gzipped MRC files can
+    also be validated.
     
     After the file has been successfully opened, it is tested for more minor
     problems. The tests are:
     
-    #. File size: The size of the file on disk should match the expected size
-       calculated from the MRC header.
+    #. MRC format ID string: The ``map`` field in the header should contain
+       "MAP ".
+    #. Machine stamp: The machine stamp should contain one of
+       ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
+       ``0x11 0x11 0x00 0x00``.
+    #. MRC mode: the ``mode`` field should be one of the supported mode
+       numbers: 0, 1, 2, 4 or 6.
     #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
        ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must all
        be positive numbers.
@@ -205,6 +202,8 @@ def validate(name, print_file=None):
        field should be set to indicate the type of extended header.
     #. Data statistics: The statistics in the header should be correct for the
        actual data in the file, or marked as undetermined.
+    #. File size: The size of the file on disk should match the expected size
+       calculated from the MRC header.
     
     Args:
         name: The file name to open and validate.
@@ -214,8 +213,8 @@ def validate(name, print_file=None):
             output will be printed to ``sys.stdout``.
     
     Returns:
-        True if the file is valid, False if the file does not meet the MRC
-        format specification in any way.
+        ``True`` if the file is valid, ``False`` if the file does not meet the
+        MRC format specification in any way.
     
     Raises:
         OSError: If the file does not exist or cannot be opened.
@@ -228,5 +227,5 @@ def validate(name, print_file=None):
             block is longer than expected from the dimensions in the header.
             This information will also be printed to the output stream.
     """
-    with open(name) as mrc:
+    with open(name, permissive=True) as mrc:
         return mrc.validate(print_file=print_file)

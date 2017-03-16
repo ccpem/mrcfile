@@ -781,23 +781,7 @@ This works equally well for gzipped files:
    >>> mrcfile.validate('tmp.mrc.gz')
    True
 
-Serious errors (such as a corrupt file) will cause an exception to be raised as
-the file is opened:
-
-.. doctest::
-
-   >>> # First, let's make the file invalid
-   >>> with mrcfile.open('tmp.mrc', mode='r+') as mrc:
-   ...     mrc.header.map = b'bad '
-   ... 
-
-   >>> # Now when we try to validate it, we'll get an exception:
-   >>> mrcfile.validate('tmp.mrc')
-   Traceback (most recent call last):
-      ...
-   ValueError: Map ID string not found - not an MRC file, or file is corrupt
-
-More minor errors will cause messages to be printed to the console, and
+Errors will cause messages to be printed to the console, and
 :func:`~mrcfile.validate` will return ``False``:
 
 .. doctest::
@@ -812,6 +796,9 @@ More minor errors will cause messages to be printed to the console, and
    >>> mrcfile.validate('tmp.mrc')
    Header field 'mz' is negative
    False
+
+(More serious errors might also cause warnings to be printed to
+``sys.stderr``.)
 
 Normally, messages are printed to ``sys.stdout`` (as normal for Python ``print``
 calls). :func:`~mrcfile.validate` has an optional ``print_file`` argument which

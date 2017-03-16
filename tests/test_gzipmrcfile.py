@@ -49,6 +49,12 @@ class GzipMrcFileTest(MrcFileTest):
         with (self.assertRaisesRegex(IOError, 'Not a gzipped file')):
             GzipMrcFile(name)
     
+    def test_non_mrc_file_gives_correct_warnings_in_permissive_mode(self):
+        """Override test - permissive mode still can't read non-gzip files."""
+        name = os.path.join(self.test_data, 'emd_3197.png')
+        with (self.assertRaisesRegex(IOError, 'Not a gzipped file')):
+            GzipMrcFile(name)
+    
     def test_repr(self):
         """Override test to change expected repr string."""
         with GzipMrcFile(self.example_mrc_name) as mrc:
