@@ -42,7 +42,7 @@ Key Features
 
 * Clean, simple API for access to MRC files
 * Easy to install and use
-* Seamless support for gzip files
+* Seamless support for gzip and bzip2 files
 * Memory-mapped file option for fast random access to very large files
 * Runs in Python 2 & 3
 

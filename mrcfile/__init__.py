@@ -68,6 +68,7 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import os
 
+from .bzip2mrcfile import Bzip2MrcFile
 from .constants import MRC_FORMAT_VERSION, MAP_ID, MAP_ID_OFFSET_BYTES
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
@@ -83,19 +84,27 @@ def new(name, data=None, compression=None, overwrite=False):
         data: Data to put in the file, as a numpy array. The default is None, to
             create an empty file.
         compression: The compression format to use. Acceptable values are:
-            ``None`` (for no compression), 'gzip'. It's good practice to name
-            compressed files with an appropriate extension (for example,
-            '.mrc.gz' for gzip) but this is not enforced.
+            ``None`` (the default; for no compression), 'gzip' or 'bzip2'.
+            It's good practice to name compressed files with an appropriate
+            extension (for example, '.mrc.gz' for gzip) but this is not
+            enforced.
         overwrite: Flag to force overwriting of an existing file. If False and a
             file of the same name already exists, the file is not overwritten
             and an exception is raised.
     
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if gzip=True).
+        subclass of it if ``compression`` is specified).
+    
+    Raises:
+        ValueError: If the compression format is not recognised.
     """
-    if compression is not None:
+    if compression == 'gzip':
         NewMrc = GzipMrcFile
+    elif compression == 'bzip2':
+        NewMrc = Bzip2MrcFile
+    elif compression is not None:
+        raise ValueError("Unknown compression format '{0}'".format(compression))
     else:
         NewMrc = MrcFile
     mrc = NewMrc(name, mode='w+', overwrite=overwrite)
@@ -139,8 +148,17 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
     if os.path.exists(name):
         with io.open(name, 'rb') as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
-        if start[:2] == b'\x1f\x8b' and start[-len(MAP_ID):] != MAP_ID:
-            NewMrc = GzipMrcFile
+        # Check for map ID string to avoid trying to decompress normal files
+        # where the nx value happens to include the magic number for a
+        # compressed format. (This still risks failing to correctly decompress
+        # compressed files which happen to have 'MAP ' at position 208, but
+        # that is less likely and if it does occur, the CompressedMrcFile
+        # class can always be used directly instead.)
+        if start[-len(MAP_ID):] != MAP_ID:
+            if start[:2] == b'\x1f\x8b':
+                NewMrc = GzipMrcFile
+            elif start[:2] == b'BZ':
+                NewMrc = Bzip2MrcFile
     return NewMrc(name, mode=mode, permissive=permissive)
 
 

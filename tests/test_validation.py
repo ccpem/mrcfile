@@ -37,6 +37,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.gzip_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
+        self.bzip2_mrc_name = os.path.join(self.test_data, 'EMD-3197.map.bz2')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map')
         
         # Set up stream to catch print output from validate()
@@ -66,6 +67,13 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_gzip_emdb_file(self):
         result = mrcfile.validate(self.gzip_mrc_name, self.print_stream)
+        assert result == False
+        print_output = self.print_stream.getvalue()
+        assert print_output.strip() == ("File does not declare MRC format "
+                                        "version 20140: nversion = 0")
+    
+    def test_bzip2_emdb_file(self):
+        result = mrcfile.validate(self.bzip2_mrc_name, self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == ("File does not declare MRC format "

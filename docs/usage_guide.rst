@@ -63,7 +63,7 @@ write access as ``numpy`` arrays:
           [ 8,  9, 10, 11]], dtype=int8)
 
 The :func:`~mrcfile.new` and :func:`~mrcfile.open` functions can also handle
-gzipped files very easily:
+gzip- or bzip2-compressed files very easily:
 
 .. doctest::
 
@@ -78,6 +78,18 @@ gzipped files very easily:
    array([[ 0,  2,  4,  6],
           [ 8, 10, 12, 14],
           [16, 18, 20, 22]], dtype=int8)
+
+   >>> # Same again for bzip2:
+   >>> with mrcfile.new('tmp.mrc.bz2', compression='bzip2') as mrc:
+   ...     mrc.set_data(example_data * 3)
+   ... 
+   >>> # Open it again with the normal open function:
+   >>> with mrcfile.open('tmp.mrc.bz2') as mrc:
+   ...     mrc.data
+   ... 
+   array([[ 0,  3,  6,  9],
+          [12, 15, 18, 21],
+          [24, 27, 30, 33]], dtype=int8)
 
 :class:`~mrcfile.mrcfile.MrcFile` objects should be closed when they are
 finished with, to ensure any changes are flushed to disk and the underlying file
@@ -140,7 +152,8 @@ written by slicing the array:
 For most purposes, the top-level functions in :mod:`mrcfile` should be all you
 need to open MRC files, but it is also possible to directly instantiate
 :class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
-:class:`~mrcfile.gzipmrcfile.GzipMrcFile` and
+:class:`~mrcfile.gzipmrcfile.GzipMrcFile`,
+:class:`~mrcfile.gzipmrcfile.Bzip2MrcFile` and
 :class:`~mrcfile.mrcmemmap.MrcMemmap`:
 
 .. doctest::
@@ -154,6 +167,11 @@ need to open MRC files, but it is also possible to directly instantiate
    ...     mrc
    ... 
    GzipMrcFile('tmp.mrc.gz', mode='r')
+
+   >>> with mrcfile.Bzip2MrcFile('tmp.mrc.bz2') as mrc:
+   ...     mrc
+   ... 
+   Bzip2MrcFile('tmp.mrc.bz2', mode='r')
 
    >>> with mrcfile.MrcMemmap('tmp.mrc') as mrc:
    ...     mrc
@@ -774,11 +792,14 @@ MRC files can be validated with :func:`mrcfile.validate`:
    >>> mrcfile.validate('tmp.mrc')
    True
 
-This works equally well for gzipped files:
+This works equally well for gzip- or bzip2-compressed files:
 
 .. doctest::
 
    >>> mrcfile.validate('tmp.mrc.gz')
+   True
+
+   >>> mrcfile.validate('tmp.mrc.bz2')
    True
 
 Errors will cause messages to be printed to the console, and
@@ -850,6 +871,9 @@ The following classes are provided by the mrcfile.py library:
 
 * :class:`~mrcfile.gzipmrcfile.GzipMrcFile`: Reads and writes MRC data using
   compressed gzip files.
+
+* :class:`~mrcfile.gzipmrcfile.Bzip2MrcFile`: Reads and writes MRC data using
+  compressed bzip2 files.
 
 * :class:`~mrcfile.mrcmemmap.MrcMemmap`: Uses a memory-mapped data array, for
   fast random access to very large data files. MrcMemmap overrides various

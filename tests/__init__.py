@@ -9,6 +9,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import unittest
 
+from .test_bzip2mrcfile import Bzip2MrcFileTest
 from .test_gzipmrcfile import GzipMrcFileTest
 from .test_load_functions import LoadFunctionTest
 from .test_mrcobject import MrcObjectTest
@@ -19,6 +20,7 @@ from .test_utils import UtilsTest
 from .test_validation import ValidationTest
 
 test_classes = [
+    Bzip2MrcFileTest,
     GzipMrcFileTest,
     LoadFunctionTest,
     MrcObjectTest,

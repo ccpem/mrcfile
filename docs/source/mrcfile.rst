@@ -16,6 +16,14 @@ mrcfile -- Main package
 Submodules
 ----------
 
+mrcfile.bzip2mrcfile module
+---------------------------
+
+.. automodule:: mrcfile.bzip2mrcfile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 mrcfile.constants module
 ------------------------
 

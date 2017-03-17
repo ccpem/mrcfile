@@ -35,6 +35,7 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.gzip_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
+        self.bzip2_mrc_name = os.path.join(self.test_data, 'EMD-3197.map.bz2')
     
     def tearDown(self):
         if os.path.exists(self.test_output):
@@ -50,6 +51,11 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with mrcfile.open(self.gzip_mrc_name) as mrc:
             assert repr(mrc) == ("GzipMrcFile('{0}', mode='r')"
                                  .format(self.gzip_mrc_name))
+    
+    def test_bzip2_opening(self):
+        with mrcfile.open(self.bzip2_mrc_name) as mrc:
+            assert repr(mrc) == ("Bzip2MrcFile('{0}', mode='r')"
+                                 .format(self.bzip2_mrc_name))
     
     def test_mmap_opening(self):
         with mrcfile.mmap(self.example_mrc_name) as mrc:
@@ -73,6 +79,17 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert repr(mrc) == ("GzipMrcFile('{0}', mode='w+')"
                                  .format(self.temp_mrc_name))
     
+    def test_new_bzip2_file(self):
+        data = np.arange(24, dtype=np.uint16).reshape(4, 3, 2)
+        with mrcfile.new(self.temp_mrc_name, data, compression='bzip2') as mrc:
+            np.testing.assert_array_equal(data, mrc.data)
+            assert repr(mrc) == ("Bzip2MrcFile('{0}', mode='w+')"
+                                 .format(self.temp_mrc_name))
+    
+    def test_unknown_compression_type(self):
+        with self.assertRaisesRegex(ValueError, 'Unknown compression format'):
+            mrcfile.new(self.temp_mrc_name, compression='other')
+    
     def test_overwriting_flag(self):
         assert not os.path.exists(self.temp_mrc_name)
         open(self.temp_mrc_name, 'w+').close()
@@ -84,17 +101,17 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         mrcfile.new(self.temp_mrc_name, overwrite=True).close()
     
     def test_invalid_mode_raises_exception(self):
-        with (self.assertRaisesRegex(ValueError, "Mode 'z' not supported")):
+        with self.assertRaisesRegex(ValueError, "Mode 'z' not supported"):
             mrcfile.open(self.example_mrc_name, mode='z')
     
     def test_non_mrc_file_raises_exception(self):
         name = os.path.join(self.test_data, 'emd_3197.png')
-        with (self.assertRaisesRegex(ValueError, 'Map ID string not found')):
+        with self.assertRaisesRegex(ValueError, 'Map ID string not found'):
             mrcfile.open(name)
     
     def test_gzipped_non_mrc_file_raises_exception(self):
         name = os.path.join(self.test_data, 'emd_3197.png.gz')
-        with (self.assertRaisesRegex(ValueError, 'Map ID string not found')):
+        with self.assertRaisesRegex(ValueError, 'Map ID string not found'):
             mrcfile.open(name)
     
     def test_error_in_gzip_opening_raises_new_exception(self):
@@ -109,6 +126,19 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                 mrcfile.open(self.gzip_mrc_name)
         finally:
             mrcfile.GzipMrcFile.__init__ = old_init
+    
+    def test_error_in_bzip2_opening_raises_new_exception(self):
+        # Tricky to test this case. Easiest to monkey-patch Bzip2MrcFile.__init__
+        old_init = mrcfile.Bzip2MrcFile.__init__
+        try:
+            msg = 'Fake error: valid bzip2 file with invalid MRC data'
+            def error(*args, **kwargs):
+                raise IOError(msg)
+            mrcfile.Bzip2MrcFile.__init__ = error
+            with self.assertRaisesRegex(IOError, msg):
+                mrcfile.open(self.bzip2_mrc_name)
+        finally:
+            mrcfile.Bzip2MrcFile.__init__ = old_init
     
     def test_switching_mode(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:
