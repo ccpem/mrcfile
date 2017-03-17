@@ -57,7 +57,7 @@ class Bzip2MrcFile(MrcFile):
         return super(Bzip2MrcFile, self)._get_file_size()
     
     def flush(self):
-        """Override flush() since GzipFile objects need special handling."""
+        """Override flush() since BZ2File objects need special handling."""
         if not self._read_only:
             self._iostream.close()
             self._iostream = bz2.BZ2File(self._fname, mode='w')
