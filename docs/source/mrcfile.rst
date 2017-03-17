@@ -16,6 +16,14 @@ mrcfile -- Main package
 Submodules
 ----------
 
+mrcfile.compressedmrcfile module
+--------------------------------
+
+.. automodule:: mrcfile.compressedmrcfile
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 mrcfile.constants module
 ------------------------
 
@@ -28,14 +36,6 @@ mrcfile.dtypes module
 ---------------------
 
 .. automodule:: mrcfile.dtypes
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-mrcfile.gzipmrcfile module
---------------------------
-
-.. automodule:: mrcfile.gzipmrcfile
     :members:
     :undoc-members:
     :show-inheritance:

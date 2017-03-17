@@ -48,7 +48,7 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_gzip_opening(self):
         with mrcfile.open(self.gzip_mrc_name) as mrc:
-            assert repr(mrc) == ("GzipMrcFile('{0}', mode='r')"
+            assert repr(mrc) == ("CompressedMrcFile('{0}', mode='r', compression='gzip')"
                                  .format(self.gzip_mrc_name))
     
     def test_mmap_opening(self):
@@ -68,9 +68,9 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_new_gzip_file(self):
         data = np.arange(24, dtype=np.uint16).reshape(4, 3, 2)
-        with mrcfile.new(self.temp_mrc_name, data, gzip=True) as mrc:
+        with mrcfile.new(self.temp_mrc_name, data, compression='gzip') as mrc:
             np.testing.assert_array_equal(data, mrc.data)
-            assert repr(mrc) == ("GzipMrcFile('{0}', mode='w+')"
+            assert repr(mrc) == ("CompressedMrcFile('{0}', mode='w+', compression='gzip')"
                                  .format(self.temp_mrc_name))
     
     def test_overwriting_flag(self):
@@ -98,17 +98,17 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrcfile.open(name)
     
     def test_error_in_gzip_opening_raises_new_exception(self):
-        # Tricky to test this case. Easiest to monkey-patch GzipMrcFile.__init__
-        old_init = mrcfile.GzipMrcFile.__init__
+        # Tricky to test this case. Easiest to monkey-patch CompressedMrcFile.__init__
+        old_init = mrcfile.CompressedMrcFile.__init__
         try:
             msg = 'Fake error: valid gzip file with invalid MRC data'
             def error(*args, **kwargs):
                 raise IOError(msg)
-            mrcfile.GzipMrcFile.__init__ = error
+            mrcfile.CompressedMrcFile.__init__ = error
             with self.assertRaisesRegex(IOError, msg):
                 mrcfile.open(self.gzip_mrc_name)
         finally:
-            mrcfile.GzipMrcFile.__init__ = old_init
+            mrcfile.CompressedMrcFile.__init__ = old_init
     
     def test_switching_mode(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:

@@ -68,33 +68,37 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import os
 
+from .compressedmrcfile import CompressedMrcFile
 from .constants import MRC_FORMAT_VERSION, MAP_ID, MAP_ID_OFFSET_BYTES
-from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
 from .version import __version__
 
 
-def new(name, data=None, gzip=False, overwrite=False):
+def new(name, data=None, compression=None, overwrite=False):
     """Create a new MRC file.
     
     Args:
         name: The file name to use.
         data: Data to put in the file, as a numpy array. The default is None, to
             create an empty file.
-        gzip: If True, the new file will be compressed with gzip. It's good
-            practice to name such files with a '.gz' extension but this is not
-            enforced.
+        compression: The compression format to use. Acceptable values are:
+            ``None`` (for no compression), 'gzip'. It's good practice to name
+            compressed files with an appropriate extension (for example,
+            '.mrc.gz' for gzip) but this is not enforced.
         overwrite: Flag to force overwriting of an existing file. If False and a
             file of the same name already exists, the file is not overwritten
             and an exception is raised.
     
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if gzip=True).
+        :class:`~mrcfile.compressedmrcfile.CompressedMrcFile` object if gzip=True).
     """
-    NewMrc = GzipMrcFile if gzip else MrcFile
-    mrc = NewMrc(name, mode='w+', overwrite=overwrite)
+    if compression is not None:
+        mrc = CompressedMrcFile(name, mode='w+', compression=compression,
+                                overwrite=overwrite)
+    else:
+        mrc = MrcFile(name, mode='w+', overwrite=overwrite)
     if data is not None:
         mrc.set_data(data)
     return mrc
@@ -103,7 +107,8 @@ def new(name, data=None, gzip=False, overwrite=False):
 def open(name, mode='r', permissive=False):  # @ReservedAssignment
     """Open an MRC file.
     
-    This function opens both normal and gzip-compressed MRC files.
+    This function opens both normal and compressed MRC files. Supported
+    compression formats are: gzip.
     
     It is possible to use this function to create new MRC files (using mode
     'w+') but the 'new' function is more flexible.
@@ -116,7 +121,7 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
     
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if the file is
+        :class:`~mrcfile.compressedmrcfile.CompressedMrcFile` object if the file is
         gzipped).
     
     Raises:
@@ -135,7 +140,7 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
         with io.open(name, 'rb') as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
         if start[:2] == b'\x1f\x8b' and start[-len(MAP_ID):] != MAP_ID:
-            NewMrc = GzipMrcFile
+            NewMrc = CompressedMrcFile
     return NewMrc(name, mode=mode, permissive=permissive)
 
 
