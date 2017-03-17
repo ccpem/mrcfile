@@ -42,6 +42,7 @@ Key Features
 
 * Clean, simple API for access to MRC files
 * Easy to install and use
+* Validation of files according to the MRC2014 format
 * Seamless support for gzip and bzip2 files
 * Memory-mapped file option for fast random access to very large files
 * Runs in Python 2 & 3
@@ -96,6 +97,15 @@ when the file is closed. You can also call ``flush()`` manually to flush the
 data to disk and keep the file open. If you open a file using Python's ``with``
 keyword (as in the examples above), it will be closed automatically at the end
 of the ``with`` block, like a normal Python file object.
+
+To validate an MRC file::
+
+    >>> mrcfile.validate('tests/test_data/EMD-3197.map')
+    File does not declare MRC format version 20140: nversion = 0
+    False
+
+    >>> mrcfile.validate('tmp.mrc')
+    True
 
 Documentation
 -------------
