@@ -140,7 +140,7 @@ written by slicing the array:
 For most purposes, the top-level functions in :mod:`mrcfile` should be all you
 need to open MRC files, but it is also possible to directly instantiate
 :class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
-:class:`~mrcfile.compressedmrcfile.CompressedMrcFile` and
+:class:`~mrcfile.gzipmrcfile.GzipMrcFile` and
 :class:`~mrcfile.mrcmemmap.MrcMemmap`:
 
 .. doctest::
@@ -150,10 +150,10 @@ need to open MRC files, but it is also possible to directly instantiate
    ... 
    MrcFile('tmp.mrc', mode='r')
 
-   >>> with mrcfile.CompressedMrcFile('tmp.mrc.gz') as mrc:
+   >>> with mrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
    ...     mrc
    ... 
-   CompressedMrcFile('tmp.mrc.gz', mode='r', compression='gzip')
+   GzipMrcFile('tmp.mrc.gz', mode='r')
 
    >>> with mrcfile.MrcMemmap('tmp.mrc') as mrc:
    ...     mrc
@@ -848,8 +848,8 @@ The following classes are provided by the mrcfile.py library:
   file from disk to use as its I/O stream. This is the normal class used for
   most interactions with MRC files.
 
-* :class:`~mrcfile.compressedmrcfile.CompressedMrcFile`: Reads and writes MRC
-  data using compressed files in gzip format.
+* :class:`~mrcfile.gzipmrcfile.GzipMrcFile`: Reads and writes MRC data using
+  compressed gzip files.
 
 * :class:`~mrcfile.mrcmemmap.MrcMemmap`: Uses a memory-mapped data array, for
   fast random access to very large data files. MrcMemmap overrides various

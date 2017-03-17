@@ -68,8 +68,8 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import os
 
-from .compressedmrcfile import CompressedMrcFile
 from .constants import MRC_FORMAT_VERSION, MAP_ID, MAP_ID_OFFSET_BYTES
+from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
 from .version import __version__
@@ -92,13 +92,13 @@ def new(name, data=None, compression=None, overwrite=False):
     
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        :class:`~mrcfile.compressedmrcfile.CompressedMrcFile` object if gzip=True).
+        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if gzip=True).
     """
     if compression is not None:
-        mrc = CompressedMrcFile(name, mode='w+', compression=compression,
-                                overwrite=overwrite)
+        NewMrc = GzipMrcFile
     else:
-        mrc = MrcFile(name, mode='w+', overwrite=overwrite)
+        NewMrc = MrcFile
+    mrc = NewMrc(name, mode='w+', overwrite=overwrite)
     if data is not None:
         mrc.set_data(data)
     return mrc
@@ -121,7 +121,7 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
     
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        :class:`~mrcfile.compressedmrcfile.CompressedMrcFile` object if the file is
+        :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if the file is
         gzipped).
     
     Raises:
@@ -140,7 +140,7 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
         with io.open(name, 'rb') as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
         if start[:2] == b'\x1f\x8b' and start[-len(MAP_ID):] != MAP_ID:
-            NewMrc = CompressedMrcFile
+            NewMrc = GzipMrcFile
     return NewMrc(name, mode=mode, permissive=permissive)
 
 
