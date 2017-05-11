@@ -1,9 +1,15 @@
 # Copyright (c) 2016, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 
+import os.path
 from setuptools import setup
 
-from mrcfile.version import __version__
+def version():
+    """Get the version number without importing the mrcfile package."""
+    namespace = {}
+    with open(os.path.join('mrcfile', 'version.py')) as f:
+        exec(f.read(), namespace)
+    return namespace['__version__']
 
 def readme():
     with open('README.rst') as f:
@@ -11,7 +17,7 @@ def readme():
 
 setup(
     name='mrcfile',
-    version=__version__,
+    version=version(),
     packages=['mrcfile'],
     install_requires=['numpy >= 1.11.0'],
     
