@@ -4,6 +4,8 @@
 import os.path
 from setuptools import setup
 
+base_url = 'https://github.com/ccpem/mrcfile'
+
 def version():
     """Get the version number without importing the mrcfile package."""
     namespace = {}
@@ -28,7 +30,8 @@ setup(
     description='MRC file I/O library',
     long_description=readme(),
     license='BSD',
-    url='https://github.com/ccpem/mrcfile',
+    url=base_url,
+    download_url='{0}/releases'.format(base_url),
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
