@@ -32,7 +32,9 @@ sys.path.insert(0, os.path.abspath('../'))
 # ones.
 extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.doctest',
-    'sphinx.ext.napoleon']
+    'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx'
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -84,15 +86,19 @@ todo_include_todos = False
 # -- Options for extensions -----------------------------------------------
 autodoc_member_order = 'bysource'
 doctest_test_doctest_blocks = ''
-napoleon_include_init_with_doc = True
+napoleon_include_init_with_doc = False
 
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/2.7', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+}
 
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

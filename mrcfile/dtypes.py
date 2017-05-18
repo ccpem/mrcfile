@@ -4,11 +4,11 @@
 dtypes
 ------
 
-numpy dtypes used by the mrcfile.py library.
+numpy dtypes used by the ``mrcfile.py`` library.
 
 The dtypes are defined in a separate module because they do not interact nicely
-with the 'from __future__ import unicode_literals' feature used in the rest of
-the package.
+with the ``from __future__ import unicode_literals`` feature used in the rest
+of the package.
 
 """
 

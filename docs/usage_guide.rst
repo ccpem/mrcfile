@@ -18,6 +18,7 @@ usability, documentation or anything else), please raise issues on the
    import os
    import shutil
    import tempfile
+   import warnings
    
    import numpy as np
    import mrcfile
@@ -31,17 +32,16 @@ usability, documentation or anything else), please raise issues on the
    os.chdir(old_cwd)
    shutil.rmtree(tempdir)
 
-Using MrcFile objects
----------------------
-
-Opening and closing
-~~~~~~~~~~~~~~~~~~~
+Opening MRC files
+-----------------
 
 MRC files should usually be opened using the :func:`mrcfile.new` or
 :func:`mrcfile.open` functions. These return an instance of the
 :class:`~mrcfile.mrcfile.MrcFile` class, which represents an MRC file on disk
 and makes the file's header, extended header and data available for read and
-write access as ``numpy`` arrays:
+write access as `numpy arrays`_:
+
+.. _numpy arrays: https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
 
 .. doctest::
 
@@ -92,8 +92,8 @@ gzip- or bzip2-compressed files very easily:
           [24, 27, 30, 33]], dtype=int8)
 
 :class:`~mrcfile.mrcfile.MrcFile` objects should be closed when they are
-finished with, to ensure any changes are flushed to disk and the underlying file
-object is closed:
+finished with, to ensure any changes are flushed to disk and the underlying
+file object is closed:
 
 .. doctest::
 
@@ -102,9 +102,9 @@ object is closed:
    >>> mrc.close()
 
 As we saw in the examples above, :class:`~mrcfile.mrcfile.MrcFile` objects
-support Python's ``with`` statement, which will ensure the file is closed
-properly after use (like a normal Python file object). It's generally a good
-idea to use ``with`` if possible, but sometimes when running Python
+support Python's :keyword:`with` statement, which will ensure the file is
+closed properly after use (like a normal Python file object). It's generally a
+good idea to use :keyword:`with` if possible, but sometimes when running Python
 interactively (as in some of these examples), it's more convenient to open a
 file and keep using it without having to work in an indented block. If you do
 this, remember to close the file at the end!
@@ -121,13 +121,13 @@ writes the MRC data to disk but leaves the file open:
    >>> mrc.close()  # close the file when finished
 
 Memory-mapped files
-"""""""""""""""""""
+~~~~~~~~~~~~~~~~~~~
 
 With very large files, it might be helpful to use the :func:`mrcfile.mmap`
-function to open the file, which will open the data as a memory-mapped ``numpy``
-array. The contents of the array are only read from disk as needed, so this
-allows large files to be opened quickly. Parts of the data can then be read and
-written by slicing the array:
+function to open the file, which will open the data as a
+:class:`memory-mapped numpy array <numpy.memmap>`. The contents of the array
+are only read from disk as needed, so this allows large files to be opened
+quickly. Parts of the data can then be read and written by slicing the array:
 
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
@@ -241,6 +241,100 @@ The :func:`~mrcfile.new` function is effectively shorthand for
    MrcFile('empty.mrc', mode='w+')
    >>> mrc.close()
 
+.. _permissive-mode:
+
+Permissive read mode
+~~~~~~~~~~~~~~~~~~~~
+
+Normally, if an MRC file is badly invalid, an exception is raised when the file
+is opened. This can be a problem if we want to, say, open a file and fix a
+header problem. To deal with this situation, :func:`~mrcfile.open` and
+:func:`~mrcfile.mmap` provide an optional ``permissive`` argument. If this is
+set to :data:`True`, problems with the file will cause warnings to be issued
+(using Python's :mod:`warnings` module) instead of raising exceptions, and the
+file will continue to be interpreted as far as possible.
+
+Let's see an example. First we'll deliberately make an invalid file:
+
+.. doctest::
+
+   >>> # Make a new file and deliberately make a mistake in the header
+   >>> with mrcfile.new('invalid.mrc') as mrc:
+   ...     mrc.header.map = b'map '  # standard requires b'MAP '
+   ...
+
+Now when we try to open the file, an exception is raised:
+
+.. doctest::
+
+   >>> # Opening an invalid file raises an exception:
+   >>> mrc = mrcfile.open('invalid.mrc')
+   Traceback (most recent call last):
+     ...
+   ValueError: Map ID string not found - not an MRC file, or file is corrupt
+
+If we use permissive mode, we can open the file, and we'll see a warning about
+the problem (except that here, we have to catch the warning and print the
+message manually, because warnings don't play nicely with doctests!):
+
+.. doctest::
+
+   >>> # Opening in permissive mode succeeds, with a warning:
+   >>> with warnings.catch_warnings(record=True) as w:
+   ...     mrc = mrcfile.open('invalid.mrc', permissive=True)
+   ...     print(w[0].message)
+   ...
+   Map ID string not found - not an MRC file, or file is corrupt
+
+Now let's fix the file:
+
+.. doctest::
+
+   >>> # Fix the invalid file by correcting the header
+   >>> with mrcfile.open('invalid.mrc', mode='r+', permissive=True) as mrc:
+   ...     mrc.header.map = mrcfile.MAP_ID
+   ...
+
+And now we should be able to open the file again normally:
+
+.. doctest::
+
+   >>> # Now we don't need permissive mode to open the file any more:
+   >>> mrc = mrcfile.open('invalid.mrc')
+   >>> mrc.close()
+
+The problems that can cause an exception when opening an MRC file are:
+
+#. The header's ``map`` field is not set correctly to confirm the file type. If
+   the file is otherwise correct, permissive mode should be able to read the
+   file normally.
+#. The machine stamp is invalid and so the file's byte order cannot be
+   determined. In this case, permissive mode assumes that the byte order is
+   little-endian and continues trying to read the file. If the file is actually
+   big-endian, the mode and data size checks will also fail because these
+   values depend on the endianness and will be nonsensical.
+#. The mode number is not recognised. Currently accepted modes are 0, 1, 2, 4
+   and 6.
+#. The data block is not large enough for the specified data type and
+   dimensions.
+
+In the last two cases, the data block will not be read and the
+:attr:`~mrcfile.mrcobject.MrcObject.data` attribute will be set to
+:data:`None`.
+
+Fixing invalid files can be quite complicated! This usage guide might be
+expanded in future to explain how to analyse and fix problems, or the library
+itself might be improved to fix certain problems automatically. For now, if
+you have trouble with an invalid file, inspecting the code in this library
+might help you to work out how to approach the problem (start with
+:meth:`MrcInterpreter._read_header()`), or you could try asking on the
+`CCP-EM mailing list`_ for advice.
+
+.. _CCP-EM mailing list: https://www.jiscmail.ac.uk/CCPEM
+
+Using MrcFile objects
+---------------------
+
 Accessing the header and data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -347,9 +441,9 @@ Voxel size
 ~~~~~~~~~~
 
 The voxel (or pixel) size in the file can be accessed using the
-:attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute, which returns a numpy
-record array with three fields, ``x``, ``y`` and ``z``, for the voxel size in
-each dimension:
+:attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute, which returns a
+:class:`numpy record array <numpy.recarray>` with three fields, ``x``, ``y``
+and ``z``, for the voxel size in each dimension:
 
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
@@ -360,10 +454,10 @@ each dimension:
    rec.array(( 0.,  0.,  0.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
-In a new file, the voxel size is zero by default. To set the voxel size, you can
-assign to the :attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute, using a
-single number (for an isotropic voxel size), a 3-tuple or a single-item record
-array with ``x``, ``y`` and ``z`` fields (which must be in that order):
+In a new file, the voxel size is zero by default. To set the voxel size, you
+can assign to the :attr:`~mrcfile.mrcobject.MrcObject.voxel_size` attribute,
+using a single number (for an isotropic voxel size), a 3-tuple or a single-item
+record array with ``x``, ``y`` and ``z`` fields (which must be in that order):
 
 .. doctest::
    :options: +NORMALIZE_WHITESPACE
@@ -532,7 +626,8 @@ is valid:
    >>> mrc.close()
 
 If the data array is modified in place, for example by editing values
-or changing the shape or dtype attributes, the header will no longer be correct:
+or changing the shape or dtype attributes, the header will no longer be
+correct:
 
 .. doctest::
 
@@ -560,8 +655,8 @@ override any of the automatic header values you can do.
 To keep the header in sync with the data, three methods can be used to update
 the header:
 
-* :meth:`~mrcfile.mrcobject.MrcObject.update_header_from_data`: This updates the
-  header's dimension fields, mode, space group and machine stamp to be
+* :meth:`~mrcfile.mrcobject.MrcObject.update_header_from_data`: This updates
+  the   header's dimension fields, mode, space group and machine stamp to be
   consistent with the data array. Because it only inspects the data array's
   attributes, this method is fast even for very large arrays.
 
@@ -571,14 +666,14 @@ the header:
   of the array.
 
 * :meth:`~mrcfile.mrcobject.MrcObject.reset_header_stats`: If the data values
-  have changed and the statistics fields are invalid, but the data array is very
-  large and you do not want to wait for ``update_header_stats()`` to run, you
-  can call this method to reset the header's statistics fields to indicate that
-  the values are undetermined.
+  have changed and the statistics fields are invalid, but the data array is
+  very large and you do not want to wait for ``update_header_stats()`` to run,
+  you can call this method to reset the header's statistics fields to indicate
+  that the values are undetermined.
 
 The file we just saved had an invalid header, but of course, that's what's used
-by ``mrcfile`` to work out how to read the file from disk! When we open the file
-again, our change to the shape has disappeared:
+by ``mrcfile`` to work out how to read the file from disk! When we open the
+file again, our change to the shape has disappeared:
 
 .. doctest::
 
@@ -613,9 +708,9 @@ again, our change to the shape has disappeared:
    >>> mrc.close()
 
 In general, if you're changing the shape, type or endianness of the data, it's
-easiest to use :meth:`~mrcfile.mrcobject.MrcObject.set_data` and the header will
-be kept up to date for you. If you start changing values in the data, remember
-that the statistics in the header will be out of date until you call
+easiest to use :meth:`~mrcfile.mrcobject.MrcObject.set_data` and the header
+will be kept up to date for you. If you start changing values in the data,
+remember that the statistics in the header will be out of date until you call
 :meth:`~mrcfile.mrcobject.MrcObject.update_header_stats` or
 :meth:`~mrcfile.mrcobject.MrcObject.reset_header_stats`.
 
@@ -623,8 +718,9 @@ Data dimensionality
 ~~~~~~~~~~~~~~~~~~~
 
 MRC files can be used to store several types of data: single images, image
-stacks, volumes and volume stacks. These are distinguished by the dimensionality
-of the data array and the space group number (the header's ``ispg`` field):
+stacks, volumes and volume stacks. These are distinguished by the
+dimensionality of the data array and the space group number (the header's
+``ispg`` field):
 
 ============  ==========  ===========
 Data type     Dimensions  Space group
@@ -664,8 +760,8 @@ identification of the data type:
 
    >>> mrc.close()
 
-If a file already contains image or image stack data, new three-dimensional data
-is treated as an image stack; otherwise, 3D data is treated as a volume by
+If a file already contains image or image stack data, new three-dimensional
+data is treated as an image stack; otherwise, 3D data is treated as a volume by
 default:
 
 .. doctest::
@@ -819,11 +915,11 @@ Errors will cause messages to be printed to the console, and
    False
 
 (More serious errors might also cause warnings to be printed to
-``sys.stderr``.)
+:data:`sys.stderr`.)
 
-Normally, messages are printed to ``sys.stdout`` (as normal for Python ``print``
-calls). :func:`~mrcfile.validate` has an optional ``print_file`` argument which
-allows any text stream to be used for the output instead:
+Normally, messages are printed to :data:`sys.stdout` (as normal for Python
+:func:`print` calls). :func:`~mrcfile.validate` has an optional ``print_file``
+argument which allows any text stream to be used for the output instead:
 
 .. doctest::
 
@@ -839,15 +935,21 @@ allows any text stream to be used for the output instead:
    >>> print(output.getvalue().strip())
    Header field 'mz' is negative
 
-Behind the scenes, :func:`mrcfile.validate` calls :func:`mrcfile.open` and then
+Behind the scenes, :func:`mrcfile.validate` opens the file in :ref:`permissive mode <permissive-mode>`
+using :func:`mrcfile.open` and then calls
 :meth:`MrcFile.validate() <mrcfile.mrcfile.MrcFile.validate>`. If you already
-have an :class:`~mrcfile.mrcfile.MrcFile` open, you can call this directly to
-check the file -- but note that the file size test might be inaccurate unless
-you call :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` first. Also,
-:meth:`MrcFile.validate() <mrcfile.mrcfile.MrcFile.validate>` doesn't check for
-serious problems which would stop the file being opened. To ensure the file is
-valid, it's best to flush the file and then validate it using
-:func:`mrcfile.validate`.
+have an :class:`~mrcfile.mrcfile.MrcFile` open, you can call its
+:meth:`validate() <mrcfile.mrcfile.MrcFile.validate>` method directly
+to check the file -- but note that the file size test might be inaccurate
+unless you call :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` first. To
+ensure the file is completely valid, it's best to flush or close the file and
+then validate it from scratch using :func:`mrcfile.validate`.
+
+If you find that a file created with this library is invalid, and you haven't
+altered anything in the header in a way that might cause problems, please file
+a bug report on the `issue tracker`_!
+
+.. _issue tracker: https://github.com/ccpem/mrcfile/issues
 
 API overview
 ------------

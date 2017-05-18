@@ -8,7 +8,7 @@ Module which exports the :class:`MrcObject` class.
 
 Classes:
     :class:`MrcObject`: An object representing image or volume data in the MRC
-        format.
+    format.
 
 """
 
@@ -32,29 +32,31 @@ class MrcObject(object):
     
     The header, extended header and data are stored as numpy arrays and
     exposed as read-only attributes. To replace the data or extended header,
-    call set_data() or set_extended_header(). The header cannot be replaced but
-    can be modified in place.
+    call :meth:`set_data` or :meth:`set_extended_header`. The header cannot be
+    replaced but can be modified in place.
     
-    Voxel size is exposed as a writeable attribute, but is calculated on-the-fly
-    from the header's cella and mx/my/mz fields.
+    Voxel size is exposed as a writeable attribute, but is calculated
+    on-the-fly from the header's ``cella`` and ``mx``/``my``/``mz`` fields.
     
     Three-dimensional data can represent either a stack of 2D images, or a 3D
-    volume. This is indicated by the header's ispg (space group) field, which
-    is set to 0 for image data and >= 1 for volume data. The is_single_image(),
-    is_image_stack(), is_volume() and is_volume_stack() methods can be used to
-    identify the type of information stored in the data array. For 3D data, the
-    set_image_stack() and set_volume() methods can be used to switch between
-    image stack and volume interpretations of the data.
+    volume. This is indicated by the header's ``ispg`` (space group) field,
+    which is set to 0 for image data and >= 1 for volume data. The
+    :meth:`is_single_image`, :meth:`is_image_stack`, :meth:`is_volume` and
+    :meth:`is_volume_stack` methods can be used to identify the type of
+    information stored in the data array. For 3D data, the
+    :meth:`set_image_stack` and :meth:`set_volume` methods can be used to
+    switch between image stack and volume interpretations of the data.
     
     If the data contents have been changed, you can use the
-    update_header_from_data() and update_header_stats() methods to make the
-    header consistent with the data. These methods are called automatically if
-    the data array is replaced by calling set_data(). update_header_from_data()
-    is fast, even with very large data arrays, because it only examines the
-    shape and type of the data array. update_header_stats() calculates
-    statistics from all items in the data array and so can be slow for very
-    large arrays. If necessary, the reset_header_stats() method can be called
-    to set the header fields to indicate that the statistics are undetermined.
+    :meth:`update_header_from_data` and :meth:`update_header_stats` methods to
+    make the header consistent with the data. These methods are called
+    automatically if the data array is replaced by calling :meth:`set_data`.
+    :meth:`update_header_from_data` is fast, even with very large data arrays,
+    because it only examines the shape and type of the data array.
+    :meth:`update_header_stats` calculates statistics from all items in the
+    data array and so can be slow for very large arrays. If necessary, the
+    :meth:`reset_header_stats` method can be called to set the header fields to
+    indicate that the statistics are undetermined.
     
     Attributes:
     
@@ -91,16 +93,17 @@ class MrcObject(object):
     def __init__(self, **kwargs):
         """Initialise a new :class:`MrcObject`.
         
-        This initialiser deliberately avoids creating any arrays and simply sets
-        the header, extended header and data attributes to None. This allows
-        subclasses to call super().__init__() at the start of their initialisers
-        and then set the attributes themselves, probably by reading from a file,
-        or by calling _create_default_attributes() for a new empty object.
+        This initialiser deliberately avoids creating any arrays and simply
+        sets the header, extended header and data attributes to :data:`None`.
+        This allows subclasses to call :meth:`super().__init__` at the start of
+        their initialisers and then set the attributes themselves, probably by
+        reading from a file, or by calling :meth:`_create_default_attributes`
+        for a new empty object.
         
         Note that this behaviour might change in future: this initialiser could
         take optional arguments to allow the header and data to be provided
         by the caller, or might create the standard empty defaults rather than
-        setting the attributes to None.
+        setting the attributes to :data:`None`.
         """
         super(MrcObject, self).__init__(**kwargs)
         
@@ -132,9 +135,6 @@ class MrcObject(object):
         information, default values for some essential fields, and zeros
         elsewhere. The first text label is also set to indicate the file was
         created by this module.
-        
-        Returns:
-            The new header, as a structured numpy record array.
         """
         self._header = np.zeros(shape=(), dtype=HEADER_DTYPE).view(np.recarray)
         header = self._header
@@ -168,27 +168,27 @@ class MrcObject(object):
     
     @property
     def header(self):
-        """Get the header as a numpy record array."""
+        """Get the header as a :class:`numpy record array <numpy.recarray>`."""
         return self._header
     
     @property
     def extended_header(self):
-        """Get the extended header as a numpy array.
+        """Get the extended header as a :class:`numpy array <numpy.ndarray>`.
         
         By default the dtype of the extended header array is void (raw data,
-        dtype 'V'). If the actual data type of the extended header is known, the
-        dtype of the array can be changed to match.
+        dtype ``V``). If the actual data type of the extended header is known,
+        the dtype of the array can be changed to match.
         
         The extended header may be modified in place. To replace it completely,
-        call set_extended_header().
+        call :meth:`set_extended_header`.
         """
         return self._extended_header
     
     def set_extended_header(self, extended_header):
         """Replace the extended header.
         
-        If you set the extended header you should also set the header.exttyp
-        field to indicate the type of extended header.
+        If you set the extended header you should also set the
+        ``header.exttyp`` field to indicate the type of extended header.
         """
         self._check_writeable()
         self._extended_header = extended_header
@@ -196,7 +196,7 @@ class MrcObject(object):
     
     @property
     def data(self):
-        """Get the data as a numpy array."""
+        """Get the data as a :class:`numpy array <numpy.ndarray>`."""
         return self._data
     
     def set_data(self, data):
@@ -239,17 +239,17 @@ class MrcObject(object):
     def voxel_size(self):
         """Get or set the voxel size in angstroms.
         
-        The voxel size is returned as a structured numpy record array with three
-        fields (x, y and z). Note that changing the voxel_size array in-place
-        will *not* change the voxel size in the file -- to prevent this being
-        overlooked accidentally, the writeable flag is set to False on the
-        voxel_size array.
+        The voxel size is returned as a structured :class:`numpy record array
+        <numpy.recarray>` with three fields (x, y and z). Note that changing
+        the voxel_size array in-place will *not* change the voxel size in the
+        file -- to prevent this being overlooked accidentally, the writeable
+        on the voxel_size array.
         
         To set the voxel size, assign a new value to the voxel_size attribute.
-        You may give a single number, a 3-tuple (x, y ,z) or a modified version
-        of the voxel_size array. The following examples are all equivalent:
+        You may give a single number, a 3-tuple ``(x, y ,z)`` or a modified
+        version of the voxel_size array. The following examples are all
+        equivalent:
         
-        >>> print(old_cwd)
         >>> mrc.voxel_size = 1.0
         
         >>> mrc.voxel_size = (1.0, 1.0, 1.0)
@@ -300,7 +300,7 @@ class MrcObject(object):
         """Identify whether the file represents a single image.
         
         Returns:
-            True if the data array is two-dimensional.
+            :data:`True` if the data array is two-dimensional.
         """
         return self.data.ndim == 2
     
@@ -308,8 +308,8 @@ class MrcObject(object):
         """Identify whether the file represents a stack of images.
         
         Returns:
-            True if the data array is three-dimensional and the space group is
-            zero.
+            :data:`True` if the data array is three-dimensional and the space group
+            is zero.
         """
         return (self.data.ndim == 3
                 and self.header.ispg == IMAGE_STACK_SPACEGROUP)
@@ -318,8 +318,8 @@ class MrcObject(object):
         """Identify whether the file represents a volume.
         
         Returns:
-            True if the data array is three-dimensional and the space group is
-            not zero.
+            :data:`True` if the data array is three-dimensional and the space
+            group is not zero.
         """
         return (self.data.ndim == 3
                 and self.header.ispg != IMAGE_STACK_SPACEGROUP)
@@ -328,7 +328,7 @@ class MrcObject(object):
         """Identify whether the file represents a stack of volumes.
         
         Returns:
-            True if the data array is four-dimensional.
+            :data:`True` if the data array is four-dimensional.
         """
         return self.data.ndim == 4
     
@@ -367,7 +367,8 @@ class MrcObject(object):
         
         This function updates the header byte order and machine stamp to match
         the byte order of the data. It also updates the file mode, space group
-        and the dimension fields nx, ny, nz, mx, my and mz.
+        and the dimension fields ``nx``, ``ny``, ``nz``, ``mx``, ``my`` and
+        ``mz``.
         
         If the data is 2D, the space group is set to 0 (image stack). For 3D
         data the space group is not changed, and for 4D data the space group is
@@ -379,11 +380,12 @@ class MrcObject(object):
         previous data was a volume or volume stack.
         
         Note that this function does *not* update the data statistics fields in
-        the header (min, max, mean and rms). Use the update_header_stats()
-        function to update the statistics. (This is for performance reasons --
-        updating the statistics can take a long time for large data sets, but
-        updating the other header information is always fast because only the
-        type and shape of the data array need to be inspected.)
+        the header (``dmin``, ``dmax``, ``dmean`` and ``rms``). Use the
+        :meth:`update_header_stats` function to update the statistics.
+        (This is for performance reasons -- updating the statistics can take a
+        long time for large data sets, but updating the other header
+        information is always fast because only the type and shape of the data
+        array need to be inspected.)
         """
         self._check_writeable()
         
@@ -431,7 +433,8 @@ class MrcObject(object):
             raise ValueError('Data must be 2-, 3- or 4-dimensional')
     
     def update_header_stats(self):
-        """Update the header's dmin, dmax, dmean and rms fields from the data.
+        """Update the header's ``dmin``, ``dmax``, ``dmean`` and ``rms`` fields
+        from the data.
         
         Note that this can take some time with large files, particularly with
         files larger than the currently available memory.
@@ -461,8 +464,8 @@ class MrcObject(object):
         Args:
             print_file: The output text stream to use for printing the header.
                 This is passed directly to the ``file`` argument of Python's
-                ``print()`` function. The default is ``None``, which means
-                output will be printed to ``sys.stdout``.
+                :func:`print` function. The default is :data:`None`, which
+                means output will be printed to :data:`sys.stdout`.
         """
         for item in self.header.dtype.names:
             print('{0:15s} : {1}'.format(item, self.header[item]),
@@ -471,8 +474,8 @@ class MrcObject(object):
     def validate(self, print_file=None):
         """Validate this MrcObject.
         
-        This method runs a series of tests to check whether this object complies
-        with the MRC2014 format specification:
+        This method runs a series of tests to check whether this object
+        complies with the MRC2014 format specification:
         
         #. MRC format ID string: The header's ``map`` field must contain
            "MAP ".
@@ -482,16 +485,16 @@ class MrcObject(object):
         #. MRC mode: the ``mode`` field should be one of the supported mode
            numbers: 0, 1, 2, 4 or 6.
         #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
-           ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z`` must
-           all be positive numbers.
+           ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z``
+           must all be positive numbers.
         #. Axis mapping: Header fields ``mapc``, ``mapr`` and ``maps`` must
            contain the values 1, 2, and 3 (in any order).
         #. Volume stack dimensions: If the spacegroup is in the range 401--630,
            representing a volume stack, the ``nz`` field should be exactly
            divisible by ``mz`` to represent the number of volumes in the stack.
         #. Header labels: The ``nlabl`` field should be set to indicate the
-           number of labels in use, and the labels in use should appear first in
-           the label array (that is, there should be no blank labels between
+           number of labels in use, and the labels in use should appear first
+           in the label array (that is, there should be no blank labels between
            text-filled ones).
         #. MRC format version: The ``nversion`` field should be 20140 for
            compliance with the MRC2014 standard.
@@ -504,12 +507,13 @@ class MrcObject(object):
         Args:
             print_file: The output text stream to use for printing messages
                 about the validation. This is passed directly to the ``file``
-                argument of Python's ``print()`` function. The default is
-                ``None``, which means output will be printed to ``sys.stdout``.
+                argument of Python's :func:`print` function. The default is
+                :data:`None`, which means output will be printed to
+                :data:`sys.stdout`.
         
         Returns:
-            True if this MrcObject  is valid, False if it does not meet the MRC
-            format specification in any way.
+            :data:`True` if this MrcObject  is valid, or :data:`False` if it
+            does not meet the MRC format specification in any way.
         """
         valid = True
         

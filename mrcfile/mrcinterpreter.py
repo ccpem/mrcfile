@@ -8,7 +8,7 @@ Module which exports the :class:`MrcInterpreter` class.
 
 Classes:
     :class:`MrcInterpreter`: An object which can interpret an I/O stream as MRC
-        data.
+    data.
 
 """
 
@@ -33,13 +33,35 @@ class MrcInterpreter(MrcObject):
     The header and data are handled as numpy arrays - see
     :class:`~mrcfile.mrcobject.MrcObject` for details.
     
-    This class can be used directly, but it is mostly intended as a superclass
-    to provide common stream-handling functionality. This can be used by
-    subclasses which will handle opening and closing the stream.
+    :class:`MrcInterpreter` can be used directly, but it is mostly intended as
+    a superclass to provide common stream-handling functionality. This can be
+    used by subclasses which will handle opening and closing the stream.
     
-    This class implements the __enter__() and __exit__() special methods which
-    allow it to be used by the Python context manager in a 'with' block. This
-    ensures that close() is called after the object is finished with.
+    This class implements the :meth:`__enter__` and :meth:`__exit__` special
+    methods which allow it to be used by the Python context manager in a
+    :keyword:`with` block. This ensures that :meth:`close` is called after the
+    object is finished with.
+        
+    When reading the I/O stream, a :class:`~exceptions.ValueError` is raised if
+    the data is invalid in one of the following ways:
+    
+    #. The header's ``map`` field is not set correctly to confirm the file
+       type.
+    #. The machine stamp is invalid and so the data's byte order cannot be
+       determined.
+    #. The mode number is not recognised. Currently accepted modes are 0, 1, 2,
+       4 and 6.
+    #. The data block is not large enough for the specified data type and
+       dimensions.
+    
+    :class:`MrcInterpreter` offers a permissive read mode for handling
+    problematic files. If ``permissive`` is set to :data:`True` and any of the
+    validity checks fails, a :mod:`warning <warnings>` is issued instead of an
+    exception, and file interpretation continues. If the mode number is invalid
+    or the data block is too small, the :attr:`data` attribute will be set to
+    :data:`None`. In this case, it might be possible to inspect and correct the
+    header, and then call :meth:`_read` again to read the data correctly. See
+    the :doc:`usage guide <../usage_guide>` for more details.
     
     Methods:
     
@@ -56,18 +78,25 @@ class MrcInterpreter(MrcObject):
     def __init__(self, iostream=None, permissive=False, **kwargs):
         """Initialise a new MrcInterpreter object.
         
-        This initialiser reads the stream if it is given. In general, subclasses
-        should call super().__init__() without giving an iostream argument, then
-        set the _iostream attribute themselves and call _read() when ready.
+        This initialiser reads the stream if it is given. In general,
+        subclasses should call :meth:`super().__init__` without giving an
+        ``iostream`` argument, then set the :attr:`_iostream` attribute
+        themselves and call :meth:`_read` when ready.
         
         To use the MrcInterpreter class directly, pass a stream when creating
-        the object (or for a write-only stream, create an MrcInterpreter with no
-        stream, call _create_default_attributes() and set the _iostream
-        attribute directly).
+        the object (or for a write-only stream, create an MrcInterpreter with
+        no stream, call :meth:`_create_default_attributes` and set the
+        :attr:`_iostream` attribute directly).
         
         Args:
             iostream: The I/O stream to use to read and write MRC data. The
-                default is None.
+                default is :data:`None`.
+            permissive: Read the stream in permissive mode. The default is
+                :data:`False`.
+        
+        Raises:
+            ValueError: If ``iostream`` is given and the data it contains
+                cannot be interpreted as a valid MRC file.
         """
         super(MrcInterpreter, self).__init__(**kwargs)
         
@@ -79,25 +108,27 @@ class MrcInterpreter(MrcObject):
             self._read()
     
     def __enter__(self):
-        """Called by the context manager at the start of a 'with' block.
+        """Called by the context manager at the start of a :keyword:`with`
+        block.
         
         Returns:
-            This object (self).
+            This object (``self``).
         """
         return self
     
     def __exit__(self, exc_type, exc_val, exc_tb):
-        """Called by the context manager at the end of a 'with' block.
+        """Called by the context manager at the end of a :keyword:`with`
+        block.
         
-        This ensures that the close() method is called.
+        This ensures that the :meth:`close` method is called.
         """
         self.close()
     
     def __del__(self):
         """Attempt to flush the stream when this object is garbage collected.
         
-        It's better not to rely on this - instead, use a 'with' block or
-        explicitly call the close() method.
+        It's better not to rely on this - instead, use a :keyword:`with`
+        block or explicitly call the :meth:`close` method.
         """
         try:
             self.close()
@@ -121,8 +152,8 @@ class MrcInterpreter(MrcObject):
     def _read_header(self):
         """Read the MRC header from the I/O stream.
         
-        The header will be read from the current stream position, and the stream
-        will be advanced by 1024 bytes.
+        The header will be read from the current stream position, and the
+        stream will be advanced by 1024 bytes.
         
         Raises:
             ValueError: If the file is not a valid MRC file.
@@ -142,7 +173,8 @@ class MrcInterpreter(MrcObject):
         
         # Check this is an MRC file, and read machine stamp to get byte order
         if header.map != MAP_ID:
-            msg = "Map ID string not found - not an MRC file, or file is corrupt"
+            msg = ("Map ID string not found - "
+                   "not an MRC file, or file is corrupt")
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
             else:
@@ -222,11 +254,11 @@ class MrcInterpreter(MrcObject):
     def flush(self):
         """Flush the header and data arrays to the I/O stream.
         
-        This implementation seeks to the start of the stream, writes the header,
-        extended header and data arrays, and then truncates the stream.
+        This implementation seeks to the start of the stream, writes the
+        header, extended header and data arrays, and then truncates the stream.
         
         Subclasses should override this implementation for streams which do not
-        support seek() or truncate().
+        support :meth:`~io.IOBase.seek` or :meth:`~io.IOBase.truncate`.
         """
         if not self._read_only:
             self._iostream.seek(0)

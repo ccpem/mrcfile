@@ -63,7 +63,9 @@ class GzipMrcFile(MrcFile):
         return pos + extra
     
     def flush(self):
-        """Override flush() since GzipFile objects need special handling."""
+        """Override :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` since
+        GzipFile objects need special handling.
+        """
         if not self._read_only:
             self._iostream.close()
             self._fileobj.seek(0)

@@ -92,11 +92,11 @@ To create a new file with a 2D data array, and change some values::
            [ 0, 10, 10, 10,  0],
            [ 0,  0,  0,  0,  0]], dtype=int8)
 
-Close the file after use by calling ``close()`` which will save the data to disk
-when the file is closed. You can also call ``flush()`` manually to flush the
-data to disk and keep the file open. If you open a file using Python's ``with``
-keyword (as in the examples above), it will be closed automatically at the end
-of the ``with`` block, like a normal Python file object.
+Close the file after use by calling ``close()`` which will save the data to
+disk when the file is closed. You can also call ``flush()`` manually to flush
+the data to disk and keep the file open. If you open a file using Python's
+``with`` keyword (as in the examples above), it will be closed automatically at
+the end of the ``with`` block, like a normal Python file object.
 
 To validate an MRC file::
 
@@ -121,9 +121,9 @@ https://github.com/ccpem/mrcfile/issues
 Code contributions are also welcome, please submit pull requests to the GitHub
 repository.
 
-To run the test suite, from the directory which contains the ``mrcfile`` and
-``tests`` packages, run ``python -m unittest tests``. (Or, if you have `tox`_,
-Python 2.7 and Python 3.5 installed, run ``tox``.)
+To run the test suite, go to the directory which contains the ``mrcfile`` and
+``tests`` packages and run ``python -m unittest tests``. (Or, if you have
+`tox`_, Python 2.7 and Python 3.5 installed, run ``tox``.)
 
 .. _tox: http://tox.readthedocs.org
 

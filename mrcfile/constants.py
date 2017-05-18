@@ -4,7 +4,7 @@
 constants
 ---------
 
-Constants used by the mrcfile.py library.
+Constants used by the ``mrcfile.py`` library.
 
 """
 

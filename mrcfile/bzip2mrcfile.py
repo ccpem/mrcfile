@@ -7,7 +7,8 @@ bzip2mrcfile
 Module which exports the :class:`Bzip2MrcFile` class.
 
 Classes:
-    :class:`Bzip2MrcFile`: An object which represents a bzip2 MRC file.
+    :class:`Bzip2MrcFile`: An object which represents a bzip2-compressed MRC
+    file.
 
 """
 
@@ -24,7 +25,8 @@ from .mrcfile import MrcFile
 
 class Bzip2MrcFile(MrcFile):
     
-    """:class:`~mrcfile.mrcfile.MrcFile` subclass for handling bzip2 files.
+    """:class:`~mrcfile.mrcfile.MrcFile` subclass for handling bzip2-compressed
+    files.
     
     Usage is the same as for :class:`~mrcfile.mrcfile.MrcFile`.
     
@@ -57,7 +59,9 @@ class Bzip2MrcFile(MrcFile):
         return super(Bzip2MrcFile, self)._get_file_size()
     
     def flush(self):
-        """Override flush() since BZ2File objects need special handling."""
+        """Override :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` since
+        BZ2File objects need special handling.
+        """
         if not self._read_only:
             self._iostream.close()
             self._iostream = bz2.BZ2File(self._fname, mode='w')

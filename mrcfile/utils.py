@@ -10,18 +10,22 @@ Utility functions used by the other modules in the mrcfile package.
 Functions
 ---------
 
-* :func:`data_dtype_from_header`: Work out the data dtype from an MRC header
+* :func:`data_dtype_from_header`: Work out the data :class:`dtype
+  <numpy.dtype>` from an MRC header.
 * :func:`data_shape_from_header`: Work out the data array shape from an MRC
-      header
-* :func:`mode_from_dtype`: Convert a numpy dtype to an MRC mode number.
-* :func:`dtype_from_mode`: Convert an MRC mode number to a numpy dtype.
+  header
+* :func:`mode_from_dtype`: Convert a :class:`numpy dtype <numpy.dtype>` to an
+  MRC mode number.
+* :func:`dtype_from_mode`: Convert an MRC mode number to a :class:`numpy dtype
+  <numpy.dtype>`.
 * :func:`machine_stamp_from_byte_order`: Get a machine stamp from a byte order
-      indicator.
+  indicator.
 * :func:`byte_orders_equal`: Compare two byte order indicators for equal
-      endianness.
-* :func:`normalise_byte_order`: Convert a byte order indicator to '<' or '>'.
+  endianness.
+* :func:`normalise_byte_order`: Convert a byte order indicator to ``<`` or
+  ``>``.
 * :func:`spacegroup_is_volume_stack`: Identify if a space group number
-      represents a volume stack.
+  represents a volume stack.
 
 """
 
@@ -39,16 +43,17 @@ from .constants import IMAGE_STACK_SPACEGROUP
 def data_dtype_from_header(header):
     """Return the data dtype indicated by the given header.
     
-    This method calls dtype_from_mode() to get the basic dtype, and then makes
-    sure that the byte order of the new dtype matches the byte order of the
-    header's mode field.
+    This function calls :func:`dtype_from_mode` to get the basic dtype, and
+    then makes sure that the byte order of the new dtype matches the byte order
+    of the header's ``mode`` field.
     
     Args:
-        header: An MRC header as a numpy record array.
+        header: An MRC header as a :class:`numpy record array
+            <numpy.recarray>`.
     
     Returns:
-        The numpy dtype object for the data array corresponding to the given
-        header.
+        The :class:`numpy dtype <numpy.dtype>` object for the data array
+        corresponding to the given header.
     
     Raises:
         ValueError: If there is no corresponding dtype for the given mode.
@@ -61,7 +66,8 @@ def data_shape_from_header(header):
     """Return the data shape indicated by the given header.
     
     Args:
-        header: An MRC header as a numpy record array.
+        header: An MRC header as a :class:`numpy record array
+            <numpy.recarray>`.
     
     Returns:
         The shape tuple for the data array corresponding to the given header.
@@ -85,7 +91,8 @@ def data_shape_from_header(header):
 _dtype_to_mode = dict(f2=2, f4=2, i1=0, i2=1, u1=6, u2=6, c8=4)
 
 def mode_from_dtype(dtype):
-    """Return the MRC mode number corresponding to the given numpy dtype.
+    """Return the MRC mode number corresponding to the given :class:`numpy
+    dtype <numpy.dtype>`.
     
     The conversion is as follows:
     
@@ -100,7 +107,7 @@ def mode_from_dtype(dtype):
     Note that there is no numpy dtype which corresponds to MRC mode 3.
     
     Args:
-        dtype: A numpy dtype object.
+        dtype: A :class:`numpy dtype <numpy.dtype>` object.
     
     Returns:
         The MRC mode number.
@@ -122,7 +129,8 @@ _mode_to_dtype = { 0: np.int8,
                    6: np.uint16 }
 
 def dtype_from_mode(mode):
-    """Return the numpy dtype corresponding to the given MRC mode number.
+    """Return the :class:`numpy dtype <numpy.dtype>` corresponding to the given
+    MRC mode number.
     
     The mode parameter may be given as a Python scalar, numpy scalar or
     single-item numpy array.
@@ -139,11 +147,12 @@ def dtype_from_mode(mode):
     
     Args:
         mode: The MRC mode number. This may be given as any type which can be
-            converted to an int, for example a Python scalar (int or float),
-            a numpy scalar or a single-item numpy array.
+            converted to an int, for example a Python scalar (``int`` or
+            ``float``), a numpy scalar or a single-item numpy array.
     
     Returns:
-        The numpy dtype object corresponding to the given mode.
+        The :class:`numpy dtype <numpy.dtype>` object corresponding to the
+        given mode.
     
     Raises:
         ValueError: If there is no corresponding dtype for the given mode.
@@ -159,7 +168,8 @@ def byte_order_from_machine_stamp(machst):
     """Return the byte order corresponding to the given machine stamp.
     
     Args:
-        machst: The machine stamp, as a bytearray or a numpy array of bytes.
+        machst: The machine stamp, as a :class:`bytearray` or a :class:`numpy
+            array <numpy.ndarray>` of bytes.
     
     Returns:
         ``<`` if the machine stamp represents little-endian data, or ``>`` if
@@ -181,17 +191,18 @@ _byte_order_to_machine_stamp = {'<': bytearray((0x44, 0x44, 0, 0)),
                                 '>': bytearray((0x11, 0x11, 0, 0))}
 
 def machine_stamp_from_byte_order(byte_order='='):
-    """Return the machine stamp corresponding to the given byte order indicator.
+    """Return the machine stamp corresponding to the given byte order
+    indicator.
     
     Args:
-        byte_order: The byte order indicator: one of '=', '<' or '>', as
+        byte_order: The byte order indicator: one of ``=``, ``<`` or ``>``, as
             defined and used by numpy dtype objects.
     
     Returns:
         The machine stamp which corresponds to the given byte order, as a
-        bytearray. This will be either (0x44, 0x44, 0, 0) for little-endian
-        or (0x11, 0x11, 0, 0) for big-endian. If the given byte order indicator
-        is '=', the native byte order is used.
+        :class:`bytearray`. This will be either ``(0x44, 0x44, 0, 0)`` for
+        little-endian or ``(0x11, 0x11, 0, 0)`` for big-endian. If the given
+        byte order indicator is ``=``, the native byte order is used.
     
     Raises:
         ValueError: If the byte order indicator is unrecognised.
@@ -204,11 +215,13 @@ def byte_orders_equal(a, b):
     """Work out if the byte order indicators represent the same endianness.
     
     Args:
-        a, b: The byte order indicators: one of '=', '<' or '>', as
-            defined and used by numpy dtype objects.
+        a: The first byte order indicator: one of ``=``, ``<`` or ``>``, as
+            defined and used by :class:`numpy dtype <numpy.dtype>` objects.
+        b: The second byte order indicator.
     
     Returns:
-        True if the byte order indicators represent the same endianness.
+        :data:`True` if the byte order indicators represent the same
+        endianness.
     
     Raises:
         ValueError: If the byte order indicator is not recognised.
@@ -216,19 +229,19 @@ def byte_orders_equal(a, b):
     return normalise_byte_order(a) == normalise_byte_order(b)
 
 def normalise_byte_order(byte_order):
-    """Convert a numpy byte order indicator to one of '<' or '>'.
+    """Convert a numpy byte order indicator to one of ``<`` or ``>``.
     
     Args:
-        byte_order: One of '=', '<' or '>'.
+        byte_order: One of ``=``, ``<`` or ``>``.
     
     Returns:
-        '<' if the byte order indicator represents little-endian data, or '>' if
-        it represents big-endian. Therefore on a little-endian machine, '=' will
-        be converted to '<', but on a big-endian machine it will be converted to
-        '>'.
+        ``<`` if the byte order indicator represents little-endian data, or
+        ``>`` if it represents big-endian. Therefore on a little-endian
+        machine, ``=`` will be converted to ``<``, but on a big-endian machine
+        it will be converted to ``>``.
     
     Raises:
-        ValueError: If byte_order is not one of '=', '<' or '>'.
+        ValueError: If ``byte_order`` is not one of ``=``, ``<`` or ``>``.
     """
     if byte_order not in ('<', '>', '='):
         raise ValueError("Unrecognised byte order indicator '{0}'"
@@ -245,6 +258,6 @@ def spacegroup_is_volume_stack(ispg):
             element numpy array.
     
     Returns:
-        True if the space group number is in the range 401--630.
+        :data:`True` if the space group number is in the range 401--630.
     """
     return 401 <= ispg <= 630

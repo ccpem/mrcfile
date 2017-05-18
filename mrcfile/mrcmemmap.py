@@ -8,7 +8,7 @@ Module which exports the :class:`MrcMemmap` class.
 
 Classes:
     :class:`MrcMemmap`: An MrcFile subclass that uses a memory-mapped data
-        array.
+    array.
 
 """
 
@@ -27,7 +27,8 @@ from .mrcfile import MrcFile
 
 class MrcMemmap(MrcFile):
     
-    """MrcFile subclass that uses a numpy memmap array for the data.
+    """MrcFile subclass that uses a :class:`numpy memmap array <numpy.memmap>`
+    for the data.
     
     Using a memmap means that the disk access is done lazily: the data array
     will only be read or written in small chunks when required. To access the
@@ -40,10 +41,10 @@ class MrcMemmap(MrcFile):
     operations.
     
     If required, it is possible to create a very large empty file by creating a
-    new MrcMemmap and then calling _open_memmap() to create the memmap array,
-    which can then be filled slice-by-slice. Be aware that the contents of a
-    new, empty memmap array depend on your platform: the data values could be
-    garbage or zeros.
+    new MrcMemmap and then calling :meth:`_open_memmap` to create the memmap
+    array, which can then be filled slice-by-slice. Be aware that the contents
+    of a new, empty memmap array depend on your platform: the data values
+    could be garbage or zeros.
     
     """
     
@@ -135,7 +136,7 @@ class MrcMemmap(MrcFile):
             self._data = None
     
     def _set_new_data(self, data):
-        """Override of _set_new_data() to handle opening a new memmap and
+        """Override of :meth:`_set_new_data` to handle opening a new memmap and
         copying data into it."""
         file_size = self.header.nbytes + self.header.nsymbt + data.nbytes
         self._iostream.truncate(file_size)
