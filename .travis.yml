@@ -1,10 +1,17 @@
+os: linux
 sudo: false
-os:
-  - linux
-  - osx
 language: python
 python:
   - "2.7"
   - "3.5"
+matrix:
+  include:
+    - language: generic
+      os: osx
+      before_install:
+        - brew update
+        - brew install python3
+        - virtualenv env -p python3
+        - source env/bin/activate
 install: pip install tox-travis
 script: tox
