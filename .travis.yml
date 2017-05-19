@@ -10,9 +10,8 @@ matrix:
       os: osx
       before_install:
         - brew update
+        - brew install python
         - brew install python3
-        - virtualenv env -p python3
-        - source env/bin/activate
   allow_failures:
     - os: osx
 install: pip install tox-travis
