@@ -49,8 +49,10 @@ class MrcMemmapTest(MrcFileTest):
             mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
             assert mrc.header.mz == 2
             mrc.header.mz = mrc.header.nz = 3
-        expected_error_msg = "mmap length is greater than file size"
-        with self.assertRaisesRegex(ValueError, expected_error_msg):
+        # The exception type and message are different on Linux and Windows
+        expected_error_msg = ("mmap length is greater than file size"
+                              "|Not enough storage is available")
+        with self.assertRaisesRegex(Exception, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
     
     def test_data_is_not_copied_unnecessarily(self):

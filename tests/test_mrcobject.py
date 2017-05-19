@@ -261,8 +261,10 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.mrcobject.set_data(data)
     
     def test_complex256_dtype_raises_exception(self):
-        data = np.arange(6, dtype=np.complex256).reshape(3, 2)
-        self.assert_dtype_raises_exception(data)
+        # complex256 only exists on some platforms
+        if hasattr(np, 'complex256'):
+            data = np.arange(6, dtype=np.complex256).reshape(3, 2)
+            self.assert_dtype_raises_exception(data)
     
     def test_complex128_dtype_raises_exception(self):
         data = np.arange(6, dtype=np.complex128).reshape(3, 2)

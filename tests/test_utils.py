@@ -81,8 +81,10 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
             utils.mode_from_dtype(np.dtype(np.float64))
     
     def test_float128_dtype_raises_exception(self):
-        with self.assertRaises(ValueError):
-            utils.mode_from_dtype(np.dtype(np.float128))
+        # float128 only exists on some platforms
+        if hasattr(np, 'float128'):
+            with self.assertRaises(ValueError):
+                utils.mode_from_dtype(np.dtype(np.float128))
     
     def test_int8_dtype_is_converted_to_mode_0(self):
         mode = utils.mode_from_dtype(np.dtype(np.int8))

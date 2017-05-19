@@ -71,6 +71,7 @@ class MrcFileTest(MrcObjectTest):
         self.mrcobject = MrcFile(obj_mrc_name, 'w+')
     
     def tearDown(self):
+        self.mrcobject.close()
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
         super(MrcFileTest, self).tearDown()
