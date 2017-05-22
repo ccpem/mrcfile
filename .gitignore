@@ -11,9 +11,12 @@
 
 # Test artifacts
 /.tox/
-.coverage
+.coverage*
 
 # IDE files
 .project
 .pydevproject
 .settings/
+
+# Other
+dev-notes.rst

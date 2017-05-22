@@ -67,6 +67,15 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert repr(mrc) == ("MrcFile('{0}', mode='w+')"
                                  .format(self.temp_mrc_name))
     
+    def test_new_empty_file_with_open_function(self):
+        with mrcfile.open(self.temp_mrc_name, mode='w+') as mrc:
+            assert repr(mrc) == ("MrcFile('{0}', mode='w+')"
+                                 .format(self.temp_mrc_name))
+    
+    def test_opening_nonexistent_file(self):
+        with self.assertRaisesRegex(Exception, "No such file"):
+            mrcfile.open('no_file')
+    
     def test_new_file_with_data(self):
         data = np.arange(24, dtype=np.uint16).reshape(2, 3, 4)
         with mrcfile.new(self.temp_mrc_name, data) as mrc:

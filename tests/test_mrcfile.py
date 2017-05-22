@@ -185,6 +185,16 @@ class MrcFileTest(MrcObjectTest):
     # Tests which do not depend on any existing files
     #
     
+    def test_opening_nonexistent_file(self):
+        with self.assertRaisesRegex(Exception, "No such file"):
+            self.newmrc('no_file')
+    
+    def test_opening_file_with_unknown_mode(self):
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.header.mode = 10
+        with self.assertRaisesRegex(ValueError, "Unrecognised mode"):
+            self.newmrc(self.temp_mrc_name)
+    
     def test_can_read_and_flush_stream_repeatedly(self):
         orig_data = np.arange(12, dtype=np.int16).reshape(3, 4)
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
