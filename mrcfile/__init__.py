@@ -81,8 +81,8 @@ def new(name, data=None, compression=None, overwrite=False):
             <numpy.ndarray>`. The default is :data:`None`, to create an empty
             file.
         compression: The compression format to use. Acceptable values are:
-            :data:`None` (the default; for no compression), ``gzip`` or
-            ``bzip2``.
+            :data:`None` (the default; for no compression), ``'gzip'`` or
+            ``'bzip2'``.
             It's good practice to name compressed files with an appropriate
             extension (for example, ``.mrc.gz`` for gzip) but this is not
             enforced.

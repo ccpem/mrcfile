@@ -45,7 +45,7 @@ Key Features
 * Validation of files according to the MRC2014 format
 * Seamless support for gzip and bzip2 files
 * Memory-mapped file option for fast random access to very large files
-* Runs in Python 2 & 3
+* Runs in Python 2 & 3, on Linux, Mac OS X and Windows
 
 Installation
 ------------
@@ -54,8 +54,9 @@ The ``mrcfile`` library is available from the Python package index::
 
     pip install mrcfile
 
-The source code (including the full test suite) can be found on GitHub:
-https://github.com/ccpem/mrcfile
+The source code (including the full test suite) can be found `on GitHub`_.
+
+.. _on GitHub: https://github.com/ccpem/mrcfile
 
 Basic usage
 -----------
@@ -92,11 +93,10 @@ To create a new file with a 2D data array, and change some values::
            [ 0, 10, 10, 10,  0],
            [ 0,  0,  0,  0,  0]], dtype=int8)
 
-Close the file after use by calling ``close()`` which will save the data to
-disk when the file is closed. You can also call ``flush()`` manually to flush
-the data to disk and keep the file open. If you open a file using Python's
-``with`` keyword (as in the examples above), it will be closed automatically at
-the end of the ``with`` block, like a normal Python file object.
+The data will be saved to disk when the file is closed, either automatically at
+the end of the ``with`` block (like a normal Python file object) or manually by
+calling ``close()``. You can also call ``flush()`` to write any changes to disk
+and keep the file open.
 
 To validate an MRC file::
 
@@ -110,20 +110,27 @@ To validate an MRC file::
 Documentation
 -------------
 
-Full documentation is available at http://mrcfile.readthedocs.org
+Full documentation is available on `Read the Docs`_.
+
+.. _Read the Docs: http://mrcfile.readthedocs.org
 
 Contributing
 ------------
 
-Please use the GitHub issue tracker for bug reports and feature requests:
-https://github.com/ccpem/mrcfile/issues
+Please use the `GitHub issue tracker`_ for bug reports and feature requests, or
+email `CCP-EM`_.
 
-Code contributions are also welcome, please submit pull requests to the GitHub
-repository.
+.. _GitHub issue tracker: https://github.com/ccpem/mrcfile/issues
+.. _CCP-EM: ccpem@stfc.ac.uk
 
-To run the test suite, go to the directory which contains the ``mrcfile`` and
-``tests`` packages and run ``python -m unittest tests``. (Or, if you have
-`tox`_, Python 2.7 and Python 3.5 installed, run ``tox``.)
+Code contributions are also welcome, please submit pull requests to the
+`GitHub repository`_.
+
+.. _GitHub repository: https://github.com/ccpem/mrcfile
+
+To run the test suite, go to the top-level project directory (which contains
+the ``mrcfile`` and ``tests`` packages) and run ``python -m unittest tests``.
+(Or, if you have `tox`_, Python 2.7 and Python 3.5 installed, run ``tox``.)
 
 .. _tox: http://tox.readthedocs.org
 
