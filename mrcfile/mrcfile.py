@@ -187,7 +187,6 @@ class MrcFile(MrcInterpreter):
            size calculated from the MRC header.
         
         Args:
-            name: The file name to open and validate.
             print_file: The output text stream to use for printing messages
                 about the validation. This is passed directly to the ``file``
                 argument of Python's :func:`print` function. The default is
