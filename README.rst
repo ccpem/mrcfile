@@ -21,8 +21,8 @@ mrcfile.py
 
 .. start_of_main_text
 
-mrcfile.py is a Python implementation of the `MRC2014 file format`_, which is
-used in structural biology to store image and volume data.
+``mrcfile`` is a Python implementation of the `MRC2014 file format`_, which
+is used in structural biology to store image and volume data.
 
 It allows MRC files to be created and opened easily using a very simple API,
 which exposes the file's header and data as `numpy`_ arrays. The code runs in
@@ -31,7 +31,7 @@ Python 2 and 3 and is fully unit-tested.
 .. _MRC2014 file format: http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 .. _numpy: http://www.numpy.org/
 
-The intent of this library is to allow users and developers to read and write
+This library aims to allow users and developers to read and write
 standard-compliant MRC files in Python as easily as possible, and with no
 dependencies on any compiled libraries except `numpy`_. You can use it
 interactively to inspect files, correct headers and so on, or in scripts and
@@ -53,6 +53,11 @@ Installation
 The ``mrcfile`` library is available from the Python package index::
 
     pip install mrcfile
+
+It is also included in the ``ccpem-python`` environment in the  `CCP-EM`_
+software suite.
+
+.. _CCP-EM: http://www.ccpem.ac.uk
 
 The source code (including the full test suite) can be found `on GitHub`_.
 
@@ -114,14 +119,25 @@ Full documentation is available on `Read the Docs`_.
 
 .. _Read the Docs: http://mrcfile.readthedocs.org
 
+Citing mrcfile
+--------------
+
+If you find ``mrcfile`` useful in your work, please cite:
+
+Burnley T, Palmer C & Winn M (2017) Recent developments in the CCP-EM
+software suite. *Acta Cryst.* D\ **73**:469--477.
+`doi: 10.1107/S2059798317007859`_
+
+.. _`doi: 10.1107/S2059798317007859`: https://doi.org/10.1107/S2059798317007859
+
 Contributing
 ------------
 
 Please use the `GitHub issue tracker`_ for bug reports and feature requests, or
-email `CCP-EM`_.
+`email CCP-EM`_.
 
 .. _GitHub issue tracker: https://github.com/ccpem/mrcfile/issues
-.. _CCP-EM: ccpem@stfc.ac.uk
+.. _email CCP-EM: ccpem@stfc.ac.uk
 
 Code contributions are also welcome, please submit pull requests to the
 `GitHub repository`_.
