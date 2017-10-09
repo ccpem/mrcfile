@@ -95,7 +95,8 @@ def new(name, data=None, compression=None, overwrite=False):
         subclass of it if ``compression`` is specified).
     
     Raises:
-        ValueError: If the compression format is not recognised.
+        :class:`~exceptions.ValueError`: If the compression format is not
+            recognised.
     """
     if compression == 'gzip':
         NewMrc = GzipMrcFile
@@ -141,13 +142,15 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
         gzipped).
     
     Raises:
-        ValueError: If the mode is not one of ``r``, ``r+`` or ``w+``.
-        ValueError: If the file is not a valid MRC file and ``permissive`` is
-            :data:`False`.
-        ValueError: If the mode is ``w+`` and the file already exists. (Call
-            :func:`new` with ``overwrite=True`` to deliberately overwrite an
-            existing file.)
-        OSError: If the mode is ``r`` or ``r+`` and the file does not exist.
+        :class:`~exceptions.ValueError`: If the mode is not one of ``r``,
+            ``r+`` or ``w+``.
+        :class:`~exceptions.ValueError`: If the file is not a valid MRC file
+            and ``permissive`` is :data:`False`.
+        :class:`~exceptions.ValueError`: If the mode is ``w+`` and the file
+            already exists. (Call :func:`new` with ``overwrite=True`` to
+            deliberately overwrite an existing file.)
+        :class:`~exceptions.OSError`: If the mode is ``r`` or ``r+`` and the
+            file does not exist.
     
     Warns:
         RuntimeWarning: If the file appears to be a valid MRC file but the data
@@ -261,7 +264,8 @@ def validate(name, print_file=None):
         not meet the MRC format specification in any way.
     
     Raises:
-        OSError: If the file does not exist or cannot be opened.
+        :class:`~exceptions.OSError`: If the file does not exist or cannot be
+            opened.
     
     Warns:
         RuntimeWarning: If the file is seriously invalid because it has no map

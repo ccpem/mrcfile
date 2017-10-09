@@ -117,7 +117,7 @@ class MrcObject(object):
         """Check that this MRC object is writeable.
         
         Raises:
-            ValueError: If this object is read-only.
+            :class:`~exceptions.ValueError`: If this object is read-only.
         """
         if self._read_only:
             raise ValueError('MRC object is read-only')
@@ -338,7 +338,8 @@ class MrcObject(object):
         This method changes the space group number (``header.ispg``) to zero.
         
         Raises:
-            ValueError: If the data array is not three-dimensional.
+            :class:`~exceptions.ValueError`: If the data array is not
+                three-dimensional.
         """
         self._check_writeable()
         if self.data.ndim != 3:
@@ -353,7 +354,8 @@ class MrcObject(object):
         this method sets it to one. Otherwise the space group is not changed.
         
         Raises:
-            ValueError: If the data array is not three-dimensional.
+            :class:`~exceptions.ValueError`: If the data array is not
+                three-dimensional.
         """
         self._check_writeable()
         if self.data.ndim != 3:

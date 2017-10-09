@@ -56,7 +56,8 @@ def data_dtype_from_header(header):
         corresponding to the given header.
     
     Raises:
-        ValueError: If there is no corresponding dtype for the given mode.
+        :class:`~exceptions.ValueError`: If there is no corresponding dtype for
+            the given mode.
     """
     mode = header.mode
     return dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
@@ -113,7 +114,8 @@ def mode_from_dtype(dtype):
         The MRC mode number.
     
     Raises:
-        ValueError: If there is no corresponding MRC mode for the given dtype.
+        :class:`~exceptions.ValueError`: If there is no corresponding MRC mode
+            for the given dtype.
     """
     kind_and_size = dtype.kind + str(dtype.itemsize)
     if kind_and_size in _dtype_to_mode:
@@ -155,7 +157,8 @@ def dtype_from_mode(mode):
         given mode.
     
     Raises:
-        ValueError: If there is no corresponding dtype for the given mode.
+        :class:`~exceptions.ValueError`: If there is no corresponding dtype for
+            the given mode.
     """
     mode = int(mode)
     if mode in _mode_to_dtype:
@@ -176,7 +179,7 @@ def byte_order_from_machine_stamp(machst):
         it represents big-endian.
     
     Raises:
-        ValueError: If the machine stamp is invalid.
+        :class:`~exceptions.ValueError`: If the machine stamp is invalid.
     """
     if machst[0] == 0x44 and machst[1] in (0x44, 0x41):
         return '<'
@@ -205,7 +208,8 @@ def machine_stamp_from_byte_order(byte_order='='):
         byte order indicator is ``=``, the native byte order is used.
     
     Raises:
-        ValueError: If the byte order indicator is unrecognised.
+        :class:`~exceptions.ValueError`: If the byte order indicator is
+            unrecognised.
     """
     # If byte order is '=', replace it with the system-native order
     byte_order = normalise_byte_order(byte_order)
@@ -224,7 +228,8 @@ def byte_orders_equal(a, b):
         endianness.
     
     Raises:
-        ValueError: If the byte order indicator is not recognised.
+        :class:`~exceptions.ValueError`: If the byte order indicator is not
+            recognised.
     """
     return normalise_byte_order(a) == normalise_byte_order(b)
 
@@ -241,7 +246,8 @@ def normalise_byte_order(byte_order):
         it will be converted to ``>``.
     
     Raises:
-        ValueError: If ``byte_order`` is not one of ``=``, ``<`` or ``>``.
+        :class:`~exceptions.ValueError`: If ``byte_order`` is not one of ``=``,
+            ``<`` or ``>``.
     """
     if byte_order not in ('<', '>', '='):
         raise ValueError("Unrecognised byte order indicator '{0}'"

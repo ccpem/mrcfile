@@ -95,8 +95,8 @@ class MrcInterpreter(MrcObject):
                 :data:`False`.
         
         Raises:
-            ValueError: If ``iostream`` is given and the data it contains
-                cannot be interpreted as a valid MRC file.
+            :class:`~exceptions.ValueError`: If ``iostream`` is given and the
+                data it contains cannot be interpreted as a valid MRC file.
         """
         super(MrcInterpreter, self).__init__(**kwargs)
         
@@ -143,7 +143,8 @@ class MrcInterpreter(MrcObject):
         of the data block.
         
         Raises:
-            ValueError: If the file is not a valid MRC file.
+            :class:`~exceptions.ValueError`: If the file is not a valid MRC
+                file.
         """
         self._read_header()
         self._read_extended_header()
@@ -156,7 +157,8 @@ class MrcInterpreter(MrcObject):
         stream will be advanced by 1024 bytes.
         
         Raises:
-            ValueError: If the file is not a valid MRC file.
+            :class:`~exceptions.ValueError`: If the file is not a valid MRC
+                file.
         """
         # Read 1024 bytes from the stream
         header_str = self._iostream.read(HEADER_DTYPE.itemsize)
