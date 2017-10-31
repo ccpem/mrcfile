@@ -32,6 +32,7 @@ class Bzip2MrcFileTest(MrcFileTest):
         # Replace test MRC files with their gzipped equivalents
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map.bz2')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map.bz2')
+        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'GridSquare_20171018_125652.mrc.bz2')
         
         # Set the newmrc method to the GzipMrcFile constructor
         self.newmrc = Bzip2MrcFile

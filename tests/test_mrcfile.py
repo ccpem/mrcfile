@@ -62,6 +62,7 @@ class MrcFileTest(MrcObjectTest):
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map')
+        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'GridSquare_20171018_125652.mrc')
         
         # Set newmrc method as MrcFile constructor, to allow override by subclasses
         self.newmrc = MrcFile
@@ -155,6 +156,19 @@ class MrcFileTest(MrcObjectTest):
                               b'                                        ')
             assert ext[1] == (b'-X,  Y+1/2,  -Z                         '
                               b'                                        ')
+    
+    def test_extended_header_from_FEI_file(self):
+        with self.newmrc(self.fei_ext_header_mrc_name) as mrc:
+            # FEI1 means use the fei format
+            assert mrc.header['exttyp'] == b'FEI1'
+            assert mrc.header.nsymbt == 786432
+            assert mrc.extended_header.nbytes == 786432
+            assert mrc.extended_header.dtype.kind == 'V'
+            assert mrc.extended_header.dtype['Metadata size'] == np.dtype('|i')
+            assert mrc.extended_header.dtype['Microscope type'] == np.dtype('|S16')
+            ext = mrc.extended_header
+            assert ext[0]['Metadata size'] == 768
+            assert ext[0]['Microscope type'] == b'TITAN52336320'
     
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         with self.newmrc(self.ext_header_mrc_name, mode='r') as mrc:

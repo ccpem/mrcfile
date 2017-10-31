@@ -21,7 +21,7 @@ import warnings
 import numpy as np
 
 from . import utils
-from .dtypes import HEADER_DTYPE
+from .dtypes import HEADER_DTYPE, FEI_EXTENDED_HEADERS_DTYPE
 from .mrcobject import MrcObject
 from .constants import MAP_ID
 
@@ -204,7 +204,13 @@ class MrcInterpreter(MrcObject):
         extended_header attribute.
         """
         ext_header_str = self._iostream.read(int(self.header.nsymbt))
-        self._extended_header = np.fromstring(ext_header_str, dtype='V1')
+        
+        if self.header['exttyp'] == b'FEI1':
+            dtype = FEI_EXTENDED_HEADERS_DTYPE
+        else:
+            dtype = 'V1'
+            
+        self._extended_header = np.fromstring(ext_header_str, dtype=dtype)
         self._extended_header.flags.writeable = not self._read_only
     
     def _read_data(self):
