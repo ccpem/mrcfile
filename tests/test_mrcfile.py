@@ -62,7 +62,7 @@ class MrcFileTest(MrcObjectTest):
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map')
-        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'GridSquare_20171018_125652.mrc')
+        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
         
         # Set newmrc method as MrcFile constructor, to allow override by subclasses
         self.newmrc = MrcFile

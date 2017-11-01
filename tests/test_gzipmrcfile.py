@@ -32,7 +32,7 @@ class GzipMrcFileTest(MrcFileTest):
         # Replace test MRC files with their gzipped equivalents
         self.example_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'emd_3001.map.gz')
-        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'GridSquare_20171018_125652.mrc.gz')
+        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc.gz')
         
         # Set the newmrc method to the GzipMrcFile constructor
         self.newmrc = GzipMrcFile
