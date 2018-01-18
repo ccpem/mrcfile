@@ -162,13 +162,14 @@ class MrcFileTest(MrcObjectTest):
             # FEI1 means use the fei format
             assert mrc.header['exttyp'] == b'FEI1'
             assert mrc.header.nsymbt == 786432
-            assert mrc.extended_header.nbytes == 786432
-            assert mrc.extended_header.dtype.kind == 'V'
-            assert mrc.extended_header.dtype['Metadata size'] == np.dtype('|i')
-            assert mrc.extended_header.dtype['Microscope type'] == np.dtype('|S16')
             ext = mrc.extended_header
+            assert ext.nbytes == 786432
+            assert ext.dtype.kind == 'V'
+            assert ext.dtype['Metadata size'] == np.dtype('|i')
+            assert ext.dtype['Microscope type'] == np.dtype('|S16')
             assert ext[0]['Metadata size'] == 768
             assert ext[0]['Microscope type'] == b'TITAN52336320'
+            assert ext[0]['HT'] == 300000.0
     
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         with self.newmrc(self.ext_header_mrc_name, mode='r') as mrc:

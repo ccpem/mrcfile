@@ -21,7 +21,7 @@ import warnings
 import numpy as np
 
 from . import utils
-from .dtypes import HEADER_DTYPE, FEI_EXTENDED_HEADERS_DTYPE
+from .dtypes import HEADER_DTYPE, FEI_EXTENDED_HEADER_DTYPE
 from .mrcobject import MrcObject
 from .constants import MAP_ID
 
@@ -202,11 +202,15 @@ class MrcInterpreter(MrcObject):
         
         If there is no extended header, a zero-length array is assigned to the
         extended_header attribute.
+        
+        If the extended header is recognised as FEI microscope metadata (by
+        'FEI1' in the header's ``exttyp`` field), its dtype is set
+        appropriately. Otherwise, the dtype is set as void (``'V1'``).
         """
         ext_header_str = self._iostream.read(int(self.header.nsymbt))
         
         if self.header['exttyp'] == b'FEI1':
-            dtype = FEI_EXTENDED_HEADERS_DTYPE
+            dtype = FEI_EXTENDED_HEADER_DTYPE
         else:
             dtype = 'V1'
             

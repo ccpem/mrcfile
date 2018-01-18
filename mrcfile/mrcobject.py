@@ -175,9 +175,11 @@ class MrcObject(object):
     def extended_header(self):
         """Get the extended header as a :class:`numpy array <numpy.ndarray>`.
         
-        By default the dtype of the extended header array is void (raw data,
-        dtype ``V``). If the actual data type of the extended header is known,
-        the dtype of the array can be changed to match.
+        If this :class:`MrcObject` was read from a file and the extended header
+        type was recognised, its dtype will be set appropriately. (Currently
+        the only supported type is ``'FEI1'``.) Otherwise, the dtype will be
+        void (raw data, dtype ``'V'``). If the actual data type of the extended
+        header is known, the dtype of the array can be changed to match.
         
         The extended header may be modified in place. To replace it completely,
         call :meth:`set_extended_header`.
