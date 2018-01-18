@@ -23,6 +23,7 @@ mrcfile.bzip2mrcfile module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.constants module
@@ -32,6 +33,7 @@ mrcfile.constants module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.dtypes module
@@ -41,6 +43,7 @@ mrcfile.dtypes module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.gzipmrcfile module
@@ -50,6 +53,7 @@ mrcfile.gzipmrcfile module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.mrcfile module
@@ -59,6 +63,7 @@ mrcfile.mrcfile module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.mrcinterpreter module
@@ -68,6 +73,7 @@ mrcfile.mrcinterpreter module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.mrcmemmap module
@@ -77,6 +83,7 @@ mrcfile.mrcmemmap module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.mrcobject module
@@ -86,6 +93,7 @@ mrcfile.mrcobject module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 mrcfile.utils module
@@ -95,6 +103,7 @@ mrcfile.utils module
     :special-members: __init__
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 
