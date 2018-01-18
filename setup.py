@@ -21,7 +21,7 @@ setup(
     name='mrcfile',
     version=version(),
     packages=['mrcfile'],
-    install_requires=['numpy >= 1.11.0'],
+    install_requires=['numpy >= 1.11.0, < 1.14.0'],
     
     test_suite='tests',
     
