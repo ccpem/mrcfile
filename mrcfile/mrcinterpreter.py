@@ -214,7 +214,7 @@ class MrcInterpreter(MrcObject):
         else:
             dtype = 'V1'
             
-        self._extended_header = np.fromstring(ext_header_str, dtype=dtype)
+        self._extended_header = np.frombuffer(ext_header_str, dtype=dtype)
         self._extended_header.flags.writeable = not self._read_only
     
     def _read_data(self):

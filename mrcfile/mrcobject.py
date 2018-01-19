@@ -125,8 +125,8 @@ class MrcObject(object):
     def _create_default_attributes(self):
         """Set valid default values for the header and data attributes."""
         self._create_default_header()
-        self._extended_header = np.fromstring('', dtype='V1')
-        self._set_new_data(np.fromstring('', dtype=np.int8))
+        self._extended_header = np.empty(0, dtype='V1')
+        self._set_new_data(np.empty(0, dtype=np.int8))
     
     def _create_default_header(self):
         """Create a default MRC file header.

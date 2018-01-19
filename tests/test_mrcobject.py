@@ -114,7 +114,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.mrcobject.set_extended_header(ext)
         assert self.mrcobject.extended_header.size > 0
         assert self.mrcobject.header.nsymbt > 0
-        self.mrcobject.set_extended_header(np.fromstring(''))
+        self.mrcobject.set_extended_header(np.empty(0))
         assert self.mrcobject.extended_header.size == 0
         assert self.mrcobject.header.nsymbt == 0
     
