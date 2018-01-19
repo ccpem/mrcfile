@@ -419,7 +419,10 @@ class MrcFileTest(MrcObjectTest):
         
         # Write the data to a file and test it's read back correctly
         name = os.path.join(self.test_output, 'test_img_10x9_mode2_inf_nan.mrc')
-        self.write_file_then_read_and_assert_data_unchanged(name, data)
+        # Suppress warnings from statistics calculations with inf and nan
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            self.write_file_then_read_and_assert_data_unchanged(name, data)
     
     def test_writing_image_float16(self):
         x, y = 10, 9
@@ -472,9 +475,9 @@ class MrcFileTest(MrcObjectTest):
         
         # Write the data to a file and test it's read back correctly
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_inf_nan.mrc')
-        # Suppress complex casting warnings from statistics calculations
+        # Suppress warnings from statistics calculations with inf and nan
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", np.ComplexWarning)
+            warnings.simplefilter("ignore", RuntimeWarning)
             self.write_file_then_read_and_assert_data_unchanged(name, data)
     
     def test_writing_image_mode_6_native_byte_order(self):
