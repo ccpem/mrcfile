@@ -16,6 +16,35 @@ from __future__ import (absolute_import, division, print_function,
 from . import load_functions
 
 
+def validate_all(names, print_file=None):
+    """Validate a list of MRC files.
+    
+    This function calls :func:`validate` for each file name in the given list.
+    
+    Args:
+        names: A sequence of file names to open and validate.
+        print_file: The output text stream to use for printing messages about
+            the validation. This is passed directly to the ``print_file``
+            argument of the :func:`validate` function. The default is
+            :data:`None`, which means output will be printed to
+            :data:`sys.stdout`.
+    
+    Returns:
+        :data:`True` if all of the files are valid, or :data:`False` if any of
+        the files do not meet the MRC format specification in any way.
+    
+    Raises:
+        :class:`~exceptions.OSError`: If one of the files does not exist or
+            cannot be opened.
+    
+    Warns:
+        RuntimeWarning: If one of the files is seriously invalid because it has
+            no map ID string, an incorrect machine stamp, an unknown mode
+            number, or is not the same size as expected from the header.
+    """
+    return all(validate(name, print_file) for name in names)
+
+
 def validate(name, print_file=None):
     """Validate an MRC file.
     
