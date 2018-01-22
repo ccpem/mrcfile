@@ -56,6 +56,16 @@ mrcfile.gzipmrcfile module
     :private-members:
     :show-inheritance:
 
+mrcfile.load_functions module
+-----------------------------
+
+.. automodule:: mrcfile.load_functions
+    :special-members: __init__
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
 mrcfile.mrcfile module
 ----------------------
 
@@ -100,6 +110,16 @@ mrcfile.utils module
 --------------------
 
 .. automodule:: mrcfile.utils
+    :special-members: __init__
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
+mrcfile.validator module
+------------------------
+
+.. automodule:: mrcfile.validator
     :special-members: __init__
     :members:
     :undoc-members:

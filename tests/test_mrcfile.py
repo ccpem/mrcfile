@@ -20,7 +20,7 @@ import numpy as np
 
 from . import helpers
 from .test_mrcobject import MrcObjectTest
-from mrcfile import MrcFile
+from mrcfile.mrcfile import MrcFile
 from mrcfile.mrcobject import (IMAGE_STACK_SPACEGROUP, VOLUME_SPACEGROUP,
                                VOLUME_STACK_SPACEGROUP)
 

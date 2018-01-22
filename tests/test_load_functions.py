@@ -17,6 +17,8 @@ import unittest
 import numpy as np
 
 import mrcfile
+from mrcfile.bzip2mrcfile import Bzip2MrcFile
+from mrcfile.gzipmrcfile import GzipMrcFile
 from . import helpers
 
 
@@ -125,29 +127,29 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_error_in_gzip_opening_raises_new_exception(self):
         # Tricky to test this case. Easiest to monkey-patch GzipMrcFile.__init__
-        old_init = mrcfile.GzipMrcFile.__init__
+        old_init = GzipMrcFile.__init__
         try:
             msg = 'Fake error: valid gzip file with invalid MRC data'
             def error(*args, **kwargs):
                 raise IOError(msg)
-            mrcfile.GzipMrcFile.__init__ = error
+            GzipMrcFile.__init__ = error
             with self.assertRaisesRegex(IOError, msg):
                 mrcfile.open(self.gzip_mrc_name)
         finally:
-            mrcfile.GzipMrcFile.__init__ = old_init
+            GzipMrcFile.__init__ = old_init
     
     def test_error_in_bzip2_opening_raises_new_exception(self):
         # Tricky to test this case. Easiest to monkey-patch Bzip2MrcFile.__init__
-        old_init = mrcfile.Bzip2MrcFile.__init__
+        old_init = Bzip2MrcFile.__init__
         try:
             msg = 'Fake error: valid bzip2 file with invalid MRC data'
             def error(*args, **kwargs):
                 raise IOError(msg)
-            mrcfile.Bzip2MrcFile.__init__ = error
+            Bzip2MrcFile.__init__ = error
             with self.assertRaisesRegex(IOError, msg):
                 mrcfile.open(self.bzip2_mrc_name)
         finally:
-            mrcfile.Bzip2MrcFile.__init__ = old_init
+            Bzip2MrcFile.__init__ = old_init
     
     def test_switching_mode(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:

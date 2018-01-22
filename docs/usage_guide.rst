@@ -144,27 +144,27 @@ For most purposes, the top-level functions in :mod:`mrcfile` should be all you
 need to open MRC files, but it is also possible to directly instantiate
 :class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
 :class:`~mrcfile.gzipmrcfile.GzipMrcFile`,
-:class:`~mrcfile.gzipmrcfile.Bzip2MrcFile` and
+:class:`~mrcfile.bzip2mrcfile.Bzip2MrcFile` and
 :class:`~mrcfile.mrcmemmap.MrcMemmap`:
 
 .. doctest::
 
-   >>> with mrcfile.MrcFile('tmp.mrc') as mrc:
+   >>> with mrcfile.mrcfile.MrcFile('tmp.mrc') as mrc:
    ...     mrc
    ... 
    MrcFile('tmp.mrc', mode='r')
 
-   >>> with mrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
+   >>> with mrcfile.gzipmrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
    ...     mrc
    ... 
    GzipMrcFile('tmp.mrc.gz', mode='r')
 
-   >>> with mrcfile.Bzip2MrcFile('tmp.mrc.bz2') as mrc:
+   >>> with mrcfile.bzip2mrcfile.Bzip2MrcFile('tmp.mrc.bz2') as mrc:
    ...     mrc
    ... 
    Bzip2MrcFile('tmp.mrc.bz2', mode='r')
 
-   >>> with mrcfile.MrcMemmap('tmp.mrc') as mrc:
+   >>> with mrcfile.mrcmemmap.MrcMemmap('tmp.mrc') as mrc:
    ...     mrc
    ... 
    MrcMemmap('tmp.mrc', mode='r')
@@ -283,7 +283,7 @@ Now let's fix the file:
 
    >>> # Fix the invalid file by correcting the header
    >>> with mrcfile.open('invalid.mrc', mode='r+', permissive=True) as mrc:
-   ...     mrc.header.map = mrcfile.MAP_ID
+   ...     mrc.header.map = mrcfile.constants.MAP_ID
    ...
 
 And now we should be able to open the file again normally:
