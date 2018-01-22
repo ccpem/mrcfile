@@ -7,19 +7,48 @@ validator
 
 Module for top-level functions that validate MRC files.
 
+This module is runnable to allow files to be validated easily from the command
+line.
+
 """
 
 # Import Python 3 features for future-proofing
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import sys
+
 from . import load_functions
+
+
+def main():
+    """
+    Validate a list of MRC files given as command arguments.
+    
+    The return value is used as the process exit code when this function is
+    called by running this module or from the corresponding ``console_scripts``
+    entry point.
+    
+    Returns:
+        ``0`` if all command arguments are names of valid MRC files. ``1`` if
+        no file names are given or any of the files is not a valid MRC file.
+    """
+    names = sys.argv[1:]
+    if len(names) > 0:
+        if validate_all(names):
+            return 0
+    else:
+        print("Usage: python -m mrcfile.validator FILE...")
+    return 1
 
 
 def validate_all(names, print_file=None):
     """Validate a list of MRC files.
     
     This function calls :func:`validate` for each file name in the given list.
+    
+    Note that :data:`False` will be returned immediately if a file is found to
+    be invalid. Subsequent files will not be checked.
     
     Args:
         names: A sequence of file names to open and validate.
@@ -118,3 +147,7 @@ def validate(name, print_file=None):
     """
     with load_functions.open(name, permissive=True) as mrc:
         return mrc.validate(print_file=print_file)
+
+
+if __name__ == '__main__':
+    sys.exit(main())

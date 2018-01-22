@@ -25,6 +25,12 @@ setup(
     
     test_suite='tests',
     
+    entry_points = {
+        'console_scripts': [
+            'mrcfile-validate = mrcfile.validator:main'
+        ],
+    },
+    
     author='Colin Palmer',
     author_email='colin.palmer@stfc.ac.uk',
     description='MRC file I/O library',
