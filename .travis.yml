@@ -13,7 +13,8 @@ matrix:
       before_install:
         - brew update
         - brew install python3
+      install: pip2 install tox-travis
   allow_failures:
     - os: osx
-install: pip2 install tox-travis
+install: pip install tox-travis
 script: tox
