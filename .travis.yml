@@ -15,5 +15,5 @@ matrix:
         - brew install python3
   allow_failures:
     - os: osx
-install: pip install tox-travis
+install: pip2 install tox-travis
 script: tox
