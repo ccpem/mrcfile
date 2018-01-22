@@ -27,6 +27,7 @@ setup(
     
     entry_points = {
         'console_scripts': [
+            'mrcfile-header = mrcfile.command_line:print_headers',
             'mrcfile-validate = mrcfile.validator:main'
         ],
     },

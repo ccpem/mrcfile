@@ -26,6 +26,16 @@ mrcfile.bzip2mrcfile module
     :private-members:
     :show-inheritance:
 
+mrcfile.command_line module
+---------------------------
+
+.. automodule:: mrcfile.command_line
+    :special-members: __init__
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
 mrcfile.constants module
 ------------------------
 
