@@ -942,6 +942,70 @@ a bug report on the `issue tracker`_!
 
 .. _issue tracker: https://github.com/ccpem/mrcfile/issues
 
+Command line usage
+------------------
+
+Some ``mrcfile`` functionality is available directly from the command line,
+via scripts that are installed along with the package, or in some cases by
+running modules with ``python -m``.
+
+(If you've downloaded the source code instead of installing via ``pip``, run
+``pip install <path-to-mrcfile>`` or ``python setup.py install`` to make the
+command line scripts available.)
+
+Validation
+~~~~~~~~~~
+
+MRC files can be validated with the ``mrcfile-validate`` script::
+
+    $ mrcfile-validate tests/test_data/EMD-3197.map
+    File does not declare MRC format version 20140: nversion = 0
+
+    $ # Exit status is 1 if file is invalid
+    $ echo $?
+    1
+
+This script wraps the :mod:`mrcfile.validator` module, which can also be called
+directly::
+
+    $ python -m mrcfile.validator valid_file.mrc
+    $ echo $?
+    0
+
+Multiple file names can be passed to either form of the command, and because
+these commands call :func:`mrcfile.validate` behind the scenes, gzip- and
+bzip2-compressed files can be validated as well::
+
+    $ mrcfile-validate valid_file_1.mrc valid_file_2.mrc.gz valid_file_3.mrc.bz2
+
+Examining MRC headers
+~~~~~~~~~~~~~~~~~~~~~
+
+MRC file headers can be printed to the console with the ``mrcfile-header``
+script::
+
+    $ mrcfile-header tests/test_data/EMD-3197.map
+    nx              : 20
+    ny              : 20
+    nz              : 20
+    mode            : 2
+    nxstart         : -2
+    nystart         : 0
+    nzstart         : 0
+    mx              : 20
+    my              : 20
+    mz              : 20
+    cella           : (228.0, 228.0, 228.0)
+    cellb           : (90.0, 90.0, 90.0)
+    ...
+    ...
+
+Like ``mrcfile-validate``, this also works for multiple files. If you want to
+access the same functionality from within Python, call
+:meth:`~mrcfile.mrcobject.MrcObject.print_header` on an open
+:class:`~mrcfile.mrcfile.MrcFile` object, or
+:func:`mrcfile.command_line.print_headers` with a list of file names.
+
 API overview
 ------------
 
