@@ -17,6 +17,7 @@
 .project
 .pydevproject
 .settings/
+.idea/
 
 # Other
 dev-notes.rst
