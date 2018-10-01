@@ -1,0 +1,47 @@
+Change log for mrcfile
+======================
+
+For next release
+----------------
+
+* Add open_async() function for background file loading
+
+Version 1.0.4 (2018-01-22)
+--------------------------
+
+* Add command-line tools ('mrcfile-validate' and 'mrcfile-header') for easy MRC
+  file validation and header viewing
+
+Version 1.0.3 (2018-01-19)
+--------------------------
+
+* Fix bugs due to changed behaviour in numpy 1.14
+* Add automated tests for numpy 1.13 and 1.14
+
+Version 1.0.2 (2018-01-18)
+--------------------------
+
+* Add support for FEI-format extended headers
+* Documentation improvements
+
+Version 1.0.1 (2017-10-09)
+--------------------------
+
+* Add automated tests for Python 3.4 and 3.6
+* Documentation improvements
+
+Version 1.0.0 (2017-05-22)
+--------------------------
+
+Initial stable release
+
+Main features:
+* Clean, simple API for access to MRC files
+* Easy to install and use
+* Validation of files according to the MRC2014 format
+* Seamless support for gzip and bzip2 files
+* Memory-mapped file option for fast random access to very large files
+* Runs in Python 2 & 3, on Linux, Mac OS X and Windows
+
+Automatically tested on Linux and Mac OS X for Python versions 2.7 and 3.5
+and numpy versions 1.11 and 1.12
