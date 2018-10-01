@@ -45,6 +45,7 @@ Key Features
 * Validation of files according to the MRC2014 format
 * Seamless support for gzip and bzip2 files
 * Memory-mapped file option for fast random access to very large files
+* Asynchronous opening option for background loading of multiple files
 * Runs in Python 2 & 3, on Linux, Mac OS X and Windows
 
 Installation

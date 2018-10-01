@@ -19,6 +19,7 @@ import os
 
 from .bzip2mrcfile import Bzip2MrcFile
 from .constants import MAP_ID, MAP_ID_OFFSET_BYTES
+from .future_mrcfile import FutureMrcFile
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
@@ -128,6 +129,48 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
     return NewMrc(name, mode=mode, permissive=permissive)
 
 
+def open_async(name, mode='r', permissive=False):
+    """Open an MRC file asynchronously in a separate thread.
+
+    This allows a file to be opened in the background while the main thread
+    continues with other work. This can be a good way to improve performance if
+    the main thread is busy with intensive computation, but will be less
+    effective if the main thread is itself busy with disk I/O.
+
+    Multiple files can be opened in the background simultaneously. However,
+    this implementation is relatively crude; each call to this function will
+    start a new thread and immediately use it to start opening a file. If you
+    try to open many large files at the same time, performance will decrease as
+    all of the threads attempt to access the disk at once. You'll also risk
+    running out of memory to store the data from all the files.
+
+    This function returns a :class:`~mrcfile.future_mrcfile.FutureMrcFile`
+    object, which deliberately mimics the API of the
+    :class:`~concurrent.futures.Future` object from Python 3's
+    :mod:`concurrent.futures` module. (Future versions of this library might
+    return genuine :class:`~concurrent.futures.Future` objects instead.)
+
+    To get the real :class:`~mrcfile.mrcfile.MrcFile` object from a
+    :class:`~mrcfile.future_mrcfile.FutureMrcFile`, call
+    :meth:`~mrcfile.future_mrcfile.FutureMrcFile.result`. This will block until
+    the file has been read and the :class:`~mrcfile.mrcfile.MrcFile` object is
+    ready. To check if the :class:`~mrcfile.mrcfile.MrcFile` is ready without
+    blocking, call :meth:`~mrcfile.future_mrcfile.FutureMrcFile.running` or
+    :meth:`~mrcfile.future_mrcfile.FutureMrcFile.done`.
+
+    Args:
+        name: The file name to open.
+        mode: The file mode (one of ``r``, ``r+`` or ``w+``).
+        permissive: Read the file in permissive mode. The default is
+            :data:`False`.
+
+    Returns:
+        A :class:`~mrcfile.future_mrcfile.FutureMrcFile` object.
+
+    """
+    return FutureMrcFile(open, (name,), dict(mode=mode, permissive=permissive))
+
+
 def mmap(name, mode='r', permissive=False):
     """Open a memory-mapped MRC file.
     
@@ -136,9 +179,11 @@ def mmap(name, mode='r', permissive=False):
     the :class:`~mrcfile.mrcmemmap.MrcMemmap` class documentation for more
     information.
     
-    In all other ways, :func:`mmap` behaves in exactly the same way as
-    :func:`open`. The :class:`~mrcfile.mrcmemmap.MrcMemmap` object returned by
-    this function can be used in exactly the same way as a normal
+    Because the memory-mapped data array accesses the disk directly, compressed
+    files cannot be opened with this function. In all other ways, :func:`mmap`
+    behaves in exactly the same way as :func:`open`. The
+    :class:`~mrcfile.mrcmemmap.MrcMemmap` object returned by this function can
+    be used in exactly the same way as a normal
     :class:`~mrcfile.mrcfile.MrcFile` object.
     
     Args:

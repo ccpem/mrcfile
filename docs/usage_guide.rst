@@ -111,13 +111,63 @@ writes the MRC data to disk but leaves the file open:
    >>> # continue using the file...
    >>> mrc.close()  # close the file when finished
 
+For most purposes, the top-level functions in :mod:`mrcfile` should be all you
+need to open MRC files, but it is also possible to directly instantiate
+:class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
+:class:`~mrcfile.gzipmrcfile.GzipMrcFile`,
+:class:`~mrcfile.bzip2mrcfile.Bzip2MrcFile` and
+:class:`~mrcfile.mrcmemmap.MrcMemmap`:
+
+.. doctest::
+
+   >>> with mrcfile.mrcfile.MrcFile('tmp.mrc') as mrc:
+   ...     mrc
+   ...
+   MrcFile('tmp.mrc', mode='r')
+
+   >>> with mrcfile.gzipmrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
+   ...     mrc
+   ...
+   GzipMrcFile('tmp.mrc.gz', mode='r')
+
+   >>> with mrcfile.bzip2mrcfile.Bzip2MrcFile('tmp.mrc.bz2') as mrc:
+   ...     mrc
+   ...
+   Bzip2MrcFile('tmp.mrc.bz2', mode='r')
+
+   >>> with mrcfile.mrcmemmap.MrcMemmap('tmp.mrc') as mrc:
+   ...     mrc
+   ...
+   MrcMemmap('tmp.mrc', mode='r')
+
+Dealing with large files
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+``mrcfile`` provides two ways of improving performance when handling large
+files: memory mapping and asynchronous (background) opening. `Memory mapping`_
+treats the file's data on disk as if it is already in memory, and only actually
+loads the data in small chunks when it is needed. `Asynchronous opening`_ uses
+a separate thread to open the file, allowing the main thread to carry on with
+other work while the file is loaded from disk in parallel.
+
+.. _Memory mapping: https://en.wikipedia.org/wiki/Memory-mapped_file
+.. _Asynchronous opening: https://en.wikipedia.org/wiki/Asynchronous_I/O
+
+Which technique is better depends on what you intend to do with the file and
+the characteristics of your computer, and it's usually worth testing both
+approaches and seeing what works best for your particular task. In general,
+memory mapping gives better performance when dealing with a single file,
+particularly if the file is very large. If you need to process several files,
+asynchronous opening can be faster because you can work on one file while
+loading the next one.
+
 Memory-mapped files
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 With very large files, it might be helpful to use the :func:`mrcfile.mmap`
 function to open the file, which will open the data as a
 :class:`memory-mapped numpy array <numpy.memmap>`. The contents of the array
-are only read from disk as needed, so this allows large files to be opened
+are only read from disk as needed, so this allows large files to be opened very
 quickly. Parts of the data can then be read and written by slicing the array:
 
 .. doctest::
@@ -140,34 +190,45 @@ quickly. Parts of the data can then be read and written by slicing the array:
            [ 8,  0,  0, 11]], dtype=int8)
    >>> mrc.close()
 
-For most purposes, the top-level functions in :mod:`mrcfile` should be all you
-need to open MRC files, but it is also possible to directly instantiate
-:class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
-:class:`~mrcfile.gzipmrcfile.GzipMrcFile`,
-:class:`~mrcfile.bzip2mrcfile.Bzip2MrcFile` and
-:class:`~mrcfile.mrcmemmap.MrcMemmap`:
+Asynchronous opening
+^^^^^^^^^^^^^^^^^^^^
+
+When processing several files in a row, asynchronous (background) opening can
+improve performance by allowing you to open multiple files in parallel. The
+:func:`mrcfile.open_async` function starts a background thread to open a file,
+and returns a :class:`~mrcfile.future_mrcfile.FutureMrcFile` object which you
+can call later to get the file after it's been opened:
 
 .. doctest::
 
-   >>> with mrcfile.mrcfile.MrcFile('tmp.mrc') as mrc:
-   ...     mrc
-   ... 
-   MrcFile('tmp.mrc', mode='r')
+   >>> # Open the first example file
+   >>> mrc1 = mrcfile.open('tmp.mrc')
+   >>> # Start opening the second example file before we process the first
+   >>> future_mrc2 = mrcfile.open_async('tmp.mrc.gz')
+   >>> # Now we'll do some calculations with the first file
+   >>> mrc1.data.sum()
+   36
+   >>> # Get the second file from its "Future" container ('result()' will wait
+   >>> # until the file is ready)
+   >>> mrc2 = future_mrc2.result()
+   >>> # Before we process the second file, we'll start the third one opening
+   >>> future_mrc3 = mrcfile.open_async('tmp.mrc.bz2')
+   >>> mrc2.data.max()
+   22
+   >>> # Finally, we'll get the third file and process it
+   >>> mrc3 = future_mrc3.result()
+   >>> mrc3.data
+   array([[ 0,  3,  6,  9],
+          [12, 15, 18, 21],
+          [24, 27, 30, 33]], dtype=int8)
 
-   >>> with mrcfile.gzipmrcfile.GzipMrcFile('tmp.mrc.gz') as mrc:
-   ...     mrc
-   ... 
-   GzipMrcFile('tmp.mrc.gz', mode='r')
-
-   >>> with mrcfile.bzip2mrcfile.Bzip2MrcFile('tmp.mrc.bz2') as mrc:
-   ...     mrc
-   ... 
-   Bzip2MrcFile('tmp.mrc.bz2', mode='r')
-
-   >>> with mrcfile.mrcmemmap.MrcMemmap('tmp.mrc') as mrc:
-   ...     mrc
-   ... 
-   MrcMemmap('tmp.mrc', mode='r')
+As we saw in that example, calling
+:meth:`~mrcfile.future_mrcfile.FutureMrcFile.result` will give us the
+:class:`~mrcfile.mrcfile.MrcFile` from the file opening operation. If the file
+hasn't been fully opened yet,
+:meth:`~mrcfile.future_mrcfile.FutureMrcFile.result` will simply wait until
+it's ready. To avoid waiting, call
+:meth:`~mrcfile.future_mrcfile.FutureMrcFile.done` to check if it's finished.
 
 File modes
 ~~~~~~~~~~

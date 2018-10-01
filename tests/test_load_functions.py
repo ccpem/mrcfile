@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Science and Technology Facilities Council
+# Copyright (c) 2018, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 
 """
@@ -38,6 +38,7 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.gzip_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
         self.bzip2_mrc_name = os.path.join(self.test_data, 'EMD-3197.map.bz2')
+        self.slow_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc.gz')
     
     def tearDown(self):
         if os.path.exists(self.test_output):
@@ -158,6 +159,25 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.set_data(np.arange(20, dtype=np.int16).reshape(2, 2, 5))
             assert mrc.header.mode == 1
 
+    def test_simple_async_opening(self):
+        with mrcfile.open_async(self.example_mrc_name).result() as mrc:
+            assert repr(mrc) == ("MrcFile('{0}', mode='r')"
+                                 .format(self.example_mrc_name))
+
+    def test_slow_async_opening(self):
+        # This test relies on the fact that file opening takes longer than the
+        # assertions tested immediately after the open_async() call. It seems
+        # to work well even with the small gzip or bzip2 files, but we use a
+        # much larger gzip file to make sure.
+        future = mrcfile.open_async(self.slow_mrc_name)
+        assert future.running()
+        assert not future.done()
+        with future.result() as mrc:
+            assert future.done()
+            assert not future.running()
+            assert repr(mrc) == ("GzipMrcFile('{0}', mode='r')"
+                                 .format(self.slow_mrc_name))
+        assert future.exception() is None
 
 if __name__ == '__main__':
     unittest.main()

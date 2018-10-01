@@ -89,7 +89,7 @@ doctest_test_doctest_blocks = ''
 napoleon_include_init_with_doc = False
 
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/2.7', None),
+    'python': ('https://docs.python.org/3.6', None),
     'numpy': ('http://docs.scipy.org/doc/numpy/', None)
 }
 

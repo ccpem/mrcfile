@@ -11,6 +11,7 @@ import unittest
 
 from .test_bzip2mrcfile import Bzip2MrcFileTest
 from .test_command_line import CommandLineTest
+from .test_future_mrcfile import FutureMrcFileTest
 from .test_gzipmrcfile import GzipMrcFileTest
 from .test_load_functions import LoadFunctionTest
 from .test_mrcobject import MrcObjectTest
@@ -23,6 +24,7 @@ from .test_validation import ValidationTest
 test_classes = [
     Bzip2MrcFileTest,
     CommandLineTest,
+    FutureMrcFileTest,
     GzipMrcFileTest,
     LoadFunctionTest,
     MrcObjectTest,

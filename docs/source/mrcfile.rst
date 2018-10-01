@@ -6,7 +6,7 @@ mrcfile -- Main package
 -----------------------
 
 .. automodule:: mrcfile
-    :members: open, new, mmap, validate
+    :members: open, new, mmap, open_async, validate
     :undoc-members:
     :show-inheritance:
     
@@ -50,6 +50,16 @@ mrcfile.dtypes module
 ---------------------
 
 .. automodule:: mrcfile.dtypes
+    :special-members: __init__
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
+mrcfile.future_mrcfile module
+-----------------------------
+
+.. automodule:: mrcfile.future_mrcfile
     :special-members: __init__
     :members:
     :undoc-members:
