@@ -48,6 +48,8 @@ def new(name, data=None, compression=None, overwrite=False):
         subclass of it if ``compression`` is specified).
     
     Raises:
+        :class:`~exceptions.ValueError`: If the file already exists and
+            overwrite is :data:`False`.
         :class:`~exceptions.ValueError`: If the compression format is not
             recognised.
     """
