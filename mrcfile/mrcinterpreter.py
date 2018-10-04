@@ -37,13 +37,13 @@ class MrcInterpreter(MrcObject):
     a superclass to provide common stream-handling functionality. This can be
     used by subclasses which will handle opening and closing the stream.
     
-    This class implements the :meth:`__enter__` and :meth:`__exit__` special
-    methods which allow it to be used by the Python context manager in a
-    :keyword:`with` block. This ensures that :meth:`close` is called after the
-    object is finished with.
+    This class implements the :meth:`~object.__enter__` and
+    :meth:`~object.__exit__` special methods which allow it to be used by the
+    Python context manager in a :keyword:`with` block. This ensures that
+    :meth:`close` is called after the object is finished with.
         
-    When reading the I/O stream, a :class:`~exceptions.ValueError` is raised if
-    the data is invalid in one of the following ways:
+    When reading the I/O stream, a :exc:`ValueError` is raised if the data is
+    invalid in one of the following ways:
     
     #. The header's ``map`` field is not set correctly to confirm the file
        type.
@@ -58,7 +58,7 @@ class MrcInterpreter(MrcObject):
     problematic files. If ``permissive`` is set to :data:`True` and any of the
     validity checks fails, a :mod:`warning <warnings>` is issued instead of an
     exception, and file interpretation continues. If the mode number is invalid
-    or the data block is too small, the :attr:`data` attribute will be set to
+    or the data block is too small, the :attr:`.data` attribute will be set to
     :data:`None`. In this case, it might be possible to inspect and correct the
     header, and then call :meth:`_read` again to read the data correctly. See
     the :doc:`usage guide <../usage_guide>` for more details.
@@ -79,14 +79,14 @@ class MrcInterpreter(MrcObject):
         """Initialise a new MrcInterpreter object.
         
         This initialiser reads the stream if it is given. In general,
-        subclasses should call :meth:`super().__init__` without giving an
-        ``iostream`` argument, then set the :attr:`_iostream` attribute
-        themselves and call :meth:`_read` when ready.
+        subclasses should call :meth:`__init__` without giving an ``iostream``
+        argument, then set the ``_iostream`` attribute themselves and call
+        :meth:`_read` when ready.
         
         To use the MrcInterpreter class directly, pass a stream when creating
         the object (or for a write-only stream, create an MrcInterpreter with
-        no stream, call :meth:`_create_default_attributes` and set the
-        :attr:`_iostream` attribute directly).
+        no stream, call :meth:`._create_default_attributes` and set the
+        ``_iostream`` attribute directly).
         
         Args:
             iostream: The I/O stream to use to read and write MRC data. The
@@ -95,8 +95,8 @@ class MrcInterpreter(MrcObject):
                 :data:`False`.
         
         Raises:
-            :class:`~exceptions.ValueError`: If ``iostream`` is given and the
-                data it contains cannot be interpreted as a valid MRC file.
+            :exc:`ValueError`: If ``iostream`` is given and the data it
+                contains cannot be interpreted as a valid MRC file.
         """
         super(MrcInterpreter, self).__init__(**kwargs)
         
@@ -143,8 +143,7 @@ class MrcInterpreter(MrcObject):
         of the data block.
         
         Raises:
-            :class:`~exceptions.ValueError`: If the file is not a valid MRC
-                file.
+            :exc:`ValueError`: If the file is not a valid MRC file.
         """
         self._read_header()
         self._read_extended_header()
@@ -157,8 +156,7 @@ class MrcInterpreter(MrcObject):
         stream will be advanced by 1024 bytes.
         
         Raises:
-            :class:`~exceptions.ValueError`: If the file is not a valid MRC
-                file.
+            :exc:`ValueError`: If the file is not a valid MRC file.
         """
         # Read 1024 bytes from the stream
         header_str = self._iostream.read(HEADER_DTYPE.itemsize)

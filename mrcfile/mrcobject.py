@@ -82,7 +82,7 @@ class MrcObject(object):
     
     Attributes and methods relevant to subclasses:
     
-    * :attr:`_read_only`
+    * ``_read_only``
     * :meth:`_check_writeable`
     * :meth:`_create_default_attributes`
     * :meth:`_close_data`
@@ -95,8 +95,8 @@ class MrcObject(object):
         
         This initialiser deliberately avoids creating any arrays and simply
         sets the header, extended header and data attributes to :data:`None`.
-        This allows subclasses to call :meth:`super().__init__` at the start of
-        their initialisers and then set the attributes themselves, probably by
+        This allows subclasses to call :meth:`__init__` at the start of their
+        initialisers and then set the attributes themselves, probably by
         reading from a file, or by calling :meth:`_create_default_attributes`
         for a new empty object.
         
@@ -117,7 +117,7 @@ class MrcObject(object):
         """Check that this MRC object is writeable.
         
         Raises:
-            :class:`~exceptions.ValueError`: If this object is read-only.
+            :exc:`ValueError`: If this object is read-only.
         """
         if self._read_only:
             raise ValueError('MRC object is read-only')
@@ -340,8 +340,7 @@ class MrcObject(object):
         This method changes the space group number (``header.ispg``) to zero.
         
         Raises:
-            :class:`~exceptions.ValueError`: If the data array is not
-                three-dimensional.
+            :exc:`ValueError`: If the data array is not three-dimensional.
         """
         self._check_writeable()
         if self.data.ndim != 3:
@@ -356,8 +355,7 @@ class MrcObject(object):
         this method sets it to one. Otherwise the space group is not changed.
         
         Raises:
-            :class:`~exceptions.ValueError`: If the data array is not
-                three-dimensional.
+            :exc:`ValueError`: If the data array is not three-dimensional.
         """
         self._check_writeable()
         if self.data.ndim != 3:

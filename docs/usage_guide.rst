@@ -379,7 +379,7 @@ expanded in future to explain how to analyse and fix problems, or the library
 itself might be improved to fix certain problems automatically. For now, if
 you have trouble with an invalid file, inspecting the code in this library
 might help you to work out how to approach the problem (start with
-:meth:`MrcInterpreter._read_header()`), or you could try asking on the
+:meth:`.MrcInterpreter._read_header()`), or you could try asking on the
 `CCP-EM mailing list`_ for advice.
 
 .. _CCP-EM mailing list: https://www.jiscmail.ac.uk/CCPEM
@@ -1090,7 +1090,7 @@ The following classes are provided by the mrcfile.py library:
 * :class:`~mrcfile.gzipmrcfile.GzipMrcFile`: Reads and writes MRC data using
   compressed gzip files.
 
-* :class:`~mrcfile.gzipmrcfile.Bzip2MrcFile`: Reads and writes MRC data using
+* :class:`~mrcfile.bzip2mrcfile.Bzip2MrcFile`: Reads and writes MRC data using
   compressed bzip2 files.
 
 * :class:`~mrcfile.mrcmemmap.MrcMemmap`: Uses a memory-mapped data array, for

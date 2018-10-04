@@ -48,10 +48,9 @@ def new(name, data=None, compression=None, overwrite=False):
         subclass of it if ``compression`` is specified).
     
     Raises:
-        :class:`~exceptions.ValueError`: If the file already exists and
-            overwrite is :data:`False`.
-        :class:`~exceptions.ValueError`: If the compression format is not
-            recognised.
+        :exc:`ValueError`: If the file already exists and overwrite is
+            :data:`False`.
+        :exc:`ValueError`: If the compression format is not recognised.
     """
     if compression == 'gzip':
         NewMrc = GzipMrcFile
@@ -80,7 +79,7 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
     This function offers a permissive read mode for attempting to open corrupt
     or invalid files. In permissive mode, :mod:`warnings` are issued instead of
     exceptions if problems with the file are encountered. See
-    :class:`mrcfile.mrcinterpreter.MrcInterpreter` or the
+    :class:`~mrcfile.mrcinterpreter.MrcInterpreter` or the
     :doc:`usage guide <../usage_guide>` for more information.
     
     Args:
@@ -97,15 +96,14 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
         gzipped).
     
     Raises:
-        :class:`~exceptions.ValueError`: If the mode is not one of ``r``,
-            ``r+`` or ``w+``.
-        :class:`~exceptions.ValueError`: If the file is not a valid MRC file
-            and ``permissive`` is :data:`False`.
-        :class:`~exceptions.ValueError`: If the mode is ``w+`` and the file
-            already exists. (Call :func:`new` with ``overwrite=True`` to
-            deliberately overwrite an existing file.)
-        :class:`~exceptions.OSError`: If the mode is ``r`` or ``r+`` and the
-            file does not exist.
+        :exc:`ValueError`: If the mode is not one of ``r``, ``r+`` or ``w+``.
+        :exc:`ValueError`: If the file is not a valid MRC file and
+            ``permissive`` is :data:`False`.
+        :exc:`ValueError`: If the mode is ``w+`` and the file already exists.
+            (Call :func:`new` with ``overwrite=True`` to deliberately overwrite
+            an existing file.)
+        :exc:`OSError`: If the mode is ``r`` or ``r+`` and the file does not
+            exist.
     
     Warns:
         RuntimeWarning: If the file appears to be a valid MRC file but the data

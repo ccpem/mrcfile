@@ -44,8 +44,8 @@ class MrcFile(MrcInterpreter):
         
         In mode ``r`` or ``r+``, the named file is opened from disk and read.
         In mode ``w+`` a new empty file is created and will be written to disk
-        at the end of the :keyword:`with` block (or when :meth:`flush` or
-        :meth:`close` is called).
+        at the end of the :keyword:`with` block (or when
+        :meth:`~.MrcInterpreter.flush` or :meth:`close` is called).
     
     """
     
@@ -72,12 +72,11 @@ class MrcFile(MrcInterpreter):
                 The default is :data:`False`.
         
         Raises:
-            :class:`~exceptions.ValueError`: If the mode is not one of ``r``,
-                ``r+`` or ``w+``, the file is not a valid MRC file, or if the
-                mode is ``w+``, the file already exists and overwrite is
-                :data:`False`.
-            :class:`~exceptions.OSError`: If the mode is ``r`` or ``r+`` and
-                the file does not exist.
+            :exc:`ValueError`: If the mode is not one of ``r``, ``r+`` or
+                ``w+``, the file is not a valid MRC file, or if the mode is
+                ``w+``, the file already exists and overwrite is :data:`False`.
+            :exc:`OSError`: If the mode is ``r`` or ``r+`` and the file does
+                not exist.
         
         Warns:
             RuntimeWarning: The file appears to be a valid MRC file but the
@@ -143,8 +142,8 @@ class MrcFile(MrcInterpreter):
     def close(self):
         """Flush any changes to disk and close the file.
         
-        This override calls :meth:`super().close` to ensure the stream is
-        flushed and closed, then closes the file object.
+        This override calls :meth:`.MrcInterpreter.close` to ensure the stream
+        is flushed and closed, then closes the file object.
         """
         super(MrcFile, self).close()
         self._close_file()

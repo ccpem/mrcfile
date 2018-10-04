@@ -63,8 +63,7 @@ def validate_all(names, print_file=None):
         the files do not meet the MRC format specification in any way.
     
     Raises:
-        :class:`~exceptions.OSError`: If one of the files does not exist or
-            cannot be opened.
+        :exc:`OSError`: If one of the files does not exist or cannot be opened.
     
     Warns:
         RuntimeWarning: If one of the files is seriously invalid because it has
@@ -137,8 +136,7 @@ def validate(name, print_file=None):
         not meet the MRC format specification in any way.
     
     Raises:
-        :class:`~exceptions.OSError`: If the file does not exist or cannot be
-            opened.
+        :exc:`OSError`: If the file does not exist or cannot be opened.
     
     Warns:
         RuntimeWarning: If the file is seriously invalid because it has no map

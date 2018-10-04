@@ -109,11 +109,11 @@ class FutureMrcFile(object):
             subclasses).
 
         Raises:
-            :class:`~exceptions.RuntimeError`: If the operation has not
-                finished within the time limit set by ``timeout``. (Note that
-                the type of this exception will change in future if this class
-                is replaced by :class:`concurrent.futures.Future`.)
-            :class:`~exceptions.Exception`: Any exception raised by the
+            :exc:`RuntimeError`: If the operation has not finished within the
+                 time limit set by ``timeout``. (Note that the type of this
+                 exception will change in future if this class is replaced by
+                 :class:`concurrent.futures.Future`.)
+            :exc:`Exception`: Any exception raised by the
                 :class:`~mrcfile.mrcfile.MrcFile` opening operation will be
                 re-raised here.
         """
@@ -134,14 +134,14 @@ class FutureMrcFile(object):
                 limit to the wait time.
 
         Returns:
-            An :class:`~exceptions.Exception`, if one was raised by the file
-            opening operation, or :data:`None` if no exception was raised.
+            An :exc:`Exception`, if one was raised by the file opening
+            operation, or :data:`None` if no exception was raised.
 
         Raises:
-            :class:`~exceptions.RuntimeError`: If the operation has not
-                finished within the time limit set by ``timeout``. (Note that
-                the type of this exception will change in future if this class
-                is replaced by :class:`concurrent.futures.Future`.)
+            :exc:`RuntimeError`: If the operation has not finished within the
+                time limit set by ``timeout``. (Note that the type of this
+                exception will change in future if this class is replaced by
+                :class:`concurrent.futures.Future`.)
         """
         result = self._get_result(timeout)
         if isinstance(result, Exception):
