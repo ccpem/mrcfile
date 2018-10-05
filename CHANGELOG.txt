@@ -5,6 +5,8 @@ For next release
 ----------------
 
 * Add open_async() function for background file loading
+* Update documentation to point to Python 3.6 instead of 2.7, and fix all
+  cross-references
 
 Version 1.0.4 (2018-01-22)
 --------------------------
