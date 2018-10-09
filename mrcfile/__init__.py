@@ -16,7 +16,8 @@ Functions
 * :func:`open`: Open an MRC file.
 * :func:`open_async`: Open an MRC file asynchronously.
 * :func:`mmap`: Open a memory-mapped MRC file (fast for large files).
-* :func:`validate`: Validate an MRC file (not implemented yet!)
+* :func:`new_mmap`: Create a new empty memory-mapped MRC file (fast for large files).
+* :func:`validate`: Validate an MRC file
 
 Basic usage
 -----------
@@ -62,6 +63,6 @@ http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from .load_functions import new, open, open_async, mmap
+from .load_functions import new, open, open_async, mmap, new_mmap
 from .validator import validate
 from .version import __version__

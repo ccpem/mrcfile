@@ -6,7 +6,7 @@ mrcfile -- Main package
 -----------------------
 
 .. automodule:: mrcfile
-    :members: open, new, mmap, open_async, validate
+    :members: new, open, open_async, mmap, new_mmap, validate
     :undoc-members:
     :show-inheritance:
     

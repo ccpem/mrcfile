@@ -179,5 +179,18 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                  .format(self.slow_mrc_name))
         assert future.exception() is None
 
+    def test_new_mmap(self):
+        with mrcfile.new_mmap(self.temp_mrc_name,
+                              (3, 4, 5, 6),
+                              mrc_mode=2,
+                              fill=1.1) as mrc:
+            assert repr(mrc) == ("MrcMemmap('{0}', mode='w+')"
+                                 .format(self.temp_mrc_name))
+            assert mrc.data.shape == (3, 4, 5, 6)
+            assert np.all(mrc.data == 1.1)
+            assert mrc.header.nx == 6
+            file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
+            assert file_size == mrc.header.nbytes + mrc.data.nbytes
+
 if __name__ == '__main__':
     unittest.main()

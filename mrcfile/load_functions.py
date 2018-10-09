@@ -23,6 +23,7 @@ from .future_mrcfile import FutureMrcFile
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
+from . import utils
 
 
 def new(name, data=None, compression=None, overwrite=False):
@@ -196,3 +197,59 @@ def mmap(name, mode='r', permissive=False):
         An :class:`~mrcfile.mrcmemmap.MrcMemmap` object.
     """
     return MrcMemmap(name, mode=mode, permissive=permissive)
+
+
+def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False):
+    """Create a new, empty memory-mapped MRC file.
+
+    This function is useful for creating very large files. The initial contents
+    of the data array can be set with the ``fill`` parameter if needed, but be
+    aware that filling a large array can take a long time.
+
+    If ``fill`` is not set, the new data array's contents are unspecified and
+    system-dependent. (Some systems fill a new empty mmap with zeros, others
+    fill it with the bytes from the disk at the newly-mapped location.) If you
+    are definitely going to fill the entire array with new data anyway you can
+    safely leave ``fill`` as :data:`None`, otherwise it is advised to use a
+    sensible fill value (or ensure you are on a system that fills new mmaps
+    with a reasonable default value).
+
+    Args:
+        name: The file name to use.
+        shape: The shape of the data array to open, as a 2-, 3- or 4-tuple of
+            ints. For example, ``(nz, ny, nx)`` for a new 3D volume, or
+            ``(ny, nx)`` for a new 2D image.
+        mrc_mode: The MRC mode to use for the new file. One of 0, 1, 2, 4 or 6,
+            which correspond to numpy dtypes as follows:
+
+            * mode 0 -> int8
+            * mode 1 -> int16
+            * mode 2 -> float32
+            * mode 4 -> complex64
+            * mode 6 -> uint16
+
+            The default is 0.
+        fill: An optional value to use to fill the new data array. If
+            :data:`None`, the data array will not be filled and its contents
+            are unspecified. Numpy's usual rules for rounding or rejecting
+            values apply, according to the dtype of the array.
+        overwrite: Flag to force overwriting of an existing file. If
+            :data:`False` and a file of the same name already exists, the file
+            is not overwritten and an exception is raised.
+
+    Returns:
+        A new :class:`~mrcfile.mrcmemmap.MrcMemmap` object.
+
+    Raises:
+        :exc:`ValueError`: If the MRC mode is invalid.
+        :exc:`ValueError`: If the file already exists and overwrite is
+            :data:`False`.
+    """
+    mrc = MrcMemmap(name, mode='w+', overwrite=overwrite)
+    dtype = utils.dtype_from_mode(mrc_mode)
+    mrc._open_memmap(dtype, shape)
+    mrc.update_header_from_data()
+    if fill is not None:
+        mrc.data[...] = fill
+    mrc.flush()
+    return mrc
