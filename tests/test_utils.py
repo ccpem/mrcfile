@@ -217,6 +217,10 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
         for ispg in range(-2000, 2000):
             assert utils.spacegroup_is_volume_stack(ispg) == (401 <= ispg <= 630)
 
+    def test_pretty_machine_stamp(self):
+        machst = utils.machine_stamp_from_byte_order('<')
+        assert utils.pretty_machine_stamp(machst) == "0x44 0x44 0x00 0x00"
+
 
 if __name__ == '__main__':
     unittest.main()

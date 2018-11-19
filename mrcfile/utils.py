@@ -167,6 +167,11 @@ def dtype_from_mode(mode):
         raise ValueError("Unrecognised mode '{0}'".format(mode))
 
 
+def pretty_machine_stamp(machst):
+    """Return a human-readable hex string for a machine stamp."""
+    return " ".join("0x{:02x}".format(byte) for byte in machst)
+
+
 def byte_order_from_machine_stamp(machst):
     """Return the byte order corresponding to the given machine stamp.
     
@@ -186,7 +191,7 @@ def byte_order_from_machine_stamp(machst):
     elif (machst[0] == 0x11 and machst[1] == 0x11):
         return '>'
     else:
-        pretty_bytes = " ".join("0x{:02x}".format(byte) for byte in machst)
+        pretty_bytes = pretty_machine_stamp(machst)
         raise ValueError("Unrecognised machine stamp: " + pretty_bytes)
 
 

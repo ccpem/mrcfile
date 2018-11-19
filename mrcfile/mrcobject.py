@@ -532,8 +532,7 @@ class MrcObject(object):
         try:
             utils.byte_order_from_machine_stamp(self.header.machst)
         except ValueError:
-            pretty_bytes = " ".join("0x{:02x}".format(byte)
-                                    for byte in self.header.machst)
+            pretty_bytes = utils.pretty_machine_stamp(self.header.machst)
             log("Invalid machine stamp: " + pretty_bytes)
             valid = False
         
