@@ -5,6 +5,7 @@ For next release
 ----------------
 
 * Add open_async() function for background file loading
+* Add new_mmap() function for fast creation of large files
 * Update documentation to point to Python 3.6 instead of 2.7, and fix all
   cross-references
 
