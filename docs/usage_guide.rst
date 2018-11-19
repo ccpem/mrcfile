@@ -190,6 +190,36 @@ quickly. Parts of the data can then be read and written by slicing the array:
            [ 8,  0,  0, 11]], dtype=int8)
    >>> mrc.close()
 
+To create new large, empty files quickly, use the :func:`mrcfile.new_mmap`
+function. This creates an empty file with a given shape and data mode. An
+optional fill value can be provided but filling a very large mmap array can
+take a long time, so it's best to use this only when needed. If you plan to
+fill the array with other data anyway, it's better to leave the fill value as
+:data:`None`. A typical use case would be to create a new file and then fill
+it slice by slice:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> # Make a new, empty memory-mapped MRC file
+   >>> mrc = mrcfile.new_mmap('mmap.mrc', shape=(3, 3, 4), mrc_mode=0)
+   >>> # Fill each slice with a different value
+   >>> for val in range(len(mrc.data)):
+   ...     mrc.data[val] = val
+   ...
+   >>> mrc.data[:]
+   memmap([[[0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]],
+   <BLANKLINE>
+           [[1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 1]],
+   <BLANKLINE>
+           [[2, 2, 2, 2],
+            [2, 2, 2, 2],
+            [2, 2, 2, 2]]], dtype=int8)
+
 Asynchronous opening
 ^^^^^^^^^^^^^^^^^^^^
 

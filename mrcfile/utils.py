@@ -18,6 +18,8 @@ Functions
   MRC mode number.
 * :func:`dtype_from_mode`: Convert an MRC mode number to a :class:`numpy dtype
   <numpy.dtype>`.
+* :func:`pretty_machine_stamp`: Get a nicely-formatted string from a machine
+  stamp.
 * :func:`machine_stamp_from_byte_order`: Get a machine stamp from a byte order
   indicator.
 * :func:`byte_orders_equal`: Compare two byte order indicators for equal
