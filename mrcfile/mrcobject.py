@@ -160,8 +160,8 @@ class MrcObject(object):
         header.maps = 3
         
         time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        header.label[0] = '{0:40s}{1:>40s}'.format('Created by mrcfile.py',
-                                                   time)
+        header.label[0] = '{0:40s}{1:>39s} '.format('Created by mrcfile.py',
+                                                    time)
         header.nlabl = 1
         
         self.reset_header_stats()
