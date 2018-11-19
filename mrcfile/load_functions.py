@@ -68,7 +68,7 @@ def new(name, data=None, compression=None, overwrite=False):
     return mrc
 
 
-def open(name, mode='r', permissive=False):  # @ReservedAssignment
+def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssignment
     """Open an MRC file.
     
     This function opens both normal and compressed MRC files. Supported
@@ -90,6 +90,8 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
             file. The default is ``r``.
         permissive: Read the file in permissive mode. The default is
             :data:`False`.
+        header_only: Only read the header (and extended header) from the file.
+            The default is :data:`False`.
     
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
@@ -127,7 +129,8 @@ def open(name, mode='r', permissive=False):  # @ReservedAssignment
                 NewMrc = GzipMrcFile
             elif start[:2] == b'BZ':
                 NewMrc = Bzip2MrcFile
-    return NewMrc(name, mode=mode, permissive=permissive)
+    return NewMrc(name, mode=mode, permissive=permissive,
+                  header_only=header_only)
 
 
 def open_async(name, mode='r', permissive=False):

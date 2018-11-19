@@ -75,7 +75,8 @@ class MrcInterpreter(MrcObject):
     
     """
     
-    def __init__(self, iostream=None, permissive=False, **kwargs):
+    def __init__(self, iostream=None, permissive=False, header_only=False,
+                 **kwargs):
         """Initialise a new MrcInterpreter object.
         
         This initialiser reads the stream if it is given. In general,
@@ -93,6 +94,8 @@ class MrcInterpreter(MrcObject):
                 default is :data:`None`.
             permissive: Read the stream in permissive mode. The default is
                 :data:`False`.
+            header_only: Only read the header (and extended header) from the
+                file. The default is :data:`False`.
         
         Raises:
             :exc:`ValueError`: If ``iostream`` is given and the data it
@@ -105,7 +108,7 @@ class MrcInterpreter(MrcObject):
         
         # If iostream is given, initialise by reading it
         if self._iostream is not None:
-            self._read()
+            self._read(header_only)
     
     def __enter__(self):
         """Called by the context manager at the start of a :keyword:`with`
@@ -135,19 +138,25 @@ class MrcInterpreter(MrcObject):
         except Exception:
             pass
     
-    def _read(self):
+    def _read(self, header_only=False):
         """Read the header, extended header and data from the I/O stream.
         
         Before calling this method, the stream should be open and positioned at
         the start of the header. This method will advance the stream to the end
-        of the data block.
+        of the data block (or the end of the extended header if ``header_only``
+        is :data:`True`.
+
+        Args:
+            header_only: Only read the header and extended header from the
+                stream. The default is :data:`False`.
         
         Raises:
             :exc:`ValueError`: If the file is not a valid MRC file.
         """
         self._read_header()
         self._read_extended_header()
-        self._read_data()
+        if not header_only:
+            self._read_data()
 
     def _read_header(self):
         """Read the MRC header from the I/O stream.

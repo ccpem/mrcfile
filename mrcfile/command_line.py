@@ -40,5 +40,5 @@ def print_headers(names=None, print_file=None):
     if names is None:
         names = sys.argv[1:]
     for name in names:
-        with mrcfile.open(name, permissive=True) as mrc:
+        with mrcfile.open(name, permissive=True, header_only=True) as mrc:
             mrc.print_header(print_file=print_file)

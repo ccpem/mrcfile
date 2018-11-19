@@ -329,7 +329,7 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.data.flags.writeable
             mrc.data[1,1] = 0
             assert mrc.data[1,1] == 0
-    
+
     def test_cannot_edit_data_in_read_only_mode(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
@@ -339,6 +339,14 @@ class MrcFileTest(MrcObjectTest):
             with self.assertRaisesRegex(ValueError, 'read-only'):
                 mrc.data[1,1] = 0
     
+    def test_header_only_mode_does_not_read_data(self):
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(np.arange(12, dtype=np.int16).reshape(3, 4))
+        with self.newmrc(self.temp_mrc_name, mode='r', header_only=True) as mrc:
+            assert mrc.header is not None
+            assert mrc.extended_header is not None
+            assert mrc.data is None
+
     def test_writing_image_mode_0(self):
         x, y = 10, 9
         data = np.linspace(-128, 127, x * y, dtype=np.int8).reshape(y, x)

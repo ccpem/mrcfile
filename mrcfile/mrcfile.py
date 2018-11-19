@@ -50,7 +50,7 @@ class MrcFile(MrcInterpreter):
     """
     
     def __init__(self, name, mode='r', overwrite=False, permissive=False,
-                 **kwargs):
+                 header_only=False, **kwargs):
         """Initialise a new :class:`MrcFile` object.
         
         The given file name is opened in the given mode. For mode ``r`` or
@@ -70,6 +70,8 @@ class MrcFile(MrcInterpreter):
             permissive: Read the file in permissive mode. (See
                 :class:`mrcfile.mrcinterpreter.MrcInterpreter` for details.)
                 The default is :data:`False`.
+            header_only: Only read the header (and extended header) from the
+                file. The default is :data:`False`.
         
         Raises:
             :exc:`ValueError`: If the mode is not one of ``r``, ``r+`` or
@@ -101,7 +103,7 @@ class MrcFile(MrcInterpreter):
             if 'w' in mode:
                 self._create_default_attributes()
             else:
-                self._read()
+                self._read(header_only)
         except Exception:
             self._close_file()
             raise
@@ -114,10 +116,10 @@ class MrcFile(MrcInterpreter):
         """Open a file object to use as the I/O stream."""
         self._iostream = open(name, self._mode + 'b')
     
-    def _read(self):
+    def _read(self, header_only=False):
         """Override _read() to move back to start of file first."""
         self._iostream.seek(0)
-        super(MrcFile, self)._read()
+        super(MrcFile, self)._read(header_only)
         
         # Check if the file is the expected size.
         if self.data is not None:

@@ -74,6 +74,12 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with mrcfile.open(self.temp_mrc_name, mode='w+') as mrc:
             assert repr(mrc) == ("MrcFile('{0}', mode='w+')"
                                  .format(self.temp_mrc_name))
+
+    def test_header_only_opening(self):
+        with mrcfile.open(self.example_mrc_name, header_only=True) as mrc:
+            assert mrc.header is not None
+            assert mrc.extended_header is not None
+            assert mrc.data is None
     
     def test_opening_nonexistent_file(self):
         with self.assertRaisesRegex(Exception, "No such file"):
