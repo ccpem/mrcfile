@@ -23,6 +23,7 @@ from .test_mrcobject import MrcObjectTest
 from mrcfile.mrcfile import MrcFile
 from mrcfile.mrcobject import (IMAGE_STACK_SPACEGROUP, VOLUME_SPACEGROUP,
                                VOLUME_STACK_SPACEGROUP)
+import mrcfile.utils as utils
 
 
 # Doctest stuff commented out for now - would be nice to get it working!
@@ -604,6 +605,24 @@ class MrcFileTest(MrcObjectTest):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(vol)
             assert mrc.data.flags.c_contiguous == True
+
+    def test_permissive_read_with_wrong_machine_stamp(self):
+        data = np.arange(12, dtype=np.int16).reshape(3, 4)
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(data)
+            wrong_byte_order = mrc.header.mode.newbyteorder().dtype.byteorder
+            mrc.header.machst = utils.machine_stamp_from_byte_order(wrong_byte_order)
+        with self.assertRaisesRegex(ValueError, "Unrecognised mode"):
+            self.newmrc(self.temp_mrc_name)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            with self.newmrc(self.temp_mrc_name, permissive=True) as mrc:
+                np.testing.assert_array_equal(mrc.data, data)
+            assert len(w) == 1
+            assert "Machine stamp" in str(w[0].message)
+            assert "byte order" in str(w[0].message)
+
+
 
 
 def create_test_float32_array(dtype=np.float32):

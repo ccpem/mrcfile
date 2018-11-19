@@ -201,6 +201,27 @@ class MrcInterpreter(MrcObject):
         # Create a new dtype with the correct byte order and update the header
         header.dtype = header.dtype.newbyteorder(byte_order)
         
+        # Check mode is valid; if not, try the opposite byte order
+        # (Some MRC files have been seen 'in the wild' that are correct except
+        # that the machine stamp indicates the wrong byte order.)
+        if self._permissive:
+            try:
+                utils.dtype_from_mode(header.mode)
+            except ValueError:
+                try:
+                    utils.dtype_from_mode(header.mode.newbyteorder())
+                    # If we get here the new byte order is probably correct
+                    # Use it and issue a warning
+                    header.dtype = header.dtype.newbyteorder()
+                    pretty_machst = utils.pretty_machine_stamp(header.machst)
+                    msg = "Machine stamp '{0}' does not match the apparent byte order '{1}'"
+                    warnings.warn(msg.format(pretty_machst, header.mode.dtype.byteorder),
+                                  RuntimeWarning)
+                except ValueError:
+                    # Neither byte order gives a valid mode. Ignore for now,
+                    # and a warning will be issued by _read_data()
+                    pass
+        
         header.flags.writeable = not self._read_only
         self._header = header
     
