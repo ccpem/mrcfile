@@ -560,7 +560,7 @@ class MrcObject(object):
         axes = set()
         for field in ['mapc', 'mapr', 'maps']:
             axes.add(int(self.header[field]))
-        if axes != set([1, 2, 3]):
+        if axes != {1, 2, 3}:
             log("Invalid axis mapping: found {0}, should be [1, 2, 3]"
                 .format(sorted(list(axes))))
             valid = False
