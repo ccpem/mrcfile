@@ -596,7 +596,7 @@ class MrcObject(object):
             valid = False
         
         # Check extended header type is set to a known value
-        valid_exttypes = ['CCP4', 'MRCO', 'SERI', 'AGAR', 'FEI1']
+        valid_exttypes = [b'CCP4', b'MRCO', b'SERI', b'AGAR', b'FEI1']
         if self.header.nsymbt > 0 and self.header.exttyp not in valid_exttypes:
             log("Extended header type is undefined or unrecognised: exttyp = "
                 "'{0}'".format(self.header.exttyp.item().decode('ascii')))
