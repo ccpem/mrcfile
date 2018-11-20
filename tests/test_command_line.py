@@ -57,7 +57,7 @@ class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             shutil.rmtree(self.test_output)
         super(CommandLineTest, self).tearDown()
     
-    def test_print_header_one_file(self):
+    def test_print_header(self):
         command_line.print_headers(self.files, print_file=self.print_stream)
         printed = self.print_stream.getvalue()
         assert len(printed) > 0
