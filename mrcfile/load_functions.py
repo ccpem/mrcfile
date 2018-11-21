@@ -113,6 +113,9 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
             block is longer than expected from the dimensions in the header.
         RuntimeWarning: If the file is not a valid MRC file and ``permissive``
             is :data:`True`.
+        RuntimeWarning: If the header's ``exttyp`` field is set to a known
+            value but the extended header's size is not a multiple of the
+            number of bytes in the corresponding dtype.
     """
     NewMrc = MrcFile
     if os.path.exists(name):

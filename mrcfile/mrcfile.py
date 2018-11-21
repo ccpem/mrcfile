@@ -75,15 +75,23 @@ class MrcFile(MrcInterpreter):
         
         Raises:
             :exc:`ValueError`: If the mode is not one of ``r``, ``r+`` or
-                ``w+``, the file is not a valid MRC file, or if the mode is
-                ``w+``, the file already exists and overwrite is :data:`False`.
+                ``w+``.
+            :exc:`ValueError`: If the file is not a valid MRC file and
+                ``permissive`` is :data:`False`.
+            :exc:`ValueError`: If the mode is ``w+``, the file already exists
+                and overwrite is :data:`False`.
             :exc:`OSError`: If the mode is ``r`` or ``r+`` and the file does
                 not exist.
         
         Warns:
-            RuntimeWarning: The file appears to be a valid MRC file but the
+            RuntimeWarning: If the file appears to be a valid MRC file but the
                 data block is longer than expected from the dimensions in the
                 header.
+            RuntimeWarning: If the file is not a valid MRC file and
+                ``permissive`` is :data:`True`.
+            RuntimeWarning: If the header's ``exttyp`` field is set to a known
+                value but the extended header's size is not a multiple of the
+                number of bytes in the corresponding dtype.
         """
         super(MrcFile, self).__init__(permissive=permissive, **kwargs)
         

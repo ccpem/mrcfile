@@ -9,6 +9,7 @@ For next release
 * Speed up mrcfile-header command line tool by reading headers only, not data
 * Allow opening of files with incorrect machine stamps in permissive mode
 * Fix bug in validation of exttyp field in Python 3 (thanks to Holger Kohr)
+* Fix bug in opening files with misleading exttyp information
 * Update documentation to point to Python 3.6 instead of 2.7, and fix all
   cross-references
 * Other documentation improvements

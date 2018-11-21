@@ -98,8 +98,17 @@ class MrcInterpreter(MrcObject):
                 file. The default is :data:`False`.
         
         Raises:
-            :exc:`ValueError`: If ``iostream`` is given and the data it
-                contains cannot be interpreted as a valid MRC file.
+            :exc:`ValueError`: If ``iostream`` is given, the data it contains
+                cannot be interpreted as a valid MRC file and ``permissive``
+                is :data:`False`.
+
+        Warns:
+            RuntimeWarning: If ``iostream`` is given, the data it contains
+                cannot be interpreted as a valid MRC file and ``permissive``
+                is :data:`True`.
+            RuntimeWarning: If the header's ``exttyp`` field is set to a known
+                value but the extended header's size is not a multiple of the
+                number of bytes in the corresponding dtype.
         """
         super(MrcInterpreter, self).__init__(**kwargs)
         
@@ -151,7 +160,8 @@ class MrcInterpreter(MrcObject):
                 stream. The default is :data:`False`.
         
         Raises:
-            :exc:`ValueError`: If the file is not a valid MRC file.
+            :exc:`ValueError`: If the data in the stream cannot be interpreted
+                 as a valid MRC file.
         """
         self._read_header()
         self._read_extended_header()
@@ -165,7 +175,12 @@ class MrcInterpreter(MrcObject):
         stream will be advanced by 1024 bytes.
         
         Raises:
-            :exc:`ValueError`: If the file is not a valid MRC file.
+            :exc:`ValueError`: If the data in the stream cannot be interpreted
+                 as a valid MRC file. and ``permissive`` is :data:`False`.
+
+        Warns:
+            RuntimeWarning:  If the data in the stream cannot be interpreted
+                 as a valid MRC file. and ``permissive`` is :data:`True`.
         """
         # Read 1024 bytes from the stream
         header_str = self._iostream.read(HEADER_DTYPE.itemsize)
@@ -234,15 +249,24 @@ class MrcInterpreter(MrcObject):
         If the extended header is recognised as FEI microscope metadata (by
         'FEI1' in the header's ``exttyp`` field), its dtype is set
         appropriately. Otherwise, the dtype is set as void (``'V1'``).
+
+        Warns:
+            RuntimeWarning: If the header's ``exttyp`` field is set to 'FEI1'
+                but the extended header's size is not a multiple of the number
+                of bytes in the FEI metadata dtype.
         """
         ext_header_str = self._iostream.read(int(self.header.nsymbt))
-        
-        if self.header['exttyp'] == b'FEI1':
-            dtype = FEI_EXTENDED_HEADER_DTYPE
-        else:
-            dtype = 'V1'
-            
-        self._extended_header = np.frombuffer(ext_header_str, dtype=dtype)
+
+        self._extended_header = np.frombuffer(ext_header_str, dtype='V1')
+
+        try:
+            if self.header.exttyp == b'FEI1':
+                self._extended_header.dtype = FEI_EXTENDED_HEADER_DTYPE
+        except ValueError:
+            warnings.warn("File has exttyp '{}' but the extended header "
+                          "cannot be interpreted as that type"
+                          .format(self.header.exttyp), RuntimeWarning)
+
         self._extended_header.flags.writeable = not self._read_only
     
     def _read_data(self):

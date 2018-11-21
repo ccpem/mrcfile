@@ -321,6 +321,24 @@ class MrcFileTest(MrcObjectTest):
             assert mrc.header.nsymbt == 0
             file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
             assert file_size == mrc.header.nbytes + mrc.data.nbytes
+
+    def test_extended_header_with_incorrect_type(self):
+        data = np.arange(12, dtype=np.int16).reshape(3, 4)
+        extended_header = np.array('example extended header', dtype='S')
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(data)
+            mrc.set_extended_header(extended_header)
+            mrc.header.exttyp = b'FEI1'
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            with self.newmrc(self.temp_mrc_name, mode='r+') as mrc:
+                # Test that the file is still read, and the dtype falls back to 'V'
+                assert mrc.extended_header.dtype.kind == 'V'
+                mrc.extended_header.dtype = 'S{}'.format(mrc.extended_header.nbytes)
+                np.testing.assert_array_equal(mrc.extended_header, extended_header)
+            assert len(w) == 1
+            assert "FEI1" in str(w[0].message)
+            assert "extended header" in str(w[0].message)
     
     def test_can_edit_data_in_read_write_mode(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
