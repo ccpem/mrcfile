@@ -1,8 +1,8 @@
 Change log for mrcfile
 ======================
 
-For next release
-----------------
+Version 1.1.0 (2018-11-21)
+--------------------------
 
 * Add open_async() function for background file loading
 * Add new_mmap() function for fast creation of large files
