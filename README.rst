@@ -147,7 +147,7 @@ Code contributions are also welcome, please submit pull requests to the
 
 To run the test suite, go to the top-level project directory (which contains
 the ``mrcfile`` and ``tests`` packages) and run ``python -m unittest tests``.
-(Or, if you have `tox`_, Python 2.7 and Python 3 installed, run ``tox``.)
+(Or, if you have `tox`_ installed, run ``tox``.)
 
 .. _tox: http://tox.readthedocs.org
 
