@@ -1,8 +1,8 @@
 Change log for mrcfile
 ======================
 
-For next version
-----------------
+Version 1.1.2 (2019-01-23)
+--------------------------
 
 * Fix incompatibility with numpy 1.16 by reading files into mutable bytearrays
   instead of immutable bytes objects. Note this will cause slower reading of
