@@ -72,6 +72,7 @@ class MrcInterpreter(MrcObject):
     
     * :meth:`_read`
     * :meth:`_read_data`
+    * :meth:`_read_bytearray_from_stream`
     
     """
     
@@ -183,14 +184,13 @@ class MrcInterpreter(MrcObject):
                  as a valid MRC file. and ``permissive`` is :data:`True`.
         """
         # Read 1024 bytes from the stream
-        header_str = self._iostream.read(HEADER_DTYPE.itemsize)
-        
-        if len(header_str) < HEADER_DTYPE.itemsize:
+        header_arr, bytes_read = self._read_bytearray_from_stream(HEADER_DTYPE.itemsize)
+        if bytes_read < HEADER_DTYPE.itemsize:
             raise ValueError("Couldn't read enough bytes for MRC header")
         
         # Use a recarray to allow access to fields as attributes
         # (e.g. header.mode instead of header['mode'])
-        header = np.rec.fromstring(header_str, dtype=HEADER_DTYPE, shape=())
+        header = np.frombuffer(header_arr, dtype=HEADER_DTYPE).reshape(()).view(np.recarray)
         
         # Make header writeable, because fromstring() creates a read-only array
         header.flags.writeable = True
@@ -255,9 +255,10 @@ class MrcInterpreter(MrcObject):
                 but the extended header's size is not a multiple of the number
                 of bytes in the FEI metadata dtype.
         """
-        ext_header_str = self._iostream.read(int(self.header.nsymbt))
+        ext_header_arr, bytes_read = self._read_bytearray_from_stream(int(self.header.nsymbt))
+        # TODO: warn or raise error if not enough bytes were read
 
-        self._extended_header = np.frombuffer(ext_header_str, dtype='V1')
+        self._extended_header = np.frombuffer(ext_header_arr, dtype='V1')
 
         try:
             if self.header.exttyp == b'FEI1':
@@ -291,12 +292,12 @@ class MrcInterpreter(MrcObject):
         nbytes = dtype.itemsize
         for axis_length in shape:
             nbytes *= axis_length
+
+        data_arr, bytes_read = self._read_bytearray_from_stream(nbytes)
         
-        data_bytes = self._iostream.read(nbytes)
-        
-        if len(data_bytes) < nbytes:
+        if bytes_read < nbytes:
             msg = ("Expected {0} bytes in data block but could only read {1}"
-                   .format(nbytes, len(data_bytes)))
+                   .format(nbytes, bytes_read))
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
                 self._data = None
@@ -304,8 +305,25 @@ class MrcInterpreter(MrcObject):
             else:
                 raise ValueError(msg)
         
-        self._data = np.frombuffer(data_bytes, dtype=dtype).reshape(shape)
+        self._data = np.frombuffer(data_arr, dtype=dtype).reshape(shape)
         self._data.flags.writeable = not self._read_only
+
+    def _read_bytearray_from_stream(self, number_of_bytes):
+        """Read a :class:`bytearray` from the stream.
+
+        This default implementation relies on the stream implementing the
+        :meth:`~io.BufferedIOBase.readinto` method to avoid copying the new
+        array while creating the mutable :class:`bytearray`. Subclasses
+        should override this if their stream does not support
+        :meth:`~io.BufferedIOBase.readinto`.
+
+        Returns:
+            A 2-tuple of the :class:`bytearray` and the number of bytes that
+            were read from the stream.
+        """
+        result_array = bytearray(number_of_bytes)
+        bytes_read = self._iostream.readinto(result_array)
+        return result_array, bytes_read
     
     def close(self):
         """Flush to the stream and clear the header and data attributes."""

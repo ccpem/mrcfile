@@ -1,6 +1,15 @@
 Change log for mrcfile
 ======================
 
+For next version
+----------------
+
+* Fix incompatibility with numpy 1.16 by reading files into mutable bytearrays
+  instead of immutable bytes objects. Note this will cause slower reading of
+  bzip2-compressed files on Python 2 because Python 2's bz2 module does not
+  support reading directly into a bytearray and therefore the data must be
+  copied.
+
 Version 1.1.1 (2019-01-17)
 --------------------------
 
