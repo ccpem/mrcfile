@@ -9,6 +9,8 @@ For next version
   bzip2-compressed files on Python 2 because Python 2's bz2 module does not
   support reading directly into a bytearray and therefore the data must be
   copied.
+* Check that the file is large enough when reading the extended header.
+  (Previously, the size was only checked for reading the data array.)
 
 Version 1.1.1 (2019-01-17)
 --------------------------

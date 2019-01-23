@@ -51,6 +51,7 @@ class MrcInterpreter(MrcObject):
        determined.
     #. The mode number is not recognised. Currently accepted modes are 0, 1, 2,
        4 and 6.
+    #. The file is not large enough for the specified extended header size.
     #. The data block is not large enough for the specified data type and
        dimensions.
     
@@ -162,7 +163,11 @@ class MrcInterpreter(MrcObject):
         
         Raises:
             :exc:`ValueError`: If the data in the stream cannot be interpreted
-                 as a valid MRC file.
+                 as a valid MRC file and ``permissive`` is :data:`False`.
+
+        Warns:
+            RuntimeWarning:  If the data in the stream cannot be interpreted
+                 as a valid MRC file and ``permissive`` is :data:`True`.
         """
         self._read_header()
         self._read_extended_header()
@@ -177,11 +182,11 @@ class MrcInterpreter(MrcObject):
         
         Raises:
             :exc:`ValueError`: If the data in the stream cannot be interpreted
-                 as a valid MRC file. and ``permissive`` is :data:`False`.
+                 as a valid MRC file and ``permissive`` is :data:`False`.
 
         Warns:
             RuntimeWarning:  If the data in the stream cannot be interpreted
-                 as a valid MRC file. and ``permissive`` is :data:`True`.
+                 as a valid MRC file and ``permissive`` is :data:`True`.
         """
         # Read 1024 bytes from the stream
         header_arr, bytes_read = self._read_bytearray_from_stream(HEADER_DTYPE.itemsize)
@@ -250,10 +255,18 @@ class MrcInterpreter(MrcObject):
         'FEI1' in the header's ``exttyp`` field), its dtype is set
         appropriately. Otherwise, the dtype is set as void (``'V1'``).
 
+        Raises:
+            :exc:`ValueError`: If the stream is not long enough to contain the
+                extended header indicated by the header and ``permissive``
+                is :data:`False`.
+
         Warns:
             RuntimeWarning: If the header's ``exttyp`` field is set to 'FEI1'
                 but the extended header's size is not a multiple of the number
                 of bytes in the FEI metadata dtype.
+            RuntimeWarning: If the stream is not long enough to contain the
+                extended header indicated by the header and ``permissive``
+                is :data:`True`.
         """
         ext_header_arr, bytes_read = self._read_bytearray_from_stream(int(self.header.nsymbt))
 
@@ -284,6 +297,16 @@ class MrcInterpreter(MrcObject):
         
         This method uses information from the header to set the data array's
         shape and dtype.
+
+        Raises:
+            :exc:`ValueError`: If the stream is not long enough to contain the
+                data indicated by the header and ``permissive`` is
+                :data:`False`.
+
+        Warns:
+            RuntimeWarning: If the stream is not long enough to contain the
+                data indicated by the header and ``permissive`` is
+                :data:`True`.
         """
         try:
             dtype = utils.data_dtype_from_header(self.header)
