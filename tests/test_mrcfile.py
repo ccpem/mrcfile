@@ -102,11 +102,15 @@ class MrcFileTest(MrcObjectTest):
         name = os.path.join(self.test_data, 'emd_3197.png')
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            self.newmrc(name, permissive=True)
-            assert len(w) == 3
+            with self.newmrc(name, permissive=True) as mrc:
+                assert mrc.header is not None
+                assert mrc.extended_header is None
+                assert mrc.data is None
+            assert len(w) == 4
             assert "Map ID string not found" in str(w[0].message)
             assert "Unrecognised machine stamp" in str(w[1].message)
-            assert "Unrecognised mode" in str(w[2].message)
+            assert "Expected 976237114 bytes in extended header" in str(w[2].message)
+            assert "Unrecognised mode" in str(w[3].message)
     
     def test_repr(self):
         with self.newmrc(self.example_mrc_name) as mrc:
@@ -258,7 +262,16 @@ class MrcFileTest(MrcObjectTest):
             assert issubclass(w[0].category, RuntimeWarning)
             assert "file is 8 bytes larger than expected" in str(w[0].message)
     
-    def test_exception_raised_if_file_is_too_small(self):
+    def test_exception_raised_if_file_is_too_small_for_reading_extended_header(self):
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
+            mrc.header.nsymbt = 49
+        expected_error_msg = ("Expected 49 bytes in extended header "
+                              "but could only read 48")
+        with self.assertRaisesRegex(ValueError, expected_error_msg):
+            self.newmrc(self.temp_mrc_name)
+
+    def test_exception_raised_if_file_is_too_small_for_reading_data(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
             assert mrc.header.mz == 2

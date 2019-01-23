@@ -256,7 +256,16 @@ class MrcInterpreter(MrcObject):
                 of bytes in the FEI metadata dtype.
         """
         ext_header_arr, bytes_read = self._read_bytearray_from_stream(int(self.header.nsymbt))
-        # TODO: warn or raise error if not enough bytes were read
+
+        if bytes_read < self.header.nsymbt:
+            msg = ("Expected {0} bytes in extended header but could only read {1}"
+                   .format(self.header.nsymbt, bytes_read))
+            if self._permissive:
+                warnings.warn(msg, RuntimeWarning)
+                self._extended_header = None
+                return
+            else:
+                raise ValueError(msg)
 
         self._extended_header = np.frombuffer(ext_header_arr, dtype='V1')
 

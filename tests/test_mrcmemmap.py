@@ -43,7 +43,7 @@ class MrcMemmapTest(MrcFileTest):
         with MrcMemmap(self.example_mrc_name) as mrc:
             assert repr(mrc) == "MrcMemmap('{0}', mode='r')".format(self.example_mrc_name)
     
-    def test_exception_raised_if_file_is_too_small(self):
+    def test_exception_raised_if_file_is_too_small_for_reading_data(self):
         """Override test to change expected error message."""
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))

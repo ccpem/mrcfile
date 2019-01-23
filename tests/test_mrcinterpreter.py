@@ -90,12 +90,12 @@ class MrcInterpreterTest(MrcObjectTest):
             assert "Map ID string not found" in str(w[0].message)
             assert "Unrecognised machine stamp" in str(w[1].message)
     
-    def test_permissive_read_mode_with_file_too_small(self):
+    def test_permissive_read_mode_with_file_too_small_for_extended_header(self):
         stream = io.BytesIO()
         mrc = MrcInterpreter()
         mrc._iostream = stream
         mrc._create_default_attributes()
-        mrc.set_data(np.arange(12, dtype=np.int16).reshape(1, 3, 4))
+        mrc.set_extended_header(np.arange(12, dtype=np.int16).reshape(1, 3, 4))
         mrc.close()
         stream.seek(-1, io.SEEK_CUR)
         stream.truncate()
@@ -106,6 +106,26 @@ class MrcInterpreterTest(MrcObjectTest):
             
             MrcInterpreter(iostream=stream, permissive=True)
             
+            assert len(w) == 1
+            assert ("Expected 24 bytes in extended header but could only read 23"
+                    in str(w[0].message))
+
+    def test_permissive_read_mode_with_file_too_small_for_data(self):
+        stream = io.BytesIO()
+        mrc = MrcInterpreter()
+        mrc._iostream = stream
+        mrc._create_default_attributes()
+        mrc.set_data(np.arange(12, dtype=np.int16).reshape(1, 3, 4))
+        mrc.close()
+        stream.seek(-1, io.SEEK_CUR)
+        stream.truncate()
+        stream.seek(0)
+
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+
+            MrcInterpreter(iostream=stream, permissive=True)
+
             assert len(w) == 1
             assert ("Expected 24 bytes in data block but could only read 23"
                     in str(w[0].message))
