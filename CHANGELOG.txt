@@ -1,6 +1,11 @@
 Change log for mrcfile
 ======================
 
+For next version
+----------------
+
+* mrcfile is now available through conda-forge (thanks to Billy Poon)
+
 Version 1.1.2 (2019-01-23)
 --------------------------
 

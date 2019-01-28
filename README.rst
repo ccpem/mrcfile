@@ -1,23 +1,27 @@
 mrcfile.py
 ==========
 
-|build-status| |pypi-version| |python-versions| |readthedocs|
+|build-status| |readthedocs| |python-versions| |pypi-version| |conda-forge-version|
 
 .. |build-status| image:: https://travis-ci.org/ccpem/mrcfile.svg?branch=master
     :target: https://travis-ci.org/ccpem/mrcfile
     :alt: Build Status
 
-.. |pypi-version| image:: https://img.shields.io/pypi/v/mrcfile.svg
-    :target: https://pypi.python.org/pypi/mrcfile
-    :alt: Python Package Index
+.. |readthedocs| image:: https://readthedocs.org/projects/mrcfile/badge/
+    :target: http://mrcfile.readthedocs.org
+    :alt: Documentation
     
 .. |python-versions| image:: https://img.shields.io/pypi/pyversions/mrcfile.svg
     :target: https://pypi.python.org/pypi/mrcfile
     :alt: Python Versions
 
-.. |readthedocs| image:: https://readthedocs.org/projects/mrcfile/badge/
-    :target: http://mrcfile.readthedocs.org
-    :alt: Documentation
+.. |pypi-version| image:: https://img.shields.io/pypi/v/mrcfile.svg
+    :target: https://pypi.python.org/pypi/mrcfile
+    :alt: Python Package Index
+
+.. |conda-forge-version| image:: https://img.shields.io/conda/vn/conda-forge/mrcfile.svg
+    :target: https://anaconda.org/conda-forge/mrcfile
+    :alt: conda-forge
 
 .. start_of_main_text
 
@@ -51,9 +55,13 @@ Key Features
 Installation
 ------------
 
-The ``mrcfile`` library is available from the Python package index::
+The ``mrcfile`` library is available from the `Python package index`_::
 
     pip install mrcfile
+
+Or from `conda-forge`_::
+
+    conda install --channel conda-forge mrcfile
 
 It is also included in the ``ccpem-python`` environment in the  `CCP-EM`_
 software suite.
@@ -62,6 +70,8 @@ software suite.
 
 The source code (including the full test suite) can be found `on GitHub`_.
 
+.. _Python package index: https://pypi.org/project/mrcfile
+.. _conda-forge: https://anaconda.org/conda-forge/mrcfile
 .. _on GitHub: https://github.com/ccpem/mrcfile
 
 Basic usage
