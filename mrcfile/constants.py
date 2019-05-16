@@ -15,8 +15,8 @@ from __future__ import (absolute_import, division, print_function,
 
 MRC_FORMAT_VERSION = 20140  # MRC2014 format, version 0
 
-MAP_ID = b'MAP '
-MAP_ID_OFFSET_BYTES = 208  # location of 'MAP ' string in an MRC file
+MAP_ID = b'MAP'
+MAP_ID_OFFSET_BYTES = 208  # location of 'MAP' string in an MRC file
 
 IMAGE_STACK_SPACEGROUP = 0
 VOLUME_SPACEGROUP = 1
