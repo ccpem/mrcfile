@@ -523,7 +523,7 @@ class MrcObject(object):
             print(message, file=print_file)
         
         # Check map ID string
-        if self.header.map != MAP_ID:
+        if not np.chararray.startswith(self.header.map, MAP_ID):
             log("Map ID string is incorrect: found {0}, should be {1}"
                 .format(self.header.map, MAP_ID))
             valid = False
