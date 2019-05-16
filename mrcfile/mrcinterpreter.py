@@ -201,7 +201,7 @@ class MrcInterpreter(MrcObject):
         header.flags.writeable = True
         
         # Check this is an MRC file, and read machine stamp to get byte order
-        if header.map != MAP_ID:
+        if not np.chararray.startswith(header.map, MAP_ID):
             msg = ("Map ID string not found - "
                    "not an MRC file, or file is corrupt")
             if self._permissive:
