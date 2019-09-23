@@ -59,7 +59,8 @@ class MrcInterpreter(MrcObject):
     problematic files. If ``permissive`` is set to :data:`True` and any of the
     validity checks fails, a :mod:`warning <warnings>` is issued instead of an
     exception, and file interpretation continues. If the mode number is invalid
-    or the data block is too small, the :attr:`.data` attribute will be set to
+    or the data block is too small, the
+    :attr:`~mrcfile.mrcobject.MrcObject.data` attribute will be set to
     :data:`None`. In this case, it might be possible to inspect and correct the
     header, and then call :meth:`_read` again to read the data correctly. See
     the :doc:`usage guide <../usage_guide>` for more details.
