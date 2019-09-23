@@ -421,7 +421,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert header.dmax == np.float32(data.max())
         assert header.dmean == np.float32(data.mean(dtype=np.float64))
         assert header.rms == np.float32(data.std(dtype=np.float64))
-    
+
     def test_reset_header_stats_are_undetermined(self):
         self.mrcobject.set_data(np.arange(12, dtype=np.float32).reshape(3, 4))
         header = self.mrcobject.header
@@ -430,6 +430,14 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert header.dmean < header.dmax
         assert header.rms > 0
         self.mrcobject.reset_header_stats()
+        assert header.dmax < header.dmin
+        assert header.dmean < header.dmin
+        assert header.dmean < header.dmax
+        assert header.rms < 0
+    
+    def test_header_stats_are_undetermined_after_setting_empty_data(self):
+        self.mrcobject.set_data(np.array((), dtype=np.float32).reshape((0, 0, 0)))
+        header = self.mrcobject.header
         assert header.dmax < header.dmin
         assert header.dmean < header.dmin
         assert header.dmean < header.dmax

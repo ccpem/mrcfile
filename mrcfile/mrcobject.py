@@ -442,14 +442,17 @@ class MrcObject(object):
         files larger than the currently available memory.
         """
         self._check_writeable()
-        
-        self.header.dmin = self.data.min()
-        self.header.dmax = self.data.max()
-        
-        # Use a float64 accumulator to calculate mean and standard deviation
-        # This prevents overflow errors during calculation
-        self.header.dmean = np.float32(self.data.mean(dtype=np.float64))
-        self.header.rms = np.float32(self.data.std(dtype=np.float64))
+
+        if self.data.size > 0:
+            self.header.dmin = self.data.min()
+            self.header.dmax = self.data.max()
+
+            # Use a float64 accumulator to calculate mean and standard deviation
+            # This prevents overflow errors during calculation
+            self.header.dmean = np.float32(self.data.mean(dtype=np.float64))
+            self.header.rms = np.float32(self.data.std(dtype=np.float64))
+        else:
+            self.reset_header_stats()
     
     def reset_header_stats(self):
         """Set the header statistics to indicate that the values are unknown."""
