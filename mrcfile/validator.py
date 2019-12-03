@@ -76,7 +76,7 @@ def validate_all(names, print_file=None):
 def validate(name, print_file=None):
     """Validate an MRC file.
     
-    This function first opens the file by calling :func:`open` (with
+    This function first opens the file by calling :func:`~mrcfile.open` (with
     ``permissive=True``), then calls :meth:`~mrcfile.mrcfile.MrcFile.validate`,
     which runs a series of tests to check whether the file complies with the
     MRC2014 format specification.
