@@ -21,7 +21,7 @@ import warnings
 import numpy as np
 
 from . import utils
-from .dtypes import HEADER_DTYPE, FEI_EXTENDED_HEADER_DTYPE
+from .dtypes import HEADER_DTYPE, FEI_EXTENDED_HEADER_DTYPE, FEI_V2_EXTENDED_HEADER_DTYPE
 from .mrcobject import MrcObject
 from .constants import MAP_ID
 
@@ -286,6 +286,8 @@ class MrcInterpreter(MrcObject):
         try:
             if self.header.exttyp == b'FEI1':
                 self._extended_header.dtype = FEI_EXTENDED_HEADER_DTYPE
+            if self.header.exttyp == b'FEI2':
+                self._extended_header.dtype = FEI_V2_EXTENDED_HEADER_DTYPE
         except ValueError:
             warnings.warn("File has exttyp '{}' but the extended header "
                           "cannot be interpreted as that type"
