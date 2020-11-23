@@ -286,7 +286,7 @@ class MrcInterpreter(MrcObject):
         try:
             if self.header.exttyp == b'FEI1':
                 self._extended_header.dtype = FEI_EXTENDED_HEADER_DTYPE
-            if self.header.exttyp == b'FEI2':
+            elif self.header.exttyp == b'FEI2':
                 self._extended_header.dtype = FEI_V2_EXTENDED_HEADER_DTYPE
         except ValueError:
             warnings.warn("File has exttyp '{}' but the extended header "
