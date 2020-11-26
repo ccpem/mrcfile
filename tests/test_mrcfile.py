@@ -63,7 +63,8 @@ class MrcFileTest(MrcObjectTest):
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map')
-        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
+        self.fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
+        self.fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc')
         
         # Set newmrc method as MrcFile constructor, to allow override by subclasses
         self.newmrc = MrcFile
@@ -162,10 +163,11 @@ class MrcFileTest(MrcObjectTest):
             assert ext[1] == (b'-X,  Y+1/2,  -Z                         '
                               b'                                        ')
     
-    def test_extended_header_from_FEI_file(self):
-        with self.newmrc(self.fei_ext_header_mrc_name) as mrc:
+    def test_extended_header_from_FEI1_file(self):
+        with self.newmrc(self.fei1_ext_header_mrc_name) as mrc:
             # FEI1 means use the fei format
             assert mrc.header['exttyp'] == b'FEI1'
+            assert mrc.header.nversion == 20140
             assert mrc.header.nsymbt == 786432
             ext = mrc.extended_header
             assert ext.nbytes == 786432
@@ -173,8 +175,27 @@ class MrcFileTest(MrcObjectTest):
             assert ext.dtype['Metadata size'] == np.dtype('|i')
             assert ext.dtype['Microscope type'] == np.dtype('|S16')
             assert ext[0]['Metadata size'] == 768
+            assert ext[0]['Metadata version'] == 0
             assert ext[0]['Microscope type'] == b'TITAN52336320'
             assert ext[0]['HT'] == 300000.0
+
+    def test_extended_header_from_FEI2_file(self):
+        with self.newmrc(self.fei2_ext_header_mrc_name) as mrc:
+            # FEI2 means use the fei format
+            assert mrc.header['exttyp'] == b'FEI2'
+            assert mrc.header.nversion == 20140
+            assert mrc.header.nsymbt == 909312
+            ext = mrc.extended_header
+            assert ext.nbytes == 909312
+            assert ext.dtype.kind == 'V'
+            assert ext.dtype['Metadata size'] == np.dtype('|i')
+            assert ext.dtype['Microscope type'] == np.dtype('|S16')
+            assert ext[0]['Metadata size'] == 888
+            assert ext[0]['Metadata version'] == 2
+            assert ext[0]['Microscope type'] == b'TITAN52337720'
+            assert ext[0]['HT'] == 300000.0
+            assert ext[0]['Scan rotation'] == 0.0
+            assert ext[0]['Detector commercial name'] == b''
     
     def test_cannot_edit_extended_header_in_read_only_mode(self):
         with self.newmrc(self.ext_header_mrc_name, mode='r') as mrc:

@@ -41,7 +41,8 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.gzip_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
         self.bzip2_mrc_name = os.path.join(self.test_data, 'EMD-3197.map.bz2')
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map')
-        self.fei_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
+        self.fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
+        self.fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc')
         
         # Set up stream to catch print output from validate()
         self.print_stream = io.StringIO()
@@ -496,7 +497,12 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with mrcfile.new(good_mrc_name_2) as mrc:
             mrc.set_data(np.arange(36, dtype=np.uint16).reshape(3, 3, 4))
         
-        return [good_mrc_name_1, good_mrc_name_2, self.fei_ext_header_mrc_name]
+        return [
+            good_mrc_name_1,
+            good_mrc_name_2,
+            self.fei1_ext_header_mrc_name,
+            self.fei2_ext_header_mrc_name
+        ]
     
     def test_validate_good_files(self):
         good_files = self.create_good_files()
