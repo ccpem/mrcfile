@@ -21,7 +21,7 @@ import warnings
 import numpy as np
 
 from . import utils
-from .dtypes import HEADER_DTYPE, FEI_EXTENDED_HEADER_DTYPE, FEI_V2_EXTENDED_HEADER_DTYPE
+from .dtypes import HEADER_DTYPE, FEI1_EXTENDED_HEADER_DTYPE, FEI2_EXTENDED_HEADER_DTYPE
 from .mrcobject import MrcObject
 from .constants import MAP_ID
 
@@ -253,7 +253,7 @@ class MrcInterpreter(MrcObject):
         extended_header attribute.
         
         If the extended header is recognised as FEI microscope metadata (by
-        'FEI1' in the header's ``exttyp`` field), its dtype is set
+        'FEI1' or 'FEI2' in the header's ``exttyp`` field), its dtype is set
         appropriately. Otherwise, the dtype is set as void (``'V1'``).
 
         Raises:
@@ -263,8 +263,8 @@ class MrcInterpreter(MrcObject):
 
         Warns:
             RuntimeWarning: If the header's ``exttyp`` field is set to 'FEI1'
-                but the extended header's size is not a multiple of the number
-                of bytes in the FEI metadata dtype.
+                or 'FEI2' but the extended header's size is not a multiple of
+                the number of bytes in the FEI metadata dtype.
             RuntimeWarning: If the stream is not long enough to contain the
                 extended header indicated by the header and ``permissive``
                 is :data:`True`.
@@ -285,9 +285,9 @@ class MrcInterpreter(MrcObject):
 
         try:
             if self.header.exttyp == b'FEI1':
-                self._extended_header.dtype = FEI_EXTENDED_HEADER_DTYPE
+                self._extended_header.dtype = FEI1_EXTENDED_HEADER_DTYPE
             elif self.header.exttyp == b'FEI2':
-                self._extended_header.dtype = FEI_V2_EXTENDED_HEADER_DTYPE
+                self._extended_header.dtype = FEI2_EXTENDED_HEADER_DTYPE
         except ValueError:
             warnings.warn("File has exttyp '{}' but the extended header "
                           "cannot be interpreted as that type"

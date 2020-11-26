@@ -177,9 +177,10 @@ class MrcObject(object):
         
         If this :class:`MrcObject` was read from a file and the extended header
         type was recognised, its dtype will be set appropriately. (Currently
-        the only supported type is ``'FEI1'``.) Otherwise, the dtype will be
-        void (raw data, dtype ``'V'``). If the actual data type of the extended
-        header is known, the dtype of the array can be changed to match.
+        the only supported types are ``'FEI1'`` and ``'FEI2'``.) Otherwise, the
+        dtype will be void (raw data, dtype ``'V'``). If the actual data type
+        of the extended header is known, the dtype of the array can be changed
+        to match.
         
         The extended header may be modified in place. To replace it completely,
         call :meth:`set_extended_header`.
@@ -599,7 +600,7 @@ class MrcObject(object):
             valid = False
         
         # Check extended header type is set to a known value
-        valid_exttypes = [b'CCP4', b'MRCO', b'SERI', b'AGAR', b'FEI1']
+        valid_exttypes = [b'CCP4', b'MRCO', b'SERI', b'AGAR', b'FEI1', b'FEI2']
         if self.header.nsymbt > 0 and self.header.exttyp not in valid_exttypes:
             log("Extended header type is undefined or unrecognised: exttyp = "
                 "'{0}'".format(self.header.exttyp.item().decode('ascii')))
