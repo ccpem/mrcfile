@@ -16,7 +16,7 @@ The names of the corresponding command line scripts can be found in the
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import sys
+import argparse
 
 import mrcfile
 
@@ -38,7 +38,12 @@ def print_headers(names=None, print_file=None):
             :data:`sys.stdout`.
     """
     if names is None:
-        names = sys.argv[1:]
+        parser = argparse.ArgumentParser(
+            description="Print the MRC header contents from a list of files."
+        )
+        parser.add_argument("filename", nargs='*', help="Input MRC file")
+        args = parser.parse_args()
+        names = args.filename
     for name in names:
         with mrcfile.open(name, permissive=True, header_only=True) as mrc:
             mrc.print_header(print_file=print_file)
