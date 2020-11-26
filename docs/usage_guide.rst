@@ -533,7 +533,7 @@ and ``z``, for the voxel size in each dimension:
    >>> with mrcfile.open('tmp.mrc') as mrc:
    ...     mrc.voxel_size
    ... 
-   rec.array(( 0.,  0.,  0.),
+   rec.array((0.,  0.,  0.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
 In a new file, the voxel size is zero by default. To set the voxel size, you
@@ -549,19 +549,19 @@ record array with ``x``, ``y`` and ``z`` fields (which must be in that order):
    >>> # Set a new isotropic voxel size:
    >>> mrc.voxel_size = 1.0
    >>> mrc.voxel_size
-   rec.array(( 1.,  1.,  1.),
+   rec.array((1.,  1.,  1.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
    >>> # Set an anisotropic voxel size using a tuple:
    >>> mrc.voxel_size = (1.0, 2.0, 3.0)
    >>> mrc.voxel_size
-   rec.array(( 1.,  2.,  3.),
+   rec.array((1.,  2.,  3.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
    >>> # And set a different anisotropic voxel size using a record array:
    >>> mrc.voxel_size = np.rec.array(( 4.,  5.,  6.), dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
    >>> mrc.voxel_size
-   rec.array(( 4.,  5.,  6.),
+   rec.array((4.,  5.,  6.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
    >>> mrc.close()
 
@@ -576,11 +576,11 @@ therefore be changed by altering the cell size:
 
    >>> # Check the current voxel size in X:
    >>> mrc.voxel_size.x
-   array(4.0, dtype=float32)
+   array(4., dtype=float32)
 
    >>> # And check the current cell dimensions:
    >>> mrc.header.cella
-   rec.array(( 20.,  10.,  6.), 
+   rec.array((20.,  10.,  6.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
    >>> # Now change the cell's X length:
@@ -588,7 +588,7 @@ therefore be changed by altering the cell size:
 
    >>> # And we see the voxel size has also changed:
    >>> mrc.voxel_size.x
-   array(2.0, dtype=float32)
+   array(2., dtype=float32)
 
    >>> mrc.close()
 
@@ -601,7 +601,7 @@ Equivalently, the cell size will be changed if a new voxel size is given:
 
    >>> # Check the current cell dimensions:
    >>> mrc.header.cella
-   rec.array(( 10.,  10.,  6.), 
+   rec.array((10.,  10.,  6.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
    >>> # Set a new voxel size:
@@ -609,7 +609,7 @@ Equivalently, the cell size will be changed if a new voxel size is given:
 
    >>> # And our cell size has been updated:
    >>> mrc.header.cella
-   rec.array(( 5.,  2.,  1.), 
+   rec.array((5.,  2.,  1.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
    >>> mrc.close()
@@ -633,7 +633,7 @@ wouldn't work so it's flagged as read-only:
    >>> vsize.x = 2.0
    >>> mrc.voxel_size = vsize
    >>> mrc.voxel_size
-   rec.array(( 2.,  1.,  1.), 
+   rec.array((2.,  1.,  1.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
    >>> mrc.close()
 
@@ -647,7 +647,7 @@ replacing the data array:
 
    >>> # Check the current voxel size:
    >>> mrc.voxel_size
-   rec.array(( 2.,  1.,  1.), 
+   rec.array((2.,  1.,  1.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
    >>> # And the current data dimensions:
    >>> mrc.data.shape
@@ -660,7 +660,7 @@ replacing the data array:
 
    >>> # ...and the voxel size has changed:
    >>> mrc.voxel_size
-   rec.array(( 2.5,  0.66666669,  1.), 
+   rec.array((2.5, 0.6666667, 1.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
    >>> mrc.close()
@@ -687,7 +687,7 @@ is valid:
 
    >>> # Let's also check the maximum value recorded in the header
    >>> mrc.header.dmax
-   array(11.0, dtype=float32)
+   array(11., dtype=float32)
    >>> mrc.header.dmax == mrc.data.max()
    True
 
@@ -702,7 +702,7 @@ is valid:
 
    >>> # The data statistics are updated as well
    >>> mrc.header.dmax
-   array(1000.0, dtype=float32)
+   array(1000., dtype=float32)
    >>> mrc.header.dmax == mrc.data.max()
    True
    >>> mrc.close()
@@ -777,14 +777,14 @@ file again, our change to the shape has disappeared:
 
    >>> # The data statistics are still incorrect:
    >>> mrc.header.dmax
-   array(1000.0, dtype=float32)
+   array(1000., dtype=float32)
    >>> mrc.header.dmax == mrc.data.max()
    False
 
    >>> # So let's update those as well:
    >>> mrc.update_header_stats()
    >>> mrc.header.dmax
-   array(0.0, dtype=float32)
+   array(0., dtype=float32)
    >>> mrc.header.dmax == mrc.data.max()
    True
    >>> mrc.close()
