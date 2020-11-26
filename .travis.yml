@@ -1,4 +1,7 @@
 os: linux
+arch:
+  - amd64
+  - arm64
 sudo: false
 language: python
 python:
