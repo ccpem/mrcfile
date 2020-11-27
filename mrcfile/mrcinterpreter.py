@@ -197,9 +197,6 @@ class MrcInterpreter(MrcObject):
         # Use a recarray to allow access to fields as attributes
         # (e.g. header.mode instead of header['mode'])
         header = np.frombuffer(header_arr, dtype=HEADER_DTYPE).reshape(()).view(np.recarray)
-        
-        # Make header writeable, because fromstring() creates a read-only array
-        header.flags.writeable = True
 
         # Check the map ID to make sure this is an MRC file. The full map ID
         # should be 'MAP ', but we check only the first three bytes because
