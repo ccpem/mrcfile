@@ -86,6 +86,13 @@ VOXEL_SIZE_DTYPE = np.dtype([
 ])
 
 
+NSTART_DTYPE = np.dtype([
+    ('x', 'i4'),
+    ('y', 'i4'),
+    ('z', 'i4')
+])
+
+
 # FEI extended header dtype for metadata version 0, as described in the EPU
 # manual. Note that the FEI documentation is unclear about the endianness of
 # the data in the extended header. Probably, it is always little-endian, and

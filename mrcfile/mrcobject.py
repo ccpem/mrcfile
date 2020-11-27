@@ -21,7 +21,7 @@ from datetime import datetime
 import numpy as np
 
 from . import utils
-from .dtypes import HEADER_DTYPE, VOXEL_SIZE_DTYPE
+from .dtypes import HEADER_DTYPE, VOXEL_SIZE_DTYPE, NSTART_DTYPE
 from .constants import (MAP_ID, MRC_FORMAT_VERSION, IMAGE_STACK_SPACEGROUP,
                         VOLUME_SPACEGROUP, VOLUME_STACK_SPACEGROUP)
 
@@ -246,7 +246,7 @@ class MrcObject(object):
         <numpy.recarray>` with three fields (x, y and z). Note that changing
         the voxel_size array in-place will *not* change the voxel size in the
         file -- to prevent this being overlooked accidentally, the writeable
-        on the voxel_size array.
+        flag is set to :data:`False` on the voxel_size array.
         
         To set the voxel size, assign a new value to the voxel_size attribute.
         You may give a single number, a 3-tuple ``(x, y ,z)`` or a modified
@@ -298,7 +298,72 @@ class MrcObject(object):
         self.header.cella.x = x_size * self.header.mx
         self.header.cella.y = y_size * self.header.my
         self.header.cella.z = z_size * self.header.mz
-    
+
+    @property
+    def nstart(self):
+        """Get or set the grid start locations.
+
+        This provides a convenient way to get and set the values of the
+        header's ``nxstart``, ``nystart`` and ``nzstart`` fields. Note that
+        these fields are integers and are measured in voxels, not angstroms.
+
+        The start locations are returned as a structured :class:`numpy record
+        array <numpy.recarray>` with three fields (x, y and z). Note that
+        changing the nstart array in-place will *not* change the values in the
+        file -- to prevent this being overlooked accidentally, the writeable
+        flag is set to :data:`False` on the nstart array.
+
+        To set the start locations, assign a new value to the nstart
+        attribute. You may give a single number, a 3-tuple ``(x, y ,z)`` or a
+        modified version of the nstart array. The following examples are all
+        equivalent:
+
+        >>> mrc.nstart = -150
+
+        >>> mrc.nstart = (-150, -150, -150)
+
+        >>> starts = mrc.nstart
+        >>> starts.flags.writeable = True
+        >>> starts.x = -150
+        >>> starts.y = -150
+        >>> starts.z = -150
+        >>> mrc.nstart = starts
+        """
+        x = self.header.nxstart
+        y = self.header.nystart
+        z = self.header.nzstart
+        nstart = np.rec.array((x, y, z), NSTART_DTYPE)
+        nstart.flags.writeable = False
+        return nstart
+
+    @nstart.setter
+    def nstart(self, nstart):
+        self._check_writeable()
+        try:
+            # First, assume we have a single numeric value
+            starts = (int(nstart),) * 3
+        except TypeError:
+            try:
+                # Not a single value. Next, if nstart is an array (as
+                # produced by the nstart getter), item() gives a 3-tuple
+                starts = nstart.item()
+            except AttributeError:
+                # If the item() method doesn't exist, assume we have a 3-tuple
+                starts = nstart
+        self._set_nstart(*starts)
+
+    def _set_nstart(self, nxstart, nystart, nzstart):
+        """Set the grid start locations.
+
+        Args:
+            nxstart: The location of the first column in the unit cell
+            nystart: The location of the first row in the unit cell
+            nzstart: The location of the first section in the unit cell
+        """
+        self.header.nxstart = nxstart
+        self.header.nystart = nystart
+        self.header.nzstart = nzstart
+
     def is_single_image(self):
         """Identify whether the file represents a single image.
         

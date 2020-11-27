@@ -442,6 +442,19 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert header.dmean < header.dmin
         assert header.dmean < header.dmax
         assert header.rms < 0
+
+    def test_getting_voxel_size(self):
+        # Need to set some data first to avoid zero division error
+        x, y, z = 4, 3, 1
+        data = np.arange(x * y, dtype=np.int16).reshape(z, y, x)
+        self.mrcobject.set_data(data)
+        voxel_size = self.mrcobject.voxel_size
+        assert voxel_size.x == 0.0
+        assert voxel_size.y == 0.0
+        assert voxel_size.z == 0.0
+        assert not voxel_size.flags.writeable
+        with self.assertRaisesRegex(ValueError, "read-only"):
+            voxel_size.x = 1.1
     
     def test_setting_voxel_size_as_single_number(self):
         x, y, z = 4, 3, 1
@@ -496,6 +509,10 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert mrcobject.voxel_size.z == 0.0
         
         voxel_size = mrcobject.voxel_size
+
+        with self.assertRaisesRegex(ValueError, "read-only"):
+            voxel_size.x = 1.1
+
         voxel_size.flags.writeable = True
         voxel_size.x = 1.1
         voxel_size.y = 2.2
@@ -504,6 +521,67 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.assertAlmostEqual(mrcobject.voxel_size.x, 1.1, places=3)
         self.assertAlmostEqual(mrcobject.voxel_size.y, 2.2, places=3)
         self.assertAlmostEqual(mrcobject.voxel_size.z, 3.3, places=3)
+
+    def test_getting_nstart(self):
+        nstart = self.mrcobject.nstart
+        assert nstart.x == 0
+        assert nstart.y == 0
+        assert nstart.z == 0
+        assert not nstart.flags.writeable
+        with self.assertRaisesRegex(ValueError, "read-only"):
+            nstart.x = 1
+
+    def test_setting_nstart_as_tuple(self):
+        x, y, z = 20, 20, 20
+        data = np.arange(x * y * z, dtype=np.int16).reshape(z, y, x)
+
+        mrcobj = self.mrcobject
+        mrcobj.set_data(data)
+        assert mrcobj.header.nxstart == 0
+        assert mrcobj.header.nystart == 0
+        assert mrcobj.header.nzstart == 0
+
+        offsets = (-1, -5, -10)
+        mrcobj.nstart = offsets
+        assert mrcobj.header.nxstart == offsets[0]
+        assert mrcobj.header.nystart == offsets[1]
+        assert mrcobj.header.nzstart == offsets[2]
+
+    def test_setting_nstart_as_single_number(self):
+        x, y, z = 20, 20, 20
+        data = np.arange(x * y * z, dtype=np.int16).reshape(z, y, x)
+
+        mrcobj = self.mrcobject
+        mrcobj.set_data(data)
+        assert mrcobj.header.nxstart == 0
+        assert mrcobj.header.nystart == 0
+        assert mrcobj.header.nzstart == 0
+
+        offset = -10
+        mrcobj.nstart = offset
+        assert mrcobj.header.nxstart == offset
+        assert mrcobj.header.nystart == offset
+        assert mrcobj.header.nzstart == offset
+
+    def test_setting_nstart_as_modified_array(self):
+        x, y, z = 20, 20, 20
+        data = np.arange(x * y * z, dtype=np.int16).reshape(z, y, x)
+
+        mrcobj = self.mrcobject
+        mrcobj.set_data(data)
+        assert mrcobj.header.nxstart == 0
+        assert mrcobj.header.nystart == 0
+        assert mrcobj.header.nzstart == 0
+
+        offsets = mrcobj.nstart
+        offsets.flags.writeable = True
+        offsets.x = 4
+        offsets.y = 100
+        offsets.z = -5
+        mrcobj.nstart = offsets
+        assert mrcobj.header.nxstart == 4
+        assert mrcobj.header.nystart == 100
+        assert mrcobj.header.nzstart == -5
     
     def test_new_header_contains_creator_label(self):
         assert self.mrcobject.header.nlabl == 1
