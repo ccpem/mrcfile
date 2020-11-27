@@ -64,6 +64,7 @@ class MrcObject(object):
     * :attr:`extended_header`
     * :attr:`data`
     * :attr:`voxel_size`
+    * :attr:`nstart`
     
     Methods:
     
@@ -243,10 +244,19 @@ class MrcObject(object):
         """Get or set the voxel size in angstroms.
         
         The voxel size is returned as a structured :class:`numpy record array
-        <numpy.recarray>` with three fields (x, y and z). Note that changing
-        the voxel_size array in-place will *not* change the voxel size in the
-        file -- to prevent this being overlooked accidentally, the writeable
-        flag is set to :data:`False` on the voxel_size array.
+        <numpy.recarray>` with three fields (x, y and z). For example:
+
+        >>> mrc.voxel_size
+        rec.array((0.44825, 0.3925, 0.45874998),
+          dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
+
+        >>> mrc.voxel_size.x
+        array(0.44825, dtype=float32)
+
+        Note that changing the voxel_size array in-place will *not* change the
+        voxel size in the file -- to prevent this being overlooked
+        accidentally, the writeable flag is set to :data:`False` on the
+        voxel_size array.
         
         To set the voxel size, assign a new value to the voxel_size attribute.
         You may give a single number, a 3-tuple ``(x, y ,z)`` or a modified
@@ -306,6 +316,14 @@ class MrcObject(object):
         This provides a convenient way to get and set the values of the
         header's ``nxstart``, ``nystart`` and ``nzstart`` fields. Note that
         these fields are integers and are measured in voxels, not angstroms.
+        For example:
+
+        >>> mrc.nstart
+        rec.array((0, -21, -12),
+          dtype=[('x', '<i4'), ('y', '<i4'), ('z', '<i4')])
+
+        >>> mrc.nstart.y
+        array(-21, dtype=int32)
 
         The start locations are returned as a structured :class:`numpy record
         array <numpy.recarray>` with three fields (x, y and z). Note that
