@@ -317,16 +317,8 @@ class MrcFileTest(MrcObjectTest):
         with self.newmrc(self.temp_mrc_name, mode='r') as mrc:
             assert mrc.header.ispg == 0
             assert not mrc.header.flags.writeable
-            if np.__version__[:4] == '1.11':
-                # The next line should raise an exception but numpy 1.11 allows
-                # it, so we open the file again below and test that the file
-                # itself was not altered.
+            with self.assertRaisesRegex(ValueError, 'read-only'):
                 mrc.header.ispg = 1
-                assert mrc.header.ispg == 1
-            else:
-                # The bug was fixed in numpy 1.12 so we test that properly
-                with self.assertRaisesRegex(ValueError, 'read-only'):
-                    mrc.header.ispg = 1
         with self.newmrc(self.temp_mrc_name, mode='r') as mrc:
             assert mrc.header.ispg == 0
     

@@ -6,6 +6,8 @@ For next version
 
 * mrcfile is now available through conda-forge (thanks to Billy Poon)
 * Fix bug in stats calculations when an empty array is passed to set_data()
+* Update Python and numpy version compatibility. Now works with Python 2.7
+  and 3.4 - 3.9, and numpy 1.12 - 1.19.
 
 Version 1.1.2 (2019-01-23)
 --------------------------
