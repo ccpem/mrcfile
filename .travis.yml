@@ -19,6 +19,6 @@ matrix:
       install: pip2 install tox-travis
       script: tox --skip-missing-interpreters
   allow_failures:
-    - os: osx
+    - arch: arm64
 install: pip install tox-travis
 script: tox
