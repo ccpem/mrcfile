@@ -200,16 +200,20 @@ class MrcInterpreter(MrcObject):
         
         # Make header writeable, because fromstring() creates a read-only array
         header.flags.writeable = True
-        
-        # Check this is an MRC file, and read machine stamp to get byte order
-        if header.map != MAP_ID:
+
+        # Check the map ID to make sure this is an MRC file. The full map ID
+        # should be 'MAP ', but we check only the first three bytes because
+        # this is the form specified in the MRC2014 paper and is used by some
+        # other software.
+        if bytes(header.map)[:3] != MAP_ID[:3]:
             msg = ("Map ID string not found - "
                    "not an MRC file, or file is corrupt")
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
             else:
                 raise ValueError(msg)
-        
+
+        # Read the machine stamp to get the file's byte order
         try:
             byte_order = utils.byte_order_from_machine_stamp(header.machst)
         except ValueError as err:

@@ -74,6 +74,29 @@ class MrcInterpreterTest(MrcObjectTest):
             assert mrc.header.mode == 1
             mrc.set_data(data * 2)
             assert mrc.header.mode == 1
+
+    def test_short_but_valid_map_id(self):
+        """This tests the case of files where the map ID is almost correct.
+        For example, MotionCor2 writes files with ID 'MAP\0', which is not
+        valid according to the MRC2014 spec on the CCP-EM website, but could
+        be considered valid according to the MRC2014 paper (which just
+        specifies 'MAP', i.e. without the final byte). We should read such
+        files without errors or warnings (but they should fail a strict
+        validation check, tested elsewhere)."""
+        stream = io.BytesIO()
+        data = np.arange(30, dtype=np.int16).reshape(5, 6)
+        with MrcInterpreter() as mrc:
+            mrc._iostream = stream
+            mrc._create_default_attributes()
+            mrc.set_data(data)
+            mrc.header.map = b'MAP\0'
+        stream.seek(0)
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            with MrcInterpreter(iostream=stream) as mrc:
+                np.testing.assert_array_equal(data, mrc.data)
+            # Ensure no warnings were raised
+            assert len(w) == 0
     
     def test_permissive_read_mode_with_wrong_map_id_and_machine_stamp(self):
         stream = io.BytesIO()

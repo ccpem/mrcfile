@@ -123,11 +123,29 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert len(w) == 1
             assert issubclass(w[0].category, RuntimeWarning)
             assert message in str(w[0].message)
-    
+
     def test_incorrect_map_id(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:
             mrc.header.map = b'fake'
         self.check_temp_mrc_invalid_with_warning("Map ID string")
+        assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
+    
+    def test_short_map_id(self):
+        """This tests the case of files where the map ID is almost correct.
+        For example, MotionCor2 writes files with ID 'MAP\0', which is not
+        valid according to the MRC2014 spec on the CCP-EM website, but could
+        be considered valid according to the MRC2014 paper (which just
+        specifies 'MAP', i.e. without the final byte). We should read such
+        files without errors or warnings, but they should fail a strict
+        validation check."""
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.header.map = b'MAP\0'
+        result = mrcfile.validate(self.temp_mrc_name,
+                                  print_file=self.print_stream)
+        assert result == False
+        print_output = self.print_stream.getvalue()
+        assert "Map ID string is incorrect" in print_output
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
