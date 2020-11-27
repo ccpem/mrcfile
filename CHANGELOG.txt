@@ -5,9 +5,16 @@ For next version
 ----------------
 
 * mrcfile is now available through conda-forge (thanks to Billy Poon)
+* Add support for FEI2-format extended headers (thanks to Michael Saur)
+* Add nstart property for convenient access to the header nxstart, nystart and
+  nzstart fields in the same style as the existing voxel_size property
+* Read files without the final ' ' space in the map ID field (for example, as
+  written by MotionCor2) without errors
+* Add help text for mrcfile-header and mrcfile-validate command line programs
 * Fix bug in stats calculations when an empty array is passed to set_data()
 * Update Python and numpy version compatibility. Now works with Python 2.7
-  and 3.4 - 3.9, and numpy 1.12 - 1.19.
+  and 3.4 - 3.9, and numpy 1.12 - 1.19
+* Minor updates to documentation
 
 Version 1.1.2 (2019-01-23)
 --------------------------
