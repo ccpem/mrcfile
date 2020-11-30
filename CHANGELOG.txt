@@ -1,8 +1,8 @@
 Change log for mrcfile
 ======================
 
-For next version
-----------------
+Version 1.2.0 (2020-11-30)
+--------------------------
 
 * mrcfile is now available through conda-forge (thanks to Billy Poon)
 * Add support for FEI2-format extended headers (thanks to Michael Saur)
