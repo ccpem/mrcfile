@@ -488,8 +488,8 @@ class MrcFileTest(MrcObjectTest):
             
             # Check data has been converted to mode 2
             np.testing.assert_array_equal(mrc.data, data)
-            assert mrc.header.mode == 2
-            assert mrc.data.dtype == np.float32
+            assert mrc.header.mode == 12
+            assert mrc.data.dtype == np.float16
     
     def test_writing_image_mode_4_native_byte_order(self):
         data = create_test_complex64_array()

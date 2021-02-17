@@ -52,7 +52,7 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert dtype == np.dtype(np.uint16)
     
     def test_undefined_modes_raise_exception(self):
-        for mode in (x for x in range(-33, 34, 1) if x not in [0, 1, 2, 4, 6]):
+        for mode in (x for x in range(-33, 34, 1) if x not in [0, 1, 2, 4, 6, 12]):
             with self.assertRaises(ValueError):
                 utils.dtype_from_mode(mode)
     
@@ -68,9 +68,9 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
         dtype = utils.dtype_from_mode(np.array([1]))
         assert dtype == np.dtype(np.int16)
     
-    def test_float16_dtype_is_converted_to_mode_2(self):
+    def test_float16_dtype_is_converted_to_mode_12(self):
         mode = utils.mode_from_dtype(np.dtype(np.float16))
-        assert mode == 2
+        assert mode == 12
     
     def test_float32_dtype_is_converted_to_mode_2(self):
         mode = utils.mode_from_dtype(np.dtype(np.float32))

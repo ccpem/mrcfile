@@ -91,7 +91,7 @@ def data_shape_from_header(header):
     return shape
 
 
-_dtype_to_mode = dict(f2=2, f4=2, i1=0, i2=1, u1=6, u2=6, c8=4)
+_dtype_to_mode = dict(f2=12, f4=2, i1=0, i2=1, u1=6, u2=6, c8=4)
 
 def mode_from_dtype(dtype):
     """Return the MRC mode number corresponding to the given :class:`numpy
@@ -99,7 +99,7 @@ def mode_from_dtype(dtype):
     
     The conversion is as follows:
     
-    * float16   -> mode 2 (data will be widened to 32 bits in the file)
+    * float16   -> mode 12
     * float32   -> mode 2
     * int8      -> mode 0
     * int16     -> mode 1
@@ -130,7 +130,8 @@ _mode_to_dtype = { 0: np.int8,
                    1: np.int16,
                    2: np.float32,
                    4: np.complex64,
-                   6: np.uint16 }
+                   6: np.uint16,
+                   12: np.float16 }
 
 def dtype_from_mode(mode):
     """Return the :class:`numpy dtype <numpy.dtype>` corresponding to the given
@@ -146,6 +147,7 @@ def dtype_from_mode(mode):
     * mode 2 -> float32
     * mode 4 -> complex64
     * mode 6 -> uint16
+    * mode 12 -> float16
     
     Note that mode 3 is not supported as there is no matching numpy dtype.
     

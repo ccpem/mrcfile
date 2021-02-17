@@ -311,11 +311,11 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert self.mrcobject.data.dtype == np.uint16
         assert self.mrcobject.header.mode == 6
     
-    def test_float16_dtype_is_widened_in_mode_2(self):
+    def test_float16_dtype_is_preserved_in_mode_12(self):
         data = np.arange(6, dtype=np.float16).reshape(3, 2)
         self.mrcobject.set_data(data)
-        assert self.mrcobject.data.dtype == np.float32
-        assert self.mrcobject.header.mode == 2
+        assert self.mrcobject.data.dtype == np.float16
+        assert self.mrcobject.header.mode == 12
     
     def test_uint8_dtype_is_widened_in_mode_6(self):
         data = np.arange(6, dtype=np.uint8).reshape(3, 2)

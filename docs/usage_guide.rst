@@ -925,7 +925,7 @@ MRC mode numbers are:
 =========  ========
 Data type  MRC mode
 =========  ========
-float16       2 (note that data will be widened to 32 bits in the file)
+float16       12 (see note below)
 float32       2
 int8          0
 int16         1
@@ -934,7 +934,12 @@ uint16        6
 complex64     4
 =========  ========
 
-(Mode 3 is not supported since there is no corresponding numpy dtype.)
+(Mode 3 and the proposed 4-bit mode 101 are not supported since there are no
+corresponding numpy dtypes.)
+
+Note that mode 12 is a proposed extension to the MRC2014 format and is not yet
+widely supported by other software. If you need to write float16 data to MRC
+files in a compatible way, you should cast to float32 first and use mode 2.
 
 No other data types are accepted, including integer types of more than 16 bits,
 or float types of more than 32 bits. Many numpy array creation routines use
@@ -959,6 +964,14 @@ int64 or float64 dtypes by default, which means you will need to give a
           [0, 0, 0, 0, 0]], dtype=int16)
 
    >>> mrc.close()
+
+Warning: be careful if you have an existing numpy array in float64, int64 or
+int32 data types. If they try to convert them into one of the narrower types
+supported by ``mrcfile`` and they contain values outside the range of the
+target type, the values will silently overflow. For floating point formats
+this can lead to ``inf`` values, and with integers it can lead to entirely
+meaningless values. A full discussion of this issue is outside the scope of
+this guide; see the numpy documentation for more information.
 
 Validating MRC files
 --------------------
