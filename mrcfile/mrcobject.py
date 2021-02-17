@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 from datetime import datetime
+import warnings
 
 import numpy as np
 
@@ -531,8 +532,16 @@ class MrcObject(object):
         self._check_writeable()
 
         if self.data.size > 0:
-            self.header.dmin = self.data.min()
-            self.header.dmax = self.data.max()
+            min = self.data.min()
+            max = self.data.max()
+
+            if np.isnan(min):
+                warnings.warn("Data array contains NaN values", RuntimeWarning)
+            if np.isinf(min) or np.isinf(max):
+                warnings.warn("Data array contains infinite values", RuntimeWarning)
+
+            self.header.dmin = min
+            self.header.dmax = max
 
             # Use a float64 accumulator to calculate mean and standard deviation
             # This prevents overflow errors during calculation

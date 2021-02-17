@@ -443,6 +443,35 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert header.dmean < header.dmax
         assert header.rms < 0
 
+    def test_warning_for_stats_with_nan(self):
+        data = np.arange(6, dtype=np.float32).reshape(3, 2)
+        data[1,1] = np.NaN
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.mrcobject.set_data(data)
+            assert len(w) == 1
+            assert str(w[0].message) == "Data array contains NaN values"
+            header = self.mrcobject.header
+            assert np.isnan(header.dmin)
+            assert np.isnan(header.dmax)
+            assert np.isnan(header.dmean)
+            assert np.isnan(header.rms)
+
+    def test_warning_for_stats_with_inf(self):
+        data = np.arange(6, dtype=np.float32).reshape(3, 2)
+        data[0,1] = np.inf
+        data[1,1] = -np.inf
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            self.mrcobject.set_data(data)
+            assert len(w) > 1
+            assert str(w[0].message) == "Data array contains infinite values"
+            header = self.mrcobject.header
+            assert header.dmin == np.NINF
+            assert header.dmax == np.inf
+            assert np.isnan(header.dmean)
+            assert np.isnan(header.rms)
+
     def test_getting_voxel_size(self):
         # Need to set some data first to avoid zero division error
         x, y, z = 4, 3, 1
