@@ -17,10 +17,11 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import argparse
+import sys
 
 from . import load_functions
 
-def main():
+def main(args=None):
     """
     Validate a list of MRC files given as command arguments.
     
@@ -32,6 +33,8 @@ def main():
         ``0`` if all command arguments are names of valid MRC files. ``1`` if
         no file names are given or any of the files is not a valid MRC file.
     """
+    if args is None:
+        args = sys.argv[1:]
     parser = argparse.ArgumentParser(
         description="Validate a list of MRC files. Exit status is 0 if all "
                     "input files are valid, or 1 if any input file is "
@@ -39,7 +42,7 @@ def main():
                     "files are written to the standard output."
     )
     parser.add_argument("filename", nargs='*', help="Input MRC file")
-    args = parser.parse_args()
+    args = parser.parse_args(args)
     names = args.filename
     if validate_all(names):
         return 0

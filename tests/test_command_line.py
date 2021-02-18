@@ -16,7 +16,7 @@ import sys
 import tempfile
 import unittest
 
-from mrcfile import command_line
+from mrcfile import command_line, validator
 from . import helpers
 
 
@@ -56,7 +56,21 @@ class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
         super(CommandLineTest, self).tearDown()
-    
+
+    def test_print_header_no_args(self):
+        command_line.print_headers([], print_file=self.print_stream)
+        assert len(self.print_stream.getvalue()) == 0
+        assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
+
+    def test_print_header_nonexistent_file(self):
+        with self.assertRaisesRegex(IOError, "No such file"):
+            command_line.print_headers(["nonexistent.mrc"],
+                                       print_file=self.print_stream)
+        assert len(self.print_stream.getvalue()) == 0
+        assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
+
     def test_print_header(self):
         command_line.print_headers(self.files, print_file=self.print_stream)
         printed = self.print_stream.getvalue()
@@ -65,6 +79,20 @@ class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert "machst          : [68 65  0  0]" in printed
         assert "::::EMDATABANK.org::::EMD-3197::::" in printed
         assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
+
+    def test_validate_no_args(self):
+        result = validator.main([])
+        assert result == 0
+        assert len(self.print_stream.getvalue()) == 0
+        assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
+    
+    def test_validate(self):
+        result = validator.main(self.files)
+        assert result == 1
+        stdout = str(sys.stdout.getvalue())
+        assert "File does not declare MRC format version 20140" in stdout
         assert len(sys.stderr.getvalue()) == 0
 
 
