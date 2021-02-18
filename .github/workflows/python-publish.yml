@@ -29,15 +29,15 @@ jobs:
       run: |
         python setup.py sdist bdist_wheel
 
+    - name: Publish distribution 📦 to PyPI
+      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
     - name: Publish distribution 📦 to Test PyPI
       if: github.event_name == 'workflow_dispatch'
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
-
-    - name: Publish distribution 📦 to PyPI
-      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.PYPI_API_TOKEN }}
