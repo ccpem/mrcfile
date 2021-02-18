@@ -30,7 +30,7 @@ jobs:
         python setup.py sdist bdist_wheel
 
     - name: Publish distribution 📦 to PyPI
-      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+      if: github.event_name == 'release'
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.PYPI_API_TOKEN }}
