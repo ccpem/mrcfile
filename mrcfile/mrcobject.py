@@ -211,6 +211,9 @@ class MrcObject(object):
         and updates the header to match the new data dimensions. The data
         statistics (min, max, mean and rms) stored in the header will also be
         updated.
+
+        Warns:
+            RuntimeWarning: If the data array contains Inf or NaN values.
         """
         self._check_writeable()
         
@@ -528,6 +531,9 @@ class MrcObject(object):
         
         Note that this can take some time with large files, particularly with
         files larger than the currently available memory.
+
+        Warns:
+            RuntimeWarning: If the data array contains Inf or NaN values.
         """
         self._check_writeable()
 

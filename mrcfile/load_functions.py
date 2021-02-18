@@ -52,6 +52,9 @@ def new(name, data=None, compression=None, overwrite=False):
         :exc:`ValueError`: If the file already exists and overwrite is
             :data:`False`.
         :exc:`ValueError`: If the compression format is not recognised.
+
+    Warns:
+        RuntimeWarning: If the data array contains Inf or NaN values.
     """
     if compression == 'gzip':
         NewMrc = GzipMrcFile
