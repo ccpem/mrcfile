@@ -1,6 +1,18 @@
 Change log for mrcfile
 ======================
 
+Version 1.3.0 (2021-02-18)
+--------------------------
+
+* Add support for the new proposed data mode 12 (numpy float16). Note that
+  this causes a change in behaviour: previously float16 arrays would be
+  widened to float32 and saved in mode 2; now they will be kept in float16 and
+  saved in mode 12, which could be incompatible with other software.
+* Issue Python warnings if NaN or infinite values are found when a new data
+  array is passed to set_data() (or if update_header_stats() is called).
+* Update numpy version compatibility to include numpy 1.20
+* Minor updates to documentation
+
 Version 1.2.0 (2020-11-30)
 --------------------------
 
