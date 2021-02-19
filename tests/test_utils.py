@@ -136,7 +136,7 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_bool_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
-            utils.mode_from_dtype(np.dtype(np.bool))
+            utils.mode_from_dtype(np.dtype(bool))
     
     def test_object_dtype_raises_exception(self):
         with self.assertRaises(ValueError):
