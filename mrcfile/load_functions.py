@@ -17,13 +17,13 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import os
 
+from . import utils
 from .bzip2mrcfile import Bzip2MrcFile
 from .constants import MAP_ID, MAP_ID_OFFSET_BYTES
 from .future_mrcfile import FutureMrcFile
 from .gzipmrcfile import GzipMrcFile
 from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
-from . import utils
 
 
 def new(name, data=None, compression=None, overwrite=False):
@@ -137,6 +137,19 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
                 NewMrc = Bzip2MrcFile
     return NewMrc(name, mode=mode, permissive=permissive,
                   header_only=header_only)
+
+
+def read(name):
+    """Read an MRC file into a numpy array.
+
+    This function provides a simple interface for reading MRC files.
+
+    Args:
+        name: The file name to read.
+    """
+    with open(name, mode='r', permissive=True) as mrc:
+        data = mrc.data.copy()
+    return data
 
 
 def open_async(name, mode='r', permissive=False):
