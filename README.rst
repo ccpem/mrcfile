@@ -98,8 +98,9 @@ To open an MRC file and read a slice of data::
 
 To create a new file with a 2D data array, and change some values::
 
+    >>> array = np.zeros((5, 5), dtype=np.int8)
     >>> with mrcfile.new('tmp.mrc') as mrc:
-    ...     mrc.set_data(np.zeros((5, 5), dtype=np.int8))
+    ...     mrc.set_data(array)
     ...     mrc.data[1:4,1:4] = 10
     ...     mrc.data
     ... 
