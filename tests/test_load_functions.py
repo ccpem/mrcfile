@@ -49,6 +49,12 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with mrcfile.open(self.example_mrc_name) as mrc:
             assert repr(mrc) == ("MrcFile('{0}', mode='r')"
                                  .format(self.example_mrc_name))
+
+    def test_read_function(self):
+        volume = mrcfile.read(self.example_mrc_name)
+        assert isinstance(volume, np.ndarray)
+        assert volume.shape, volume.dtype == ((20, 20, 20), np.float32)
+        assert volume.flags.writeable is True
     
     def test_gzip_opening(self):
         with mrcfile.open(self.gzip_mrc_name) as mrc:
