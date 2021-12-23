@@ -23,6 +23,15 @@ introduction, see the :doc:`overview <readme>`.
    os.chdir(old_cwd)
    shutil.rmtree(tempdir)
 
+Opening vs. reading in mrcfile
+----------------------------------------
+
+Opening a file returns an an instance of the
+:class:`~mrcfile.mrcfile.MrcFile` class which represents an MRC file on
+disk.
+Reading returns an in-memory copy file of the file's contents as a
+`numpy array`, without the associated header or extended header.
+
 Opening MRC files
 -----------------
 
@@ -139,6 +148,14 @@ need to open MRC files, but it is also possible to directly instantiate
    ...     mrc
    ...
    MrcMemmap('tmp.mrc', mode='r')
+
+Reading MRC files
+-----------------
+Data from MRC files can be read using the :func:`mrcfile.read` function.
+.. doctest::
+
+   >>> data = mrcfile.read('tmp.mrc')
+   >>> # do things...
 
 Dealing with large files
 ~~~~~~~~~~~~~~~~~~~~~~~~
