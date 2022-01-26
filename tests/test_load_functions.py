@@ -198,5 +198,15 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
             assert file_size == mrc.header.nbytes + mrc.data.nbytes
 
+    def test_write(self):
+        data_in = np.random.random((10, 10)).astype(np.float16)
+        mrcfile.write(self.temp_mrc_name, data_in)
+        with mrcfile.open(self.temp_mrc_name) as mrc:
+            data_out = mrc.data
+            voxel_size = mrc.voxel_size
+        assert np.allclose(data_in, data_out)
+        for attr in 'xyz':
+            assert getattr(voxel_size, attr) == 0
+
 if __name__ == '__main__':
     unittest.main()
