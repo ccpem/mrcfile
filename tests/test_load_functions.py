@@ -208,5 +208,6 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         for attr in 'xyz':
             assert getattr(voxel_size, attr) == 0
 
+
 if __name__ == '__main__':
     unittest.main()
