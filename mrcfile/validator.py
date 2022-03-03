@@ -80,20 +80,23 @@ def validate_all(names, print_file=None):
     return all(validate(name, print_file) for name in names)
 
 
-def validate(name, print_file=None):
+def validate(name, print_file=None, permissive=True):
     """Validate an MRC file.
     
-    This function first opens the file by calling :func:`~mrcfile.open` (with
-    ``permissive=True``), then calls :meth:`~mrcfile.mrcfile.MrcFile.validate`,
-    which runs a series of tests to check whether the file complies with the
-    MRC2014 format specification.
+    This function first opens the file by calling :func:`~mrcfile.open` 
+    (defaulting to ``permissive=True``), then calls 
+    :meth:`~mrcfile.mrcfile.MrcFile.validate`, which runs a series of tests to
+    check whether the file complies with the MRC2014 format specification.
     
     If the file is completely valid, this function returns :data:`True`,
     otherwise it returns :data:`False`. Messages explaining the validation
     result will be printed to :data:`sys.stdout` by default, but if a text
     stream is given (using the ``print_file`` argument) output will be printed
     to that instead.
-    
+
+    If permissiveness is set to False, test failures raise Exceptions instead
+    of warning messages.
+
     Badly invalid files will also cause :mod:`warning <warnings>` messages to
     be issued, which will be written to :data:`sys.stderr` by default. See the
     documentation of the :mod:`warnings` module for information on how to
@@ -137,6 +140,9 @@ def validate(name, print_file=None):
             the validation. This is passed directly to the ``file`` argument of
             Python's :func:`print` function. The default is :data:`None`, which
             means output will be printed to :data:`sys.stdout`.
+        permissive: boolean representing how permissive of test failures the
+            validation process is; `True` keeps testing through failures,
+            `False` raises an Exception on the first failure.
     
     Returns:
         :data:`True` if the file is valid, or :data:`False` if the file does
@@ -150,8 +156,11 @@ def validate(name, print_file=None):
             ID string, an incorrect machine stamp, an unknown mode number, or
             is not the same size as expected from the header.
     """
-    with load_functions.open(name, permissive=True) as mrc:
-        return mrc.validate(print_file=print_file)
+    with load_functions.open(name, permissive=permissive) as mrc:
+        try:
+          return mrc.validate(print_file=print_file)
+        except ValueError as e:
+            return False
 
 
 if __name__ == '__main__':
