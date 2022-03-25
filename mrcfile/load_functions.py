@@ -208,7 +208,7 @@ def mmap(name, mode='r', permissive=False):
     return MrcMemmap(name, mode=mode, permissive=permissive)
 
 
-def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False):
+def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False, extended_header=None, exttyp=None):
     """Create a new, empty memory-mapped MRC file.
 
     This function is useful for creating very large files. The initial contents
@@ -245,6 +245,8 @@ def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False):
         overwrite: Flag to force overwriting of an existing file. If
             :data:`False` and a file of the same name already exists, the file
             is not overwritten and an exception is raised.
+        extended_header: The extended header object
+        exttyp: The extended header type
 
     Returns:
         A new :class:`~mrcfile.mrcmemmap.MrcMemmap` object.
@@ -255,6 +257,15 @@ def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False):
             :data:`False`.
     """
     mrc = MrcMemmap(name, mode='w+', overwrite=overwrite)
+
+    # Add the extended header and type. We need to do this before creating the
+    # memory mapped file to avoid having to copy lots of data
+    if extended_header is not None:
+        mrc._extended_header = extended_header
+        mrc.header.nsymbt = extended_header.nbytes
+    if exttyp is not None:
+        mrc.header.exttyp = exttyp
+
     dtype = utils.dtype_from_mode(mrc_mode)
     mrc._open_memmap(dtype, shape)
     mrc.update_header_from_data()
