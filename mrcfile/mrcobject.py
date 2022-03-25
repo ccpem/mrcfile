@@ -538,21 +538,35 @@ class MrcObject(object):
         self._check_writeable()
 
         if self.data.size > 0:
-            min = self.data.min()
-            max = self.data.max()
 
-            if np.isnan(min):
-                warnings.warn("Data array contains NaN values", RuntimeWarning)
-            if np.isinf(min) or np.isinf(max):
-                warnings.warn("Data array contains infinite values", RuntimeWarning)
+            # The behaviour of complex values in mrcfiles is slightly
+            # ambiguous. It is legal to save complex data but header
+            # information needs to be in floating point format. Therefore, we
+            # set min, max and mean to be NaN but set the RMS as expected
+            if self.data.dtype in [ np.complex64 ]:
+            
+                self.header.dmin = np.nan
+                self.header.dmax = np.nan
+                self.header.dmean = np.nan
+                self.header.rms = np.float32(self.data.std())
 
-            self.header.dmin = min
-            self.header.dmax = max
+            else:
 
-            # Use a float64 accumulator to calculate mean and standard deviation
-            # This prevents overflow errors during calculation
-            self.header.dmean = np.float32(self.data.mean(dtype=np.float64))
-            self.header.rms = np.float32(self.data.std(dtype=np.float64))
+                min = self.data.min()
+                max = self.data.max()
+
+                if np.isnan(min):
+                    warnings.warn("Data array contains NaN values", RuntimeWarning)
+                if np.isinf(min) or np.isinf(max):
+                    warnings.warn("Data array contains infinite values", RuntimeWarning)
+
+                self.header.dmin = min
+                self.header.dmax = max
+
+                # Use a float64 accumulator to calculate mean and standard deviation
+                # This prevents overflow errors during calculation
+                self.header.dmean = np.float32(self.data.mean(dtype=np.float64))
+                self.header.rms = np.float32(self.data.std(dtype=np.float64))
         else:
             self.reset_header_stats()
     
