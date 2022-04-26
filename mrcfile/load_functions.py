@@ -71,44 +71,6 @@ def new(name, data=None, compression=None, overwrite=False):
     return mrc
 
 
-def write(name, data=None, compression=None, overwrite=False, voxel_size=None):
-    """Write a new MRC file.
-
-    Args:
-        name: The file name to use.
-        data: Data to put in the file, as a :class:`numpy array
-            <numpy.ndarray>`. The default is :data:`None`, to create an empty
-            file.
-        compression: The compression format to use. Acceptable values are:
-            :data:`None` (the default; for no compression), ``'gzip'`` or
-            ``'bzip2'``.
-            It's good practice to name compressed files with an appropriate
-            extension (for example, ``.mrc.gz`` for gzip) but this is not
-            enforced.
-        overwrite: Flag to force overwriting of an existing file. If
-            :data:`False` and a file of the same name already exists, the file
-            is not overwritten and an exception is raised.
-        voxel_size: float | 3-tuple
-            The voxel size to be written in the file header.
-
-    Returns:
-        An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        subclass of it if ``compression`` is specified).
-
-    Raises:
-        :exc:`ValueError`: If the file already exists and overwrite is
-            :data:`False`.
-        :exc:`ValueError`: If the compression format is not recognised.
-
-    Warns:
-        RuntimeWarning: If the data array contains Inf or NaN values.
-    """
-    mrc = new(name, data, compression, overwrite)
-    if voxel_size is not None:
-        mrc.voxel_size = voxel_size
-    mrc.close()
-
-
 def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssignment
     """Open an MRC file.
     
@@ -188,6 +150,44 @@ def read(name):
     with open(name, mode='r', permissive=True) as mrc:
         data = mrc.data.copy()
     return data
+
+
+def write(name, data=None, compression=None, overwrite=False, voxel_size=None):
+    """Write a new MRC file.
+
+    Args:
+        name: The file name to use.
+        data: Data to put in the file, as a :class:`numpy array
+            <numpy.ndarray>`. The default is :data:`None`, to create an empty
+            file.
+        compression: The compression format to use. Acceptable values are:
+            :data:`None` (the default; for no compression), ``'gzip'`` or
+            ``'bzip2'``.
+            It's good practice to name compressed files with an appropriate
+            extension (for example, ``.mrc.gz`` for gzip) but this is not
+            enforced.
+        overwrite: Flag to force overwriting of an existing file. If
+            :data:`False` and a file of the same name already exists, the file
+            is not overwritten and an exception is raised.
+        voxel_size: float | 3-tuple
+            The voxel size to be written in the file header.
+
+    Returns:
+        An :class:`~mrcfile.mrcfile.MrcFile` object (or a
+        subclass of it if ``compression`` is specified).
+
+    Raises:
+        :exc:`ValueError`: If the file already exists and overwrite is
+            :data:`False`.
+        :exc:`ValueError`: If the compression format is not recognised.
+
+    Warns:
+        RuntimeWarning: If the data array contains Inf or NaN values.
+    """
+    mrc = new(name, data, compression, overwrite)
+    if voxel_size is not None:
+        mrc.voxel_size = voxel_size
+    mrc.close()
 
 
 def open_async(name, mode='r', permissive=False):
