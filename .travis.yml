@@ -19,13 +19,17 @@ jobs:
   include:
     - arch: amd64
       python: "3.7"
-      install: pip install importlib_metadata tox-travis
+      install: pip install --upgrade importlib_metadata tox-travis
     - arch: arm64
       python: "3.7"
     - arch: ppc64le
       python: "3.7"
     - arch: s390x
       python: "3.7"
+      install:
+        - ls -l /home/travis/.cache/pip
+        - ls -l /home/travis/.cache/pip/wheels
+        - pip install tox-travis
     - os: osx
       language: generic
       install: pip2 install tox-travis
