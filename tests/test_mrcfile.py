@@ -172,7 +172,10 @@ class MrcFileTest(MrcObjectTest):
             ext = mrc.extended_header
             assert ext.nbytes == 786432
             assert ext.dtype.kind == 'V'
-            assert ext.dtype['Metadata size'] == np.dtype('|i')
+            # Most fields (e.g. Metadata size) are little-endian in this file
+            assert ext.dtype['Metadata size'] == np.dtype('<i4')
+            # Bitmasks should always be little-endian
+            assert ext.dtype['Bitmask 1'] == np.dtype('<u4')
             assert ext.dtype['Microscope type'] == np.dtype('|S16')
             assert ext[0]['Metadata size'] == 768
             assert ext[0]['Metadata version'] == 0
@@ -188,7 +191,10 @@ class MrcFileTest(MrcObjectTest):
             ext = mrc.extended_header
             assert ext.nbytes == 909312
             assert ext.dtype.kind == 'V'
-            assert ext.dtype['Metadata size'] == np.dtype('|i')
+            # Most fields (e.g. Metadata size) are little-endian in this file
+            assert ext.dtype['Metadata size'] == np.dtype('<i4')
+            # Bitmasks should always be little-endian
+            assert ext.dtype['Bitmask 1'] == np.dtype('<u4')
             assert ext.dtype['Microscope type'] == np.dtype('|S16')
             assert ext[0]['Metadata size'] == 888
             assert ext[0]['Metadata version'] == 2
