@@ -155,9 +155,11 @@ def read(name):
 def write(name, data=None, overwrite=False, voxel_size=None):
     """Write a new MRC file.
 
-    If the given file name ends with ``.gz`` or ``.bz2``, gzip or bzip2 compression
-    is applied automatically. For more control over the usage of compression, use
-    :func:`mrcfile.new` instead.
+    This is a convenience function to allow data to be quickly written to a file (with
+    optional compression) using just a single function call. However, there is no
+    control over the file's metadata except for optionally setting the voxel size. For
+    more control, or if you need access to an :class:`~mrcfile.mrcfile.MrcFile` object
+    representing the new file, use :func:`mrcfile.new` instead.
 
     Args:
         name: The file name to use. If the name ends with ``.gz`` or ``.bz2``, the file
@@ -171,14 +173,9 @@ def write(name, data=None, overwrite=False, voxel_size=None):
         voxel_size: float | 3-tuple
             The voxel size to be written in the file header.
 
-    Returns:
-        An :class:`~mrcfile.mrcfile.MrcFile` object (or a
-        subclass of it if ``compression`` is specified).
-
     Raises:
         :exc:`ValueError`: If the file already exists and overwrite is
             :data:`False`.
-        :exc:`ValueError`: If the compression format is not recognised.
 
     Warns:
         RuntimeWarning: If the data array contains Inf or NaN values.
@@ -188,10 +185,9 @@ def write(name, data=None, overwrite=False, voxel_size=None):
         compression = 'gzip'
     elif name.endswith('.bz2'):
         compression = 'bzip2'
-    mrc = new(name, data, compression, overwrite)
-    if voxel_size is not None:
-        mrc.voxel_size = voxel_size
-    mrc.close()
+    with new(name, data, compression, overwrite) as mrc:
+        if voxel_size is not None:
+            mrc.voxel_size = voxel_size
 
 
 def open_async(name, mode='r', permissive=False):
