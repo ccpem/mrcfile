@@ -23,23 +23,14 @@ introduction, see the :doc:`overview <readme>`.
    os.chdir(old_cwd)
    shutil.rmtree(tempdir)
 
-Opening vs. reading in mrcfile
-----------------------------------------
-
-Opening a file returns an an instance of the
-:class:`~mrcfile.mrcfile.MrcFile` class which represents an MRC file on
-disk.
-Reading returns an in-memory copy file of the file's contents as a
-`numpy array`, without the associated header or extended header.
-
 Opening MRC files
 -----------------
 
-MRC files should usually be opened using the :func:`mrcfile.new` or
+MRC files can be opened using the :func:`mrcfile.new` or
 :func:`mrcfile.open` functions. These return an instance of the
 :class:`~mrcfile.mrcfile.MrcFile` class, which represents an MRC file on disk
 and makes the file's header, extended header and data available for read and
-write access as `numpy arrays`_:
+write access as `numpy arrays`_. :
 
 .. _numpy arrays: https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
 
@@ -62,8 +53,29 @@ write access as `numpy arrays`_:
           [ 4,  5,  6,  7],
           [ 8,  9, 10, 11]], dtype=int8)
 
-The :func:`~mrcfile.new` and :func:`~mrcfile.open` functions can also handle
-gzip- or bzip2-compressed files very easily:
+Alternatively, for even quicker access to MRC data but with minimal control of
+the file header, you can use the :func:`~mrcfile.read` and
+:func:`~mrcfile.write` functions. These do not return
+:class:`~mrcfile.mrcfile.MrcFile` objects but instead work directly with
+`numpy arrays`_:
+
+.. doctest::
+
+   >>> # First, create a simple dataset
+   >>> import numpy as np
+   >>> example_data_2 = np.arange(6, dtype=np.int8).reshape(3, 2)
+
+   >>> # Write the data to a new MRC file:
+   >>> mrcfile.write('tmp2.mrc', example_data_2)
+
+   >>> # Read it back:
+   >>> mrcfile.read('tmp2.mrc')
+   array([[0, 1],
+          [2, 3],
+          [4, 5]], dtype=int8)
+
+All of these functions can also handle gzip- or bzip2-compressed files very
+easily:
 
 .. doctest::
 
@@ -83,13 +95,20 @@ gzip- or bzip2-compressed files very easily:
    >>> with mrcfile.new('tmp.mrc.bz2', compression='bzip2') as mrc:
    ...     mrc.set_data(example_data * 3)
    ... 
-   >>> # Open it again with the normal open function:
-   >>> with mrcfile.open('tmp.mrc.bz2') as mrc:
-   ...     mrc.data
-   ... 
+   >>> # Open it again with the normal read function:
+   >>> mrcfile.read('tmp.mrc.bz2')
    array([[ 0,  3,  6,  9],
           [12, 15, 18, 21],
           [24, 27, 30, 33]], dtype=int8)
+
+   >>> # The write function applies compression automatically based on the file name
+   >>> mrcfile.write('tmp2.mrc.gz', example_data * 4)
+
+   >>> # The new file is opened as a GzipMrcFile object:
+   >>> with mrcfile.open('tmp2.mrc.gz') as mrc:
+   ...     print(mrc)
+   ...
+   GzipMrcFile('tmp2.mrc.gz', mode='r')
 
 :class:`~mrcfile.mrcfile.MrcFile` objects should be closed when they are
 finished with, to ensure any changes are flushed to disk and the underlying
