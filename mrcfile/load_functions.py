@@ -140,12 +140,18 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
 
 
 def read(name):
-    """Read an MRC file into a numpy array.
+    """Read an MRC file's data into a numpy array.
 
-    This function provides a simple interface for reading MRC files.
+    This is a convenience function to read the data from an MRC file when there is no
+    need for the file's header information. To read the headers as well, or if you need
+    access to an :class:`~mrcfile.mrcfile.MrcFile` object representing the file, use
+    :func:`mrcfile.open` instead.
 
     Args:
         name: The file name to read.
+
+    Returns:
+        A :class:`numpy array<numpy.ndarray>` containing the data from the file.
     """
     with open(name, mode='r', permissive=True) as mrc:
         data = mrc.data.copy()
