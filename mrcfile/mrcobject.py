@@ -538,20 +538,13 @@ class MrcObject(object):
         self._check_writeable()
 
         if self.data.size > 0:
-
-            # The behaviour of complex values in mrcfiles is slightly
-            # ambiguous. It is legal to save complex data but header
-            # information needs to be in floating point format. Therefore, we
-            # set min, max and mean to be NaN but set the RMS as expected
-            if self.data.dtype in [ np.complex64 ]:
-            
-                self.header.dmin = np.nan
-                self.header.dmax = np.nan
-                self.header.dmean = np.nan
-                self.header.rms = np.float32(self.data.std())
-
+            # Header stats are always in float32. If we have complex data, this doesn't
+            # make sense so leave min, max and mean at their default un-set values
+            if self.data.dtype == np.complex64:
+                # Avoid overflow by using a complex128 accumulator and avoid
+                # ComplexWarning by explicitly taking the real part
+                self.header.rms = np.float32(self.data.std(dtype=np.complex128).real)
             else:
-
                 min = self.data.min()
                 max = self.data.max()
 
