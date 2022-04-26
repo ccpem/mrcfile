@@ -129,8 +129,8 @@ class MrcFileTest(MrcObjectTest):
             # Calculate some statistics for all values
             calc_max = mrc.data.max()
             calc_min = mrc.data.min()
-            calc_mean = mrc.data.mean()
-            calc_std = mrc.data.std()
+            calc_mean = mrc.data.mean(dtype=np.float64)
+            calc_std = mrc.data.std(dtype=np.float64)
             calc_sum = mrc.data.sum()
             
             # Compare calculated values with header records
