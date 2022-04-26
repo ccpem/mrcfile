@@ -206,13 +206,21 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_write(self):
         data_in = np.random.random((10, 10)).astype(np.float16)
-        mrcfile.write(self.temp_mrc_name, data_in)
+        mrcfile.write(self.temp_mrc_name, data_in, voxel_size=1.1)
         with mrcfile.open(self.temp_mrc_name) as mrc:
             data_out = mrc.data
             voxel_size = mrc.voxel_size
         assert np.allclose(data_in, data_out)
-        for attr in 'xyz':
-            assert getattr(voxel_size, attr) == 0
+        self.assertAlmostEqual(voxel_size.x, 1.1)
+        self.assertAlmostEqual(voxel_size.y, 1.1)
+        self.assertAlmostEqual(voxel_size.z, 1.1)
+
+    def test_write_with_auto_compression(self):
+        data_in = np.random.random((10, 10)).astype(np.float16)
+        filename = self.temp_mrc_name + '.gz'
+        mrcfile.write(filename, data_in)
+        with mrcfile.open(filename) as mrc:
+            assert isinstance(mrc, GzipMrcFile)
 
 
 if __name__ == '__main__':

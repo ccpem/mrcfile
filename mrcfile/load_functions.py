@@ -152,20 +152,19 @@ def read(name):
     return data
 
 
-def write(name, data=None, compression=None, overwrite=False, voxel_size=None):
+def write(name, data=None, overwrite=False, voxel_size=None):
     """Write a new MRC file.
 
+    If the given file name ends with ``.gz`` or ``.bz2``, gzip or bzip2 compression
+    is applied automatically. For more control over the usage of compression, use
+    :func:`mrcfile.new` instead.
+
     Args:
-        name: The file name to use.
+        name: The file name to use. If the name ends with ``.gz`` or ``.bz2``, the file
+            will be compressed using gzip or bzip2 respectively.
         data: Data to put in the file, as a :class:`numpy array
             <numpy.ndarray>`. The default is :data:`None`, to create an empty
             file.
-        compression: The compression format to use. Acceptable values are:
-            :data:`None` (the default; for no compression), ``'gzip'`` or
-            ``'bzip2'``.
-            It's good practice to name compressed files with an appropriate
-            extension (for example, ``.mrc.gz`` for gzip) but this is not
-            enforced.
         overwrite: Flag to force overwriting of an existing file. If
             :data:`False` and a file of the same name already exists, the file
             is not overwritten and an exception is raised.
@@ -184,6 +183,11 @@ def write(name, data=None, compression=None, overwrite=False, voxel_size=None):
     Warns:
         RuntimeWarning: If the data array contains Inf or NaN values.
     """
+    compression = None
+    if name.endswith('.gz'):
+        compression = 'gzip'
+    elif name.endswith('.bz2'):
+        compression = 'bzip2'
     mrc = new(name, data, compression, overwrite)
     if voxel_size is not None:
         mrc.voxel_size = voxel_size
