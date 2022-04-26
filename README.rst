@@ -3,8 +3,8 @@ mrcfile.py
 
 |build-status| |readthedocs| |python-versions| |pypi-version| |conda-forge-version|
 
-.. |build-status| image:: https://travis-ci.org/ccpem/mrcfile.svg?branch=master
-    :target: https://travis-ci.org/ccpem/mrcfile
+.. |build-status| image:: https://app.travis-ci.com/ccpem/mrcfile.svg?branch=master
+    :target: https://app.travis-ci.com/github/ccpem/mrcfile
     :alt: Build Status
 
 .. |readthedocs| image:: https://readthedocs.org/projects/mrcfile/badge/
