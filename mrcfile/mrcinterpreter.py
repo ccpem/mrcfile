@@ -284,7 +284,9 @@ class MrcInterpreter(MrcObject):
 
         self._extended_header = np.frombuffer(ext_header_arr, dtype='V1')
 
-        dtype = get_ext_header_dtype(self.header.exttyp)
+        # Use the header's byte order for the extended header
+        dtype = get_ext_header_dtype(self.header.exttyp,
+                                     self.header.mode.dtype.byteorder)
         if dtype is not None:
             try:
                 self._extended_header.dtype = dtype
