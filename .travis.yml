@@ -1,3 +1,4 @@
+# Matrix for standard jobs
 os: linux
 arch:
   - amd64
@@ -11,13 +12,19 @@ python:
   - "3.7"
   - "3.8"
   - "3.9"
+install: pip install tox-travis
+script: tox
+
+# Adjustments for specific platforms
 jobs:
+  exclude:
+    - arch: amd64
+      python: "3.7"
   include:
+    - arch: amd64
+      python: "3.7"
+      install: pip install importlib_metadata tox-travis
     - language: generic
       os: osx
       install: pip2 install tox-travis
       script: tox --skip-missing-interpreters
-  allow_failures:
-    - arch: arm64
-install: pip install tox-travis
-script: tox
