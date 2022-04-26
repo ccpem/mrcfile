@@ -88,5 +88,5 @@ jobs:
     # Mac build
     - os: osx
       language: generic
-      install: pip2 install tox-travis
+      install: pip2 install tox
       script: tox --skip-missing-interpreters
