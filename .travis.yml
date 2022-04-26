@@ -1,9 +1,6 @@
-# Matrix for standard jobs
+# Default settings and matrix for amd64 jobs (except Python 3.7)
 os: linux
-arch:
-  - amd64
-  - arm64
-  - ppc64le
+arch: amd64
 language: python
 cache: pip
 python:
@@ -18,51 +15,78 @@ script: tox
 jobs:
   include:
     # Python 3.7 has numpy install failures on amd64
-    # Add all Python 3.7 jobs explicitly with adjustment of install script for amd64
+    # Add job explicitly with adjustment of install script
+    # Also use this job to test the docs build
     - arch: amd64
-      cache: pip
       python: "3.7"
       install: pip install --upgrade importlib_metadata tox-travis
+      script: tox -e py37-numpy{1.16,1.17,1.18,1.19,1.20,1.21},docs
+
+    # ARM
+    - arch: arm64
+      python: "2.7"
+    - arch: arm64
+      python: "3.6"
+      # Skip numpy 1.18 because the installation fails
+      script: tox -e py36-numpy{1.16,1.17,1.19}
     - arch: arm64
       python: "3.7"
+      # Skip numpy 1.18 because the installation fails
+      script: tox -e py37-numpy{1.16,1.17,1.19,1.20,1.21}
+    - arch: arm64
+      python: "3.8"
+      # Skip numpy 1.18 because the installation fails
+      script: tox -e py38-numpy{1.17,1.19,1.20,1.21,1.22}
+    - arch: arm64
+      python: "3.9"
+
+    # PPC
     - arch: ppc64le
-      cache: pip
+      python: "2.7"
+    - arch: ppc64le
+      python: "3.6"
+    - arch: ppc64le
       python: "3.7"
+    - arch: ppc64le
+      python: "3.8"
+      # Skip numpy 1.22 because the installation fails
+      script: tox -e py38-numpy{1.17,1.18,1.19,1.20,1.21}
+    - arch: ppc64le
+      python: "3.9"
+      # Skip numpy 1.22 because the installation fails
+      script: tox -e py39-numpy{1.19,1.20,1.21}
+
     # s390x build image has a pip cache permissions problem (except for Python 2.7)
     # List all s390x jobs explicitly with adjusted install scripts
     - arch: s390x
-      cache: pip
       python: "2.7"
-      install: pip install tox-travis
     - arch: s390x
-      cache: pip
       python: "3.6"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
         - pip install tox-travis
     - arch: s390x
-      cache: pip
       python: "3.7"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
         - pip install tox-travis
     - arch: s390x
-      cache: pip
       python: "3.8"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
         - pip install tox-travis
+      # Skip numpy 1.22 because the installation fails
+      script: tox -e py38-numpy{1.17,1.18,1.19,1.20,1.21}
     - arch: s390x
-      cache: pip
       python: "3.9"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
         - pip install tox-travis
+      # Skip numpy 1.22 because the installation fails
+      script: tox -e py39-numpy{1.19,1.20,1.21}
+
     # Mac build
     - os: osx
       language: generic
       install: pip2 install tox-travis
       script: tox --skip-missing-interpreters
-  # Allow failures on ARM because numpy 1.18 fails to install properly
-  allow_failures:
-    - arch: arm64
