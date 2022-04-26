@@ -9,7 +9,6 @@ language: python
 python:
   - "2.7"
   - "3.6"
-  - "3.7"
   - "3.8"
   - "3.9"
 install: pip install tox-travis
@@ -21,8 +20,14 @@ jobs:
     - arch: amd64
       python: "3.7"
       install: pip install importlib_metadata tox-travis
-    - language: python
-      os: osx
+    - arch: arm64
+      python: "3.7"
+    - arch: ppc64le
+      python: "3.7"
+    - arch: s390x
+      python: "3.7"
+    - os: osx
+      language: generic
       install: pip2 install tox-travis
       script: tox --skip-missing-interpreters
   # Allow failures on ARM because numpy 1.18 fails to install properly
