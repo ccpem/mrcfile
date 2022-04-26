@@ -20,7 +20,7 @@ jobs:
     - arch: amd64
       python: "3.7"
       install: pip install --upgrade importlib_metadata tox-travis
-      script: tox -e py37-numpy{1.16,1.17,1.18,1.19,1.20,1.21},docs
+      script: tox -e "py37-numpy{1.16,1.17,1.18,1.19,1.20,1.21},docs"
 
     # ARM
     - arch: arm64
@@ -28,15 +28,15 @@ jobs:
     - arch: arm64
       python: "3.6"
       # Skip numpy 1.18 because the installation fails
-      script: tox -e py36-numpy{1.16,1.17,1.19}
+      script: tox -e "py36-numpy{1.16,1.17,1.19}"
     - arch: arm64
       python: "3.7"
       # Skip numpy 1.18 because the installation fails
-      script: tox -e py37-numpy{1.16,1.17,1.19,1.20,1.21}
+      script: tox -e "py37-numpy{1.16,1.17,1.19,1.20,1.21}"
     - arch: arm64
       python: "3.8"
       # Skip numpy 1.18 because the installation fails
-      script: tox -e py38-numpy{1.17,1.19,1.20,1.21,1.22}
+      script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22}"
     - arch: arm64
       python: "3.9"
 
@@ -50,11 +50,11 @@ jobs:
     - arch: ppc64le
       python: "3.8"
       # Skip numpy 1.22 because the installation fails
-      script: tox -e py38-numpy{1.17,1.18,1.19,1.20,1.21}
+      script: tox -e "py38-numpy{1.17,1.18,1.19,1.20,1.21}"
     - arch: ppc64le
       python: "3.9"
       # Skip numpy 1.22 because the installation fails
-      script: tox -e py39-numpy{1.19,1.20,1.21}
+      script: tox -e "py39-numpy{1.19,1.20,1.21}"
 
     # s390x build image has a pip cache permissions problem (except for Python 2.7)
     # List all s390x jobs explicitly with adjusted install scripts
@@ -76,14 +76,14 @@ jobs:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
         - pip install tox-travis
       # Skip numpy 1.22 because the installation fails
-      script: tox -e py38-numpy{1.17,1.18,1.19,1.20,1.21}
+      script: tox -e "py38-numpy{1.17,1.18,1.19,1.20,1.21}"
     - arch: s390x
       python: "3.9"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
         - pip install tox-travis
       # Skip numpy 1.22 because the installation fails
-      script: tox -e py39-numpy{1.19,1.20,1.21}
+      script: tox -e "py39-numpy{1.19,1.20,1.21}"
 
     # Mac build
     - os: osx
