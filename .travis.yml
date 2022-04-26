@@ -65,7 +65,4 @@ jobs:
       script: tox --skip-missing-interpreters
   # Allow failures on ARM because numpy 1.18 fails to install properly
   allow_failures:
-    - arch:
-      - arm64
-      - ppc64le
-      - s390x
+    - arch: arm64
