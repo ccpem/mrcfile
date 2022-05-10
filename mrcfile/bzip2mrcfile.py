@@ -54,12 +54,13 @@ class Bzip2MrcFile(MrcFile):
         self._iostream = bz2.BZ2File(self._fname, mode='r')
     
     def _get_file_size(self):
-        """Override _get_file_size() to avoid seeking from end."""
+        """Override _get_file_size() to ensure stream is readable first."""
         self._ensure_readable_stream()
         return super(Bzip2MrcFile, self)._get_file_size()
 
     def _read_bytearray_from_stream(self, number_of_bytes):
-        """Override because BZ2File in Python 2 does not support :meth:`~io.BufferedIOBase.readinto`."""
+        """Override because BZ2File in Python 2 does not support
+        :meth:`~io.BufferedIOBase.readinto`."""
         if hasattr(self._iostream, "readinto"):
             # Python 3 - BZ2File supports ``readinto()`` so we just use the normal implementation
             return super(Bzip2MrcFile, self)._read_bytearray_from_stream(number_of_bytes)
@@ -76,7 +77,7 @@ class Bzip2MrcFile(MrcFile):
             self._iostream.close()
             self._iostream = bz2.BZ2File(self._fname, mode='w')
             
-            # Arrays converted to bytes so gzip can calculate sizes correctly
+            # Arrays converted to bytes so bz2 can calculate sizes correctly
             self._iostream.write(self.header.tobytes())
             self._iostream.write(self.extended_header.tobytes())
             self._iostream.write(self.data.tobytes())
