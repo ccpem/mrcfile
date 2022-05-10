@@ -17,6 +17,7 @@ from __future__ import (absolute_import, division, print_function,
 
 
 import gzip
+import os
 
 from .mrcfile import MrcFile
 
@@ -60,6 +61,7 @@ class GzipMrcFile(MrcFile):
         self._ensure_readable_gzip_stream()
         pos = self._iostream.tell()
         extra = len(self._iostream.read())
+        self._iostream.seek(pos, os.SEEK_SET)
         return pos + extra
     
     def flush(self):

@@ -297,11 +297,16 @@ class MrcInterpreter(MrcObject):
 
         self._extended_header.flags.writeable = not self._read_only
     
-    def _read_data(self):
+    def _read_data(self, max_bytes=0):
         """Read the data array from the stream.
         
         This method uses information from the header to set the data array's
         shape and dtype.
+
+        Args:
+            max_bytes: Read at most this many bytes from the stream. If zero or
+                negative, the full size of the data block as defined in the header
+                will be read, even if this is very large.
 
         Raises:
             :exc:`ValueError`: If the stream is not long enough to contain the
@@ -329,6 +334,16 @@ class MrcInterpreter(MrcObject):
         nbytes = dtype.itemsize
         for axis_length in shape:
             nbytes *= axis_length
+
+        if max_bytes > 0 and nbytes > max_bytes:
+            msg = ("Expected {0} bytes in data block but limit is {1}"
+                   .format(nbytes, max_bytes))
+            if self._permissive:
+                warnings.warn(msg, RuntimeWarning)
+                self._data = None
+                return
+            else:
+                raise ValueError(msg)
 
         data_arr, bytes_read = self._read_bytearray_from_stream(nbytes)
         

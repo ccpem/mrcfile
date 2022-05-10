@@ -117,11 +117,28 @@ class MrcMemmap(MrcFile):
         header_nbytes = self.header.nbytes + self.header.nsymbt
         
         self._iostream.flush()
-        self._data = np.memmap(self._iostream,
-                               dtype=dtype,
-                               mode=acc_mode,
-                               offset=header_nbytes,
-                               shape=shape)
+        try:
+            self._data = np.memmap(self._iostream,
+                                   dtype=dtype,
+                                   mode=acc_mode,
+                                   offset=header_nbytes,
+                                   shape=shape)
+        except ValueError as ex:
+            if self._permissive:
+                warnings.warn("Error opening memmap", RuntimeWarning)
+                self._data = None
+            else:
+                raise ex
+
+        # Check if the file is the expected size.
+        if self.data is not None:
+            file_size = self._get_file_size()
+            remaining_file_size = file_size - header_nbytes
+            data_size = self.data.nbytes
+            if data_size < remaining_file_size:
+                msg = ("MRC file is {0} bytes larger than expected"
+                       .format(remaining_file_size - data_size))
+                warnings.warn(msg, RuntimeWarning)
     
     def _close_data(self):
         """Delete the existing memmap array, if it exists.

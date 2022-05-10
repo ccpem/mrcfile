@@ -303,10 +303,40 @@ class MrcFileTest(MrcObjectTest):
             mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
             assert mrc.header.mz == 2
             mrc.header.mz = mrc.header.nz = 3
-        expected_error_msg = ("Expected 72 bytes in data block "
-                              "but could only read 48")
+        expected_error_msg = ("Expected 72 bytes in data block"
+                              " but limit is 48")
         with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
+
+    def test_data_is_not_read_if_dimensions_are_too_huge(self):
+        # Prepare x, y and z counts to try to trigger an out-of-memory error
+        # The individual values need to fit in int32 values to be stored in the header
+        # and their product must be as large as possible while still less than
+        # sys.maxsize (if larger, it triggers an index overflow error instead)
+        max_i4 = np.iinfo('i4').max
+        max_arr = sys.maxsize
+        nx = max_i4
+        ny = min(max_i4, max_arr // nx)
+        nz = min(max_i4, max_arr // (nx * ny))
+        # Check that an allocation of this size really does cause a memory error
+        with self.assertRaises(MemoryError):
+            _ = bytearray(nx * ny * nz)
+
+        # Now put these values into a file
+        with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
+            mrc.set_data(np.arange(24, dtype=np.int8).reshape(2, 3, 4))
+            mrc.header.mx = mrc.header.nx = nx
+            mrc.header.my = mrc.header.ny = ny
+            mrc.header.mz = mrc.header.nz = nz
+
+        # And now check that if we open the file, we avoid the problem and don't try
+        # to allocate enough memory to cause an out-of-memory error
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            with self.newmrc(self.temp_mrc_name, permissive=True) as mrc:
+                assert mrc.data is None
+            assert len(w) == 1
+            assert issubclass(w[0].category, RuntimeWarning)
     
     def test_can_edit_header_in_read_write_mode(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:

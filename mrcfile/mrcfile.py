@@ -128,17 +128,21 @@ class MrcFile(MrcInterpreter):
         """Override _read() to move back to start of file first."""
         self._iostream.seek(0)
         super(MrcFile, self)._read(header_only)
-        
+
+    def _read_data(self):
+        """Override _read_data() to check file size matches data block size."""
+        file_size = self._get_file_size()
+        header_size = self.header.nbytes + self.header.nsymbt
+        remaining_file_size = file_size - header_size
+
+        super(MrcFile, self)._read_data(max_bytes=remaining_file_size)
+
         # Check if the file is the expected size.
         if self.data is not None:
-            actual_size = self._get_file_size()
-            expected_size = (self.header.nbytes
-                             + self.extended_header.nbytes
-                             + self.data.nbytes)
-            
-            if actual_size > expected_size:
+            data_size = self.data.nbytes
+            if data_size < remaining_file_size:
                 msg = ("MRC file is {0} bytes larger than expected"
-                       .format(actual_size - expected_size))
+                       .format(remaining_file_size - data_size))
                 warnings.warn(msg, RuntimeWarning)
     
     def _get_file_size(self):
