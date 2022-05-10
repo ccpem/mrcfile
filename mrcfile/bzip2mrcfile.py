@@ -45,17 +45,24 @@ class Bzip2MrcFile(MrcFile):
     
     def _read(self, header_only=False):
         """Override _read() to ensure bzip2 file is in read mode."""
-        self._ensure_readable_stream()
+        self._ensure_readable_bzip2_stream()
         super(Bzip2MrcFile, self)._read(header_only)
     
-    def _ensure_readable_stream(self):
+    def _ensure_readable_bzip2_stream(self):
         """Make sure _iostream is a bzip2 stream that can be read."""
-        self._iostream.close()
-        self._iostream = bz2.BZ2File(self._fname, mode='r')
+        if hasattr(self._iostream, "readable"):
+            # Python 3
+            readable = self._iostream.readable()
+        else:
+            # Python 2
+            readable = (self._iostream.mode[0] == 'r')
+        if not readable:
+            self._iostream.close()
+            self._iostream = bz2.BZ2File(self._fname, mode='r')
     
     def _get_file_size(self):
         """Override _get_file_size() to ensure stream is readable first."""
-        self._ensure_readable_stream()
+        self._ensure_readable_bzip2_stream()
         return super(Bzip2MrcFile, self)._get_file_size()
 
     def _read_bytearray_from_stream(self, number_of_bytes):
