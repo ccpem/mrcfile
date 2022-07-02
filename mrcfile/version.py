@@ -1,8 +1,8 @@
-# Copyright (c) 2016, Science and Technology Facilities Council
+# Copyright (c) 2022, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 
 """Stand-alone module for version number which can be imported or executed with
 no dependencies.
 """
 
-__version__ = '1.3.0'
+__version__ = '1.4.0'

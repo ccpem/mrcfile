@@ -1,6 +1,23 @@
 Change log for mrcfile
 ======================
 
+Version 1.4.0 (2022-07-02)
+--------------------------
+
+* Change default MRC format version from 20140 to 20141 and update validation
+  to allow files with both format numbers as valid.
+* Add mrcfile.read() and mrcfile.write() functions for quick one-off accesses
+  to the MRC data array without needing to keep an MrcFile object open (thanks
+  to Alister Burt).
+* Allow the extended header to be set when creating a file with
+  mrcfile.new_mmap() (thanks to James Parkhurst).
+* Add file size checks to avoid allocating huge amounts of memory when opening
+  corrupt or non-MRC files in permissive mode.
+* Update numpy and Python version compatibility to drop support for Python
+  3.4 and 3.5 and numpy < 1.16, and add support for numpy 1.21 and 1.22.
+* Fix bug intepreting FEI extended headers on big-endian hardware.
+* Documentation updates.
+
 Version 1.3.0 (2021-02-18)
 --------------------------
 
