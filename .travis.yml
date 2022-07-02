@@ -70,31 +70,31 @@ jobs:
     - arch: s390x
       python: "3.6"
       install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
     - arch: s390x
       python: "3.7"
       install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
     - arch: s390x
       python: "3.8"
       install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
       # Skip numpy 1.22 because the installation fails
       script: tox -e "py38-numpy{1.17,1.18,1.19,1.20,1.21}"
     - arch: s390x
       python: "3.9"
       install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
       # Skip numpy 1.22 because the installation fails
       script: tox -e "py39-numpy{1.19,1.20,1.21}"
     - arch: s390x
       python: "3.10"
       install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
       # Skip numpy 1.22 because the installation fails
       script: tox -e "py310-numpy{1.21,1.23}"
