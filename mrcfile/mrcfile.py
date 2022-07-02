@@ -177,7 +177,9 @@ class MrcFile(MrcInterpreter):
            ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
            ``0x11 0x11 0x00 0x00``.
         #. MRC mode: the ``mode`` field should be one of the supported mode
-           numbers: 0, 1, 2, 4 or 6.
+           numbers: 0, 1, 2, 4, 6 or 12. (Note that MRC modes 3 and 101 are
+           also valid according to the MRC 2014 specification but are not
+           supported by mrcfile.)
         #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
            ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z``
            must all be positive numbers.
@@ -189,8 +191,8 @@ class MrcFile(MrcInterpreter):
         #. Header labels: The ``nlabl`` field should be set to indicate the
            number of labels in use, and the labels in use should appear first
            in the label array.
-        #. MRC format version: The ``nversion`` field should be 20140 for
-           compliance with the MRC2014 standard.
+        #. MRC format version: The ``nversion`` field should be 20140 or 20141
+           for compliance with the MRC2014 standard.
         #. Extended header type: If an extended header is present, the
            ``exttyp`` field should be set to indicate the type of extended
            header.

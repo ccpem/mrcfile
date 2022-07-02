@@ -149,7 +149,7 @@ def dtype_from_mode(mode):
     * mode 6 -> uint16
     * mode 12 -> float16
     
-    Note that mode 3 is not supported as there is no matching numpy dtype.
+    Note that modes 3 and 101 are not supported as there is no matching numpy dtype.
     
     Args:
         mode: The MRC mode number. This may be given as any type which can be

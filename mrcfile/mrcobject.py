@@ -23,8 +23,8 @@ import numpy as np
 
 from . import utils
 from .dtypes import HEADER_DTYPE, VOXEL_SIZE_DTYPE, NSTART_DTYPE
-from .constants import (MAP_ID, MRC_FORMAT_VERSION, IMAGE_STACK_SPACEGROUP,
-                        VOLUME_SPACEGROUP, VOLUME_STACK_SPACEGROUP)
+from .constants import (MAP_ID, IMAGE_STACK_SPACEGROUP, VOLUME_SPACEGROUP,
+                        VOLUME_STACK_SPACEGROUP)
 
 
 class MrcObject(object):
@@ -141,7 +141,7 @@ class MrcObject(object):
         self._header = np.zeros(shape=(), dtype=HEADER_DTYPE).view(np.recarray)
         header = self._header
         header.map = MAP_ID
-        header.nversion = MRC_FORMAT_VERSION
+        header.nversion = 20141  # current MRC 2014 format version
         header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)
         
         # Default space group is P1
@@ -589,7 +589,7 @@ class MrcObject(object):
         """Validate this MrcObject.
         
         This method runs a series of tests to check whether this object
-        complies with the MRC2014 format specification:
+        complies strictly with the MRC2014 format specification:
         
         #. MRC format ID string: The header's ``map`` field must contain
            "MAP ".
@@ -597,7 +597,9 @@ class MrcObject(object):
            ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
            ``0x11 0x11 0x00 0x00``.
         #. MRC mode: the ``mode`` field should be one of the supported mode
-           numbers: 0, 1, 2, 4 or 6.
+           numbers: 0, 1, 2, 4, 6 or 12. (Note that MRC modes 3 and 101 are
+           also valid according to the MRC 2014 specification but are not
+           supported by mrcfile.)
         #. Map and cell dimensions: The header fields ``nx``, ``ny``, ``nz``,
            ``mx``, ``my``, ``mz``, ``cella.x``, ``cella.y`` and ``cella.z``
            must all be positive numbers.
@@ -610,8 +612,8 @@ class MrcObject(object):
            number of labels in use, and the labels in use should appear first
            in the label array (that is, there should be no blank labels between
            text-filled ones).
-        #. MRC format version: The ``nversion`` field should be 20140 for
-           compliance with the MRC2014 standard.
+        #. MRC format version: The ``nversion`` field should be 20140 or 20141
+           for compliance with the MRC2014 standard.
         #. Extended header type: If an extended header is present, the
            ``exttyp`` field should be set to indicate the type of extended
            header.
@@ -702,13 +704,13 @@ class MrcObject(object):
             valid = False
         
         # Check MRC format version
-        if self.header.nversion != MRC_FORMAT_VERSION:
-            log("File does not declare MRC format version 20140: nversion = {0}"
-                .format(self.header.nversion))
+        if self.header.nversion not in (20140, 20141):
+            log("File does not declare MRC format version 20140 or 20141: nversion ="
+                " {0}".format(self.header.nversion))
             valid = False
         
         # Check extended header type is set to a known value
-        valid_exttypes = [b'CCP4', b'MRCO', b'SERI', b'AGAR', b'FEI1', b'FEI2']
+        valid_exttypes = [b'CCP4', b'MRCO', b'SERI', b'AGAR', b'FEI1', b'FEI2', b'HDF5']
         if self.header.nsymbt > 0 and self.header.exttyp not in valid_exttypes:
             log("Extended header type is undefined or unrecognised: exttyp = "
                 "'{0}'".format(self.header.exttyp.item().decode('ascii')))

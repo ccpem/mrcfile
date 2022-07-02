@@ -118,7 +118,7 @@ and keep the file open.
 To validate an MRC file::
 
     >>> mrcfile.validate('tests/test_data/EMD-3197.map')
-    File does not declare MRC format version 20140: nversion = 0
+    File does not declare MRC format version 20140 or 20141: nversion = 0
     False
 
     >>> mrcfile.validate('tmp.mrc')

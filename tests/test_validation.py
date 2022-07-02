@@ -79,7 +79,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert result == False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140: nversion = 0")
+                                        "version 20140 or 20141: nversion = 0")
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -88,7 +88,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert result == False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140: nversion = 0")
+                                        "version 20140 or 20141: nversion = 0")
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -97,7 +97,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert result == False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140: nversion = 0")
+                                        "version 20140 or 20141: nversion = 0")
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -106,7 +106,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert result == False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140: nversion = 0\n"
+                                        "version 20140 or 20141: nversion = 0\n"
                                         "Extended header type is undefined or "
                                         "unrecognised: exttyp = ''")
         assert len(sys.stdout.getvalue()) == 0
@@ -321,6 +321,16 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                 "text-containing labels" in print_output)
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
+
+    def test_old_format_version(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.header.nversion = 20140
+        result = mrcfile.validate(self.temp_mrc_name,
+                                  print_file=self.print_stream)
+        assert result == True
+        print_output = self.print_stream.getvalue()
+        assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
     
     def test_incorrect_format_version(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:
@@ -329,7 +339,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                   print_file=self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert "File does not declare MRC format version 20140" in print_output
+        assert "File does not declare MRC format version 20140 or 20141" in print_output
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     

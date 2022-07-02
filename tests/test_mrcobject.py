@@ -65,7 +65,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_default_header_is_correct(self):
         header = self.mrcobject.header
         assert header.map == b'MAP '
-        assert header.nversion == constants.MRC_FORMAT_VERSION
+        assert header.nversion == 20141
         
         byte_order = '<' if sys.byteorder == 'little' else '>'
         expected_machst = utils._byte_order_to_machine_stamp[byte_order]

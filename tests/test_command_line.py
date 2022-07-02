@@ -92,7 +92,7 @@ class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = validator.main(self.files)
         assert result == 1
         stdout = str(sys.stdout.getvalue())
-        assert "File does not declare MRC format version 20140" in stdout
+        assert "File does not declare MRC format version 20140 or 20141" in stdout
         assert len(sys.stderr.getvalue()) == 0
 
 
