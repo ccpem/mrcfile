@@ -26,6 +26,9 @@ introduction, see the :doc:`overview <readme>`.
 Opening MRC files
 -----------------
 
+Normal file access
+~~~~~~~~~~~~~~~~~~
+
 MRC files can be opened using the :func:`mrcfile.new` or
 :func:`mrcfile.open` functions. These return an instance of the
 :class:`~mrcfile.mrcfile.MrcFile` class, which represents an MRC file on disk
@@ -53,6 +56,9 @@ write access as `numpy arrays`_. :
           [ 4,  5,  6,  7],
           [ 8,  9, 10, 11]], dtype=int8)
 
+Simple data access
+~~~~~~~~~~~~~~~~~~
+
 Alternatively, for even quicker access to MRC data but with minimal control of
 the file header, you can use the :func:`~mrcfile.read` and
 :func:`~mrcfile.write` functions. These do not return
@@ -74,8 +80,11 @@ the file header, you can use the :func:`~mrcfile.read` and
           [2, 3],
           [4, 5]], dtype=int8)
 
-All of these functions can also handle gzip- or bzip2-compressed files very
-easily:
+Handling compressed files
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All of the functions shown above can also handle gzip- or bzip2-compressed
+files very easily:
 
 .. doctest::
 
@@ -110,6 +119,9 @@ easily:
    ...
    GzipMrcFile('tmp2.mrc.gz', mode='r')
 
+Closing files and writing to disk
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 :class:`~mrcfile.mrcfile.MrcFile` objects should be closed when they are
 finished with, to ensure any changes are flushed to disk and the underlying
 file object is closed:
@@ -139,6 +151,9 @@ writes the MRC data to disk but leaves the file open:
    >>> # continue using the file...
    >>> mrc.close()  # close the file when finished
 
+MrcFile subclasses
+~~~~~~~~~~~~~~~~~~
+
 For most purposes, the top-level functions in :mod:`mrcfile` should be all you
 need to open MRC files, but it is also possible to directly instantiate
 :class:`~mrcfile.mrcfile.MrcFile` and its subclasses,
@@ -167,134 +182,6 @@ need to open MRC files, but it is also possible to directly instantiate
    ...     mrc
    ...
    MrcMemmap('tmp.mrc', mode='r')
-
-Reading MRC files
------------------
-Data from MRC files can be read using the :func:`mrcfile.read` function.
-.. doctest::
-
-   >>> data = mrcfile.read('tmp.mrc')
-   >>> # do things...
-
-Dealing with large files
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-``mrcfile`` provides two ways of improving performance when handling large
-files: memory mapping and asynchronous (background) opening. `Memory mapping`_
-treats the file's data on disk as if it is already in memory, and only actually
-loads the data in small chunks when it is needed. `Asynchronous opening`_ uses
-a separate thread to open the file, allowing the main thread to carry on with
-other work while the file is loaded from disk in parallel.
-
-.. _Memory mapping: https://en.wikipedia.org/wiki/Memory-mapped_file
-.. _Asynchronous opening: https://en.wikipedia.org/wiki/Asynchronous_I/O
-
-Which technique is better depends on what you intend to do with the file and
-the characteristics of your computer, and it's usually worth testing both
-approaches and seeing what works best for your particular task. In general,
-memory mapping gives better performance when dealing with a single file,
-particularly if the file is very large. If you need to process several files,
-asynchronous opening can be faster because you can work on one file while
-loading the next one.
-
-Memory-mapped files
-^^^^^^^^^^^^^^^^^^^
-
-With very large files, it might be helpful to use the :func:`mrcfile.mmap`
-function to open the file, which will open the data as a
-:class:`memory-mapped numpy array <numpy.memmap>`. The contents of the array
-are only read from disk as needed, so this allows large files to be opened very
-quickly. Parts of the data can then be read and written by slicing the array:
-
-.. doctest::
-   :options: +NORMALIZE_WHITESPACE
-
-   >>> # Open the file in memory-mapped mode
-   >>> mrc = mrcfile.mmap('tmp.mrc', mode='r+')
-   >>> # Now read part of the data by slicing
-   >>> mrc.data[1:3]
-   memmap([[ 4,  5,  6,  7],
-           [ 8,  9, 10, 11]], dtype=int8)
-
-   >>> # Set some values by assigning to a slice
-   >>> mrc.data[1:3,1:3] = 0
-
-   >>> # Read the entire array - with large files this might take a while!
-   >>> mrc.data[:]
-   memmap([[ 0,  1,  2,  3],
-           [ 4,  0,  0,  7],
-           [ 8,  0,  0, 11]], dtype=int8)
-   >>> mrc.close()
-
-To create new large, empty files quickly, use the :func:`mrcfile.new_mmap`
-function. This creates an empty file with a given shape and data mode. An
-optional fill value can be provided but filling a very large mmap array can
-take a long time, so it's best to use this only when needed. If you plan to
-fill the array with other data anyway, it's better to leave the fill value as
-:data:`None`. A typical use case would be to create a new file and then fill
-it slice by slice:
-
-.. doctest::
-   :options: +NORMALIZE_WHITESPACE
-
-   >>> # Make a new, empty memory-mapped MRC file
-   >>> mrc = mrcfile.new_mmap('mmap.mrc', shape=(3, 3, 4), mrc_mode=0)
-   >>> # Fill each slice with a different value
-   >>> for val in range(len(mrc.data)):
-   ...     mrc.data[val] = val
-   ...
-   >>> mrc.data[:]
-   memmap([[[0, 0, 0, 0],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]],
-   <BLANKLINE>
-           [[1, 1, 1, 1],
-            [1, 1, 1, 1],
-            [1, 1, 1, 1]],
-   <BLANKLINE>
-           [[2, 2, 2, 2],
-            [2, 2, 2, 2],
-            [2, 2, 2, 2]]], dtype=int8)
-
-Asynchronous opening
-^^^^^^^^^^^^^^^^^^^^
-
-When processing several files in a row, asynchronous (background) opening can
-improve performance by allowing you to open multiple files in parallel. The
-:func:`mrcfile.open_async` function starts a background thread to open a file,
-and returns a :class:`~mrcfile.future_mrcfile.FutureMrcFile` object which you
-can call later to get the file after it's been opened:
-
-.. doctest::
-
-   >>> # Open the first example file
-   >>> mrc1 = mrcfile.open('tmp.mrc')
-   >>> # Start opening the second example file before we process the first
-   >>> future_mrc2 = mrcfile.open_async('tmp.mrc.gz')
-   >>> # Now we'll do some calculations with the first file
-   >>> mrc1.data.sum()
-   36
-   >>> # Get the second file from its "Future" container ('result()' will wait
-   >>> # until the file is ready)
-   >>> mrc2 = future_mrc2.result()
-   >>> # Before we process the second file, we'll start the third one opening
-   >>> future_mrc3 = mrcfile.open_async('tmp.mrc.bz2')
-   >>> mrc2.data.max()
-   22
-   >>> # Finally, we'll get the third file and process it
-   >>> mrc3 = future_mrc3.result()
-   >>> mrc3.data
-   array([[ 0,  3,  6,  9],
-          [12, 15, 18, 21],
-          [24, 27, 30, 33]], dtype=int8)
-
-As we saw in that example, calling
-:meth:`~mrcfile.future_mrcfile.FutureMrcFile.result` will give us the
-:class:`~mrcfile.mrcfile.MrcFile` from the file opening operation. If the file
-hasn't been fully opened yet,
-:meth:`~mrcfile.future_mrcfile.FutureMrcFile.result` will simply wait until
-it's ready. To avoid waiting, call
-:meth:`~mrcfile.future_mrcfile.FutureMrcFile.done` to check if it's finished.
 
 File modes
 ~~~~~~~~~~
@@ -449,6 +336,37 @@ might help you to work out how to approach the problem (start with
 `CCP-EM mailing list`_ for advice.
 
 .. _CCP-EM mailing list: https://www.jiscmail.ac.uk/CCPEM
+
+A note on axis ordering
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``mrcfile`` follows the Python / C-style convention for axis
+ordering. This means that the first index is the slowest axis (typically Z for
+volume data or Y for images) and the last index is the fastest axis (typically
+X), and the numpy arrays are C-contiguous:
+
+.. doctest::
+
+   >>> data = mrcfile.read('tmp.mrc')
+   >>> data
+   array([[ 0,  1,  2,  3],
+          [ 4,  5,  6,  7],
+          [ 8,  9, 10, 11]], dtype=int8)
+
+   >>> data[1, 0]  # x = 0, y = 1
+   4
+   >>> data[2, 3]  # x = 3, y = 2
+   11
+
+   >>> data.flags.c_contiguous
+   True
+   >>> data.flags.f_contiguous
+   False
+
+Note that this axis order is the opposite of the FORTRAN-style convention that
+is used by some other software in structural biology. This can cause confusing
+errors!
+
 
 Using MrcFile objects
 ---------------------
@@ -1008,6 +926,129 @@ target type, the values will silently overflow. For floating point formats
 this can lead to ``inf`` values, and with integers it can lead to entirely
 meaningless values. A full discussion of this issue is outside the scope of
 this guide; see the numpy documentation for more information.
+
+Dealing with large files
+------------------------
+
+``mrcfile`` provides two ways of improving performance when handling large
+files: memory mapping and asynchronous (background) opening. `Memory mapping`_
+treats the file's data on disk as if it is already in memory, and only actually
+loads the data in small chunks when it is needed. `Asynchronous opening`_ uses
+a separate thread to open the file, allowing the main thread to carry on with
+other work while the file is loaded from disk in parallel.
+
+.. _Memory mapping: https://en.wikipedia.org/wiki/Memory-mapped_file
+.. _Asynchronous opening: https://en.wikipedia.org/wiki/Asynchronous_I/O
+
+Which technique is better depends on what you intend to do with the file and
+the characteristics of your computer, and it's usually worth testing both
+approaches and seeing what works best for your particular task. In general,
+memory mapping gives better performance when dealing with a single file,
+particularly if the file is very large. If you need to process several files,
+asynchronous opening can be faster because you can work on one file while
+loading the next one.
+
+Memory-mapped files
+~~~~~~~~~~~~~~~~~~~
+
+With very large files, it might be helpful to use the :func:`mrcfile.mmap`
+function to open the file, which will open the data as a
+:class:`memory-mapped numpy array <numpy.memmap>`. The contents of the array
+are only read from disk as needed, so this allows large files to be opened very
+quickly. Parts of the data can then be read and written by slicing the array:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> # Let's make a new file to work with (only small for this example!)
+   >>> mrcfile.write('maybe_large.mrc', example_data)
+
+   >>> # Open the file in memory-mapped mode
+   >>> mrc = mrcfile.mmap('maybe_large.mrc', mode='r+')
+   >>> # Now read part of the data by slicing
+   >>> mrc.data[1:3]
+   memmap([[ 4,  5,  6,  7],
+           [ 8,  9, 10, 11]], dtype=int8)
+
+   >>> # Set some values by assigning to a slice
+   >>> mrc.data[1:3,1:3] = 0
+
+   >>> # Read the entire array - with large files this might take a while!
+   >>> mrc.data[:]
+   memmap([[ 0,  1,  2,  3],
+           [ 4,  0,  0,  7],
+           [ 8,  0,  0, 11]], dtype=int8)
+   >>> mrc.close()
+
+To create new large, empty files quickly, use the :func:`mrcfile.new_mmap`
+function. This creates an empty file with a given shape and data mode. An
+optional fill value can be provided but filling a very large mmap array can
+take a long time, so it's best to use this only when needed. If you plan to
+fill the array with other data anyway, it's better to leave the fill value as
+:data:`None`. A typical use case would be to create a new file and then fill
+it slice by slice:
+
+.. doctest::
+   :options: +NORMALIZE_WHITESPACE
+
+   >>> # Make a new, empty memory-mapped MRC file
+   >>> mrc = mrcfile.new_mmap('mmap.mrc', shape=(3, 3, 4), mrc_mode=0)
+   >>> # Fill each slice with a different value
+   >>> for val in range(len(mrc.data)):
+   ...     mrc.data[val] = val
+   ...
+   >>> mrc.data[:]
+   memmap([[[0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]],
+   <BLANKLINE>
+           [[1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 1]],
+   <BLANKLINE>
+           [[2, 2, 2, 2],
+            [2, 2, 2, 2],
+            [2, 2, 2, 2]]], dtype=int8)
+
+Asynchronous opening
+~~~~~~~~~~~~~~~~~~~~
+
+When processing several files in a row, asynchronous (background) opening can
+improve performance by allowing you to open multiple files in parallel. The
+:func:`mrcfile.open_async` function starts a background thread to open a file,
+and returns a :class:`~mrcfile.future_mrcfile.FutureMrcFile` object which you
+can call later to get the file after it's been opened:
+
+.. doctest::
+
+   >>> # Open the first example file
+   >>> mrc1 = mrcfile.open('maybe_large.mrc')
+   >>> # Start opening the second example file before we process the first
+   >>> future_mrc2 = mrcfile.open_async('tmp.mrc.gz')
+   >>> # Now we'll do some calculations with the first file
+   >>> mrc1.data.sum()
+   36
+   >>> # Get the second file from its "Future" container ('result()' will wait
+   >>> # until the file is ready)
+   >>> mrc2 = future_mrc2.result()
+   >>> # Before we process the second file, we'll start the third one opening
+   >>> future_mrc3 = mrcfile.open_async('tmp.mrc.bz2')
+   >>> mrc2.data.max()
+   22
+   >>> # Finally, we'll get the third file and process it
+   >>> mrc3 = future_mrc3.result()
+   >>> mrc3.data
+   array([[ 0,  3,  6,  9],
+          [12, 15, 18, 21],
+          [24, 27, 30, 33]], dtype=int8)
+
+As we saw in that example, calling
+:meth:`~mrcfile.future_mrcfile.FutureMrcFile.result` will give us the
+:class:`~mrcfile.mrcfile.MrcFile` from the file opening operation. If the file
+hasn't been fully opened yet,
+:meth:`~mrcfile.future_mrcfile.FutureMrcFile.result` will simply wait until
+it's ready. To avoid waiting, call
+:meth:`~mrcfile.future_mrcfile.FutureMrcFile.done` to check if it's finished.
 
 Validating MRC files
 --------------------
