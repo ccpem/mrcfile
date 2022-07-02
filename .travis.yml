@@ -1,5 +1,6 @@
 # Default settings and matrix for amd64 jobs (except Python 3.7)
 os: linux
+dist: focal
 arch: amd64
 language: python
 cache: pip
