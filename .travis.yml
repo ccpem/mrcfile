@@ -8,6 +8,7 @@ python:
   - "3.6"
   - "3.8"
   - "3.9"
+  - "3.10"
 install: pip install tox-travis
 script: tox
 
@@ -40,6 +41,8 @@ jobs:
       script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22}"
     - arch: arm64
       python: "3.9"
+    - arch: arm64
+      python: "3.10"
 
     # PPC
     - arch: ppc64le
@@ -56,6 +59,8 @@ jobs:
       python: "3.9"
       # Skip numpy 1.22 because the installation fails
       script: tox -e "py39-numpy{1.19,1.20,1.21}"
+    - arch: ppc64le
+      python: "3.10"
 
     # s390x build image has a pip cache permissions problem (except for Python 2.7)
     # List all s390x jobs explicitly with adjusted install scripts
@@ -85,6 +90,13 @@ jobs:
         - pip install tox-travis
       # Skip numpy 1.22 because the installation fails
       script: tox -e "py39-numpy{1.19,1.20,1.21}"
+    - arch: s390x
+      python: "3.10"
+      install:
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels
+        - pip install tox-travis
+      # Skip numpy 1.22 because the installation fails
+      script: tox -e "py310-numpy{1.21,1.23}"
 
     # Mac build
     - name: osx / Python 2.7 and 3.7
