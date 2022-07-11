@@ -28,6 +28,7 @@ jobs:
     # ARM
     - arch: arm64
       python: "2.7"
+      dist: xenial
     - arch: arm64
       python: "3.6"
       # Skip numpy 1.18 because the installation fails
@@ -48,6 +49,7 @@ jobs:
     # PPC
     - arch: ppc64le
       python: "2.7"
+      dist: xenial
     - arch: ppc64le
       python: "3.6"
     - arch: ppc64le
@@ -67,6 +69,7 @@ jobs:
     # List all s390x jobs explicitly with adjusted install scripts
     - arch: s390x
       python: "2.7"
+      dist: xenial
     - arch: s390x
       python: "3.6"
       install:
