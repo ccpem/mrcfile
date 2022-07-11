@@ -91,15 +91,18 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert data.dtype == 'i1'
     
     def test_setting_header_attribute_raises_exception(self):
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError,
+                                    "can't set attribute|property .* has no setter"):
             self.mrcobject.header = np.zeros(1)
     
     def test_setting_extended_header_attribute_raises_exception(self):
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError,
+                                    "can't set attribute|property .* has no setter"):
             self.mrcobject.extended_header = np.zeros(1)
     
     def test_setting_data_attribute_raises_exception(self):
-        with self.assertRaisesRegex(AttributeError, "can't set attribute"):
+        with self.assertRaisesRegex(AttributeError,
+                                    "can't set attribute|property .* has no setter"):
             self.mrcobject.data = np.zeros(1)
     
     def test_setting_extended_header(self):
