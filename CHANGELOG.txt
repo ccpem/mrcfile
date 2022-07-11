@@ -1,6 +1,11 @@
 Change log for mrcfile
 ======================
 
+Changes for next version
+------------------------
+
+* Add support for numpy 1.23 and Python 3.10 and 3.11
+
 Version 1.4.0 (2022-07-02)
 --------------------------
 
