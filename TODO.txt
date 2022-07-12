@@ -9,9 +9,7 @@ Planned or possible future developments for mrcfile.py
 
 * Helper methods for handling header labels
 
-* Handling of different extended header types
-
-* Handling of different MRC format versions
+* Handling of additional extended header types
 
 * Data axis swapping (would need clarity about whether header fields such as
   cell size and dimensions apply to axes before or after swapping)
