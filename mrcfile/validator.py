@@ -154,8 +154,8 @@ def validate(name, print_file=None):
             ID string, an incorrect machine stamp, an unknown mode number, or
             is not the same size as expected from the header.
     """
+    print("Checking if {} is a valid MRC2014 file...".format(name), file=print_file)
     with load_functions.open(name, permissive=True) as mrc:
-        print("Checking if {} is a valid MRC2014 file...".format(name), file=print_file)
         result = mrc.validate(print_file=print_file)
         if result:
             print("File appears to be valid.", file=print_file)
