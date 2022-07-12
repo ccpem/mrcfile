@@ -1053,11 +1053,15 @@ it's ready. To avoid waiting, call
 Validating MRC files
 --------------------
 
-MRC files can be validated with :func:`mrcfile.validate`:
+MRC files can be validated with :func:`mrcfile.validate`, which prints an
+explanation of what is happening and also returns :data:`True` if the file is
+valid or :data:`False` otherwise:
 
 .. doctest::
 
    >>> mrcfile.validate('tmp.mrc')
+   Checking if tmp.mrc is a valid MRC2014 file...
+   File appears to be valid.
    True
 
 This works equally well for gzip- or bzip2-compressed files:
@@ -1065,9 +1069,13 @@ This works equally well for gzip- or bzip2-compressed files:
 .. doctest::
 
    >>> mrcfile.validate('tmp.mrc.gz')
+   Checking if tmp.mrc.gz is a valid MRC2014 file...
+   File appears to be valid.
    True
 
    >>> mrcfile.validate('tmp.mrc.bz2')
+   Checking if tmp.mrc.bz2 is a valid MRC2014 file...
+   File appears to be valid.
    True
 
 Errors will cause messages to be printed to the console, and
@@ -1083,6 +1091,7 @@ Errors will cause messages to be printed to the console, and
 
    >>> # Now it should fail validation and print a helpful message
    >>> mrcfile.validate('tmp.mrc')
+   Checking if tmp.mrc is a valid MRC2014 file...
    Header field 'mz' is negative
    False
 
@@ -1105,6 +1114,7 @@ argument which allows any text stream to be used for the output instead:
 
    >>> # ...and check the output separately
    >>> print(output.getvalue().strip())
+   Checking if tmp.mrc is a valid MRC2014 file...
    Header field 'mz' is negative
 
 Behind the scenes, :func:`mrcfile.validate` opens the file in :ref:`permissive mode <permissive-mode>`
@@ -1140,6 +1150,7 @@ Validation
 MRC files can be validated with the ``mrcfile-validate`` script::
 
     $ mrcfile-validate tests/test_data/EMD-3197.map
+    Checking if tests/test_data/EMD-3197.map is a valid MRC2014 file...
     File does not declare MRC format version 20140 or 20141: nversion = 0
 
     $ # Exit status is 1 if file is invalid
@@ -1150,6 +1161,8 @@ This script wraps the :mod:`mrcfile.validator` module, which can also be called
 directly::
 
     $ python -m mrcfile.validator valid_file.mrc
+    Checking if valid_file.mrc is a valid MRC2014 file...
+    File appears to be valid.
     $ echo $?
     0
 
@@ -1158,6 +1171,12 @@ these commands call :func:`mrcfile.validate` behind the scenes, gzip- and
 bzip2-compressed files can be validated as well::
 
     $ mrcfile-validate valid_file_1.mrc valid_file_2.mrc.gz valid_file_3.mrc.bz2
+    Checking if valid_file_1.mrc is a valid MRC2014 file...
+    File appears to be valid.
+    Checking if valid_file_2.mrc is a valid MRC2014 file...
+    File appears to be valid.
+    Checking if valid_file_3.mrc is a valid MRC2014 file...
+    File appears to be valid.
 
 Examining MRC headers
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1166,6 +1185,7 @@ MRC file headers can be printed to the console with the ``mrcfile-header``
 script::
 
     $ mrcfile-header tests/test_data/EMD-3197.map
+    MRC header for tests/test_data/EMD-3197.map:
     nx              : 20
     ny              : 20
     nz              : 20

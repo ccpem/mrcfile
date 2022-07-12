@@ -94,7 +94,15 @@ class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = validator.main(self.files)
         assert result == 1
         stdout = str(sys.stdout.getvalue())
-        assert "File does not declare MRC format version 20140 or 20141" in stdout
+        assert stdout == (
+            "Checking if " + self.files[0] + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0\n"
+            "Checking if " + self.files[1] + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0\n"
+            "Extended header type is undefined or unrecognised: exttyp = ''\n"
+            "Checking if " + self.files[2] + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0\n"
+        )
         assert len(sys.stderr.getvalue()) == 0
 
 

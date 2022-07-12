@@ -55,9 +55,6 @@ def validate_all(names, print_file=None):
     
     This function calls :func:`validate` for each file name in the given list.
     
-    Note that :data:`False` will be returned immediately if a file is found to
-    be invalid. Subsequent files will not be checked.
-    
     Args:
         names: A sequence of file names to open and validate.
         print_file: The output text stream to use for printing messages about
@@ -78,7 +75,11 @@ def validate_all(names, print_file=None):
             no map ID string, an incorrect machine stamp, an unknown mode
             number, or is not the same size as expected from the header.
     """
-    return all(validate(name, print_file) for name in names)
+    result = True
+    for name in names:
+        if not validate(name, print_file):
+            result = False
+    return result
 
 
 def validate(name, print_file=None):
@@ -154,7 +155,11 @@ def validate(name, print_file=None):
             is not the same size as expected from the header.
     """
     with load_functions.open(name, permissive=True) as mrc:
-        return mrc.validate(print_file=print_file)
+        print("Checking if {} is a valid MRC2014 file...".format(name), file=print_file)
+        result = mrc.validate(print_file=print_file)
+        if result:
+            print("File appears to be valid.", file=print_file)
+        return result
 
 
 if __name__ == '__main__':

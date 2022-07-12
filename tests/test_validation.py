@@ -70,7 +70,10 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = mrcfile.validate(self.temp_mrc_name, self.print_stream)
         assert result == True
         print_output = self.print_stream.getvalue()
-        assert len(print_output) == 0
+        assert print_output == (
+            "Checking if " + self.temp_mrc_name + " is a valid MRC2014 file...\n"
+            "File appears to be valid.\n"
+        )
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -78,8 +81,10 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = mrcfile.validate(self.example_mrc_name, self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140 or 20141: nversion = 0")
+        assert print_output.strip() == (
+            "Checking if " + self.example_mrc_name + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0"
+        )
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -87,8 +92,10 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = mrcfile.validate(self.gzip_mrc_name, self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140 or 20141: nversion = 0")
+        assert print_output.strip() == (
+            "Checking if " + self.gzip_mrc_name + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0"
+        )
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -96,8 +103,10 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = mrcfile.validate(self.bzip2_mrc_name, self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140 or 20141: nversion = 0")
+        assert print_output.strip() == (
+            "Checking if " + self.bzip2_mrc_name + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0"
+        )
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -105,10 +114,11 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = mrcfile.validate(self.ext_header_mrc_name, self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert print_output.strip() == ("File does not declare MRC format "
-                                        "version 20140 or 20141: nversion = 0\n"
-                                        "Extended header type is undefined or "
-                                        "unrecognised: exttyp = ''")
+        assert print_output.strip() == (
+            "Checking if " + self.ext_header_mrc_name + " is a valid MRC2014 file...\n"
+            "File does not declare MRC format version 20140 or 20141: nversion = 0\n"
+            "Extended header type is undefined or unrecognised: exttyp = ''"
+        )
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -509,7 +519,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                       print_file=self.print_stream)
             assert result == False
             print_output = self.print_stream.getvalue()
-            assert len(print_output.split('\n')) == 15
+            assert len(print_output.split('\n')) == 16
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -537,7 +547,16 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         result = validate_all(good_files, print_file=self.print_stream)
         assert result == True
         print_output = self.print_stream.getvalue()
-        assert len(print_output) == 0
+        assert print_output == (
+            "Checking if " + good_files[0] + " is a valid MRC2014 file...\n"
+            "File appears to be valid.\n"
+            "Checking if " + good_files[1] + " is a valid MRC2014 file...\n"
+            "File appears to be valid.\n"
+            "Checking if " + good_files[2] + " is a valid MRC2014 file...\n"
+            "File appears to be valid.\n"
+            "Checking if " + good_files[3] + " is a valid MRC2014 file...\n"
+            "File appears to be valid.\n"
+        )
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
