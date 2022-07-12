@@ -18,6 +18,7 @@ from __future__ import (absolute_import, division, print_function,
 
 import argparse
 import sys
+import traceback
 
 from . import load_functions
 
@@ -155,11 +156,15 @@ def validate(name, print_file=None):
             is not the same size as expected from the header.
     """
     print("Checking if {} is a valid MRC2014 file...".format(name), file=print_file)
-    with load_functions.open(name, permissive=True) as mrc:
-        result = mrc.validate(print_file=print_file)
-        if result:
-            print("File appears to be valid.", file=print_file)
-        return result
+    try:
+        with load_functions.open(name, permissive=True) as mrc:
+            result = mrc.validate(print_file=print_file)
+    except Exception:
+        result = False
+        traceback.print_exc(file=print_file)
+    if result:
+        print("File appears to be valid.", file=print_file)
+    return result
 
 
 if __name__ == '__main__':

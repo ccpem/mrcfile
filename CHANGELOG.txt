@@ -6,7 +6,8 @@ Version 1.4.1 (2022-07-12)
 
 * Add file names to mrcfile-header output
 * Add file names and a success message for valid files to the output of the
-  validation functions (mrcfile-validate command and the validate() method)
+  validation functions (mrcfile-validate command and the mrcfile.validate()
+  function)
 * Add support for numpy 1.23 and Python 3.10 and 3.11
 
 Version 1.4.0 (2022-07-02)

@@ -9,13 +9,21 @@ Tests for mrcfile validation functions.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-import io
 import os
 import shutil
 import sys
 import tempfile
 import unittest
 import warnings
+
+# Avoid str/unicode issues when traceback.print_exc tries to write to StringIO
+# (see https://stackoverflow.com/a/34872005)
+try:
+    # Python 2
+    from cStringIO import StringIO
+except ImportError:
+    # Python 3
+    from io import StringIO
 
 import numpy as np
 
@@ -43,15 +51,16 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map')
         self.fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
         self.fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc')
+        self.not_an_mrc_name = os.path.join(self.test_data, 'README.txt')
         
         # Set up stream to catch print output from validate()
-        self.print_stream = io.StringIO()
+        self.print_stream = StringIO()
         
         # Replace stdout and stderr to capture output for checking
         self.orig_stdout = sys.stdout
         self.orig_stderr = sys.stderr
-        sys.stdout = io.StringIO()
-        sys.stderr = io.StringIO()
+        sys.stdout = StringIO()
+        sys.stderr = StringIO()
     
     def tearDown(self):
         # Restore stdout and stderr
@@ -562,6 +571,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_validate_bad_files(self):
         bad_files = [
+            self.not_an_mrc_name,
             self.example_mrc_name,
             self.ext_header_mrc_name,
             self.gzip_mrc_name
@@ -570,11 +580,17 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert result == False
         print_output = self.print_stream.getvalue()
         assert len(print_output) > 0
+        assert "Checking if " + bad_files[0] + " is a valid MRC2014 file..." in print_output
+        assert "Checking if " + bad_files[1] + " is a valid MRC2014 file..." in print_output
+        assert "Checking if " + bad_files[2] + " is a valid MRC2014 file..." in print_output
+        assert "Checking if " + bad_files[3] + " is a valid MRC2014 file..." in print_output
+        assert "ValueError:" in print_output
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
      
     def test_validate_good_and_bad_files(self):
         files = self.create_good_files() + [
+            self.not_an_mrc_name,
             self.example_mrc_name,
             self.ext_header_mrc_name,
             self.gzip_mrc_name
