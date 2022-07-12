@@ -75,6 +75,8 @@ class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         command_line.print_headers(self.files, print_file=self.print_stream)
         printed = self.print_stream.getvalue()
         assert len(printed) > 0
+        for file in self.files:
+            assert "MRC header for " + file in printed
         assert "nx" in printed
         assert "machst          : [68 65  0  0]" in printed
         assert "::::EMDATABANK.org::::EMD-3197::::" in printed
