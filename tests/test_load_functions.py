@@ -21,6 +21,16 @@ from mrcfile.bzip2mrcfile import Bzip2MrcFile
 from mrcfile.gzipmrcfile import GzipMrcFile
 from . import helpers
 
+# Try to import pathlib if we can
+pathlib_unavailable = False
+try:
+    from pathlib import Path
+except ImportError:
+    try:
+        from pathlib2 import Path
+    except ImportError:
+        pathlib_unavailable = True
+
 
 class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
@@ -35,6 +45,7 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         self.test_data = helpers.get_test_data_path()
         self.test_output = tempfile.mkdtemp()
         self.temp_mrc_name = os.path.join(self.test_output, 'test_mrcfile.mrc')
+        self.temp_gz_mrc_name = self.temp_mrc_name + '.gz'
         self.example_mrc_name = os.path.join(self.test_data, 'EMD-3197.map')
         self.gzip_mrc_name = os.path.join(self.test_data, 'emd_3197.map.gz')
         self.bzip2_mrc_name = os.path.join(self.test_data, 'EMD-3197.map.bz2')
@@ -50,7 +61,16 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert repr(mrc) == ("MrcFile('{0}', mode='r')"
                                  .format(self.example_mrc_name))
 
-    def test_read_function(self):
+    @unittest.skipIf(pathlib_unavailable, "pathlib not available")
+    def test_normal_opening_pathlib(self):
+        """Single test to ensure pathlib functionality is tested even if there's
+        a problem with the LoadFunctionTestWithPathlib class"""
+        path = Path(self.example_mrc_name)
+        with mrcfile.open(path) as mrc:
+            assert repr(mrc) == ("MrcFile('{0}', mode='r')"
+                                 .format(self.example_mrc_name))
+
+    def test_read(self):
         volume = mrcfile.read(self.example_mrc_name)
         assert isinstance(volume, np.ndarray)
         assert volume.shape, volume.dtype == ((20, 20, 20), np.float32)
@@ -75,7 +95,7 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with mrcfile.new(self.temp_mrc_name) as mrc:
             assert repr(mrc) == ("MrcFile('{0}', mode='w+')"
                                  .format(self.temp_mrc_name))
-    
+
     def test_new_empty_file_with_open_function(self):
         with mrcfile.open(self.temp_mrc_name, mode='w+') as mrc:
             assert repr(mrc) == ("MrcFile('{0}', mode='w+')"
@@ -115,9 +135,9 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrcfile.new(self.temp_mrc_name, compression='other')
     
     def test_overwriting_flag(self):
-        assert not os.path.exists(self.temp_mrc_name)
-        open(self.temp_mrc_name, 'w+').close()
-        assert os.path.exists(self.temp_mrc_name)
+        assert not os.path.exists(str(self.temp_mrc_name))
+        open(str(self.temp_mrc_name), 'w+').close()
+        assert os.path.exists(str(self.temp_mrc_name))
         with self.assertRaisesRegex(ValueError, "already exists"):
             mrcfile.new(self.temp_mrc_name)
         with self.assertRaisesRegex(ValueError, "already exists"):
@@ -217,10 +237,24 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_write_with_auto_compression(self):
         data_in = np.random.random((10, 10)).astype(np.float16)
-        filename = self.temp_mrc_name + '.gz'
-        mrcfile.write(filename, data_in)
-        with mrcfile.open(filename) as mrc:
+        mrcfile.write(self.temp_gz_mrc_name, data_in)
+        with mrcfile.open(self.temp_gz_mrc_name) as mrc:
             assert isinstance(mrc, GzipMrcFile)
+
+
+@unittest.skipIf(pathlib_unavailable, "pathlib not available")
+class LoadFunctionTestWithPathlib(LoadFunctionTest):
+
+    """Class to run the load function tests using pathlib paths instead of strings."""
+
+    def setUp(self):
+        super(LoadFunctionTestWithPathlib, self).setUp()
+        self.temp_mrc_name = Path(self.temp_mrc_name)
+        self.temp_gz_mrc_name = Path(self.temp_gz_mrc_name)
+        self.example_mrc_name = Path(self.example_mrc_name)
+        self.gzip_mrc_name = Path(self.gzip_mrc_name)
+        self.bzip2_mrc_name = Path(self.bzip2_mrc_name)
+        self.slow_mrc_name = Path(self.slow_mrc_name)
 
 
 if __name__ == '__main__':

@@ -30,7 +30,7 @@ def new(name, data=None, compression=None, overwrite=False):
     """Create a new MRC file.
     
     Args:
-        name: The file name to use.
+        name: The file name to use, as a string or :class:`~pathlib.Path`.
         data: Data to put in the file, as a :class:`numpy array
             <numpy.ndarray>`. The default is :data:`None`, to create an empty
             file.
@@ -87,7 +87,7 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
     :doc:`usage guide <../usage_guide>` for more information.
     
     Args:
-        name: The file name to open.
+        name: The file name to open, as a string or :class:`~pathlib.Path`.
         mode: The file mode to use. This should be one of the following: ``r``
             for read-only, ``r+`` for read and write, or ``w+`` for a new empty
             file. The default is ``r``.
@@ -121,6 +121,7 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
             number of bytes in the corresponding dtype.
     """
     NewMrc = MrcFile
+    name = str(name)  # in case name is a pathlib Path
     if os.path.exists(name):
         with io.open(name, 'rb') as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
@@ -148,7 +149,7 @@ def read(name):
     :func:`mrcfile.open` instead.
 
     Args:
-        name: The file name to read.
+        name: The file name to read, as a string or :class:`~pathlib.Path`.
 
     Returns:
         A :class:`numpy array<numpy.ndarray>` containing the data from the file.
@@ -168,8 +169,9 @@ def write(name, data=None, overwrite=False, voxel_size=None):
     representing the new file, use :func:`mrcfile.new` instead.
 
     Args:
-        name: The file name to use. If the name ends with ``.gz`` or ``.bz2``, the file
-            will be compressed using gzip or bzip2 respectively.
+        name: The file name to use, as a string or :class:`~pathlib.Path`. If the name
+            ends with ``.gz`` or ``.bz2``, the file will be compressed using gzip or
+            bzip2 respectively.
         data: Data to put in the file, as a :class:`numpy array
             <numpy.ndarray>`. The default is :data:`None`, to create an empty
             file.
@@ -186,6 +188,7 @@ def write(name, data=None, overwrite=False, voxel_size=None):
     Warns:
         RuntimeWarning: If the data array contains Inf or NaN values.
     """
+    name = str(name)  # in case name is a pathlib Path
     compression = None
     if name.endswith('.gz'):
         compression = 'gzip'
@@ -226,7 +229,7 @@ def open_async(name, mode='r', permissive=False):
     :meth:`~mrcfile.future_mrcfile.FutureMrcFile.done`.
 
     Args:
-        name: The file name to open.
+        name: The file name to open, as a string or :class:`~pathlib.Path`.
         mode: The file mode (one of ``r``, ``r+`` or ``w+``).
         permissive: Read the file in permissive mode. The default is
             :data:`False`.
@@ -254,7 +257,7 @@ def mmap(name, mode='r', permissive=False):
     :class:`~mrcfile.mrcfile.MrcFile` object.
     
     Args:
-        name: The file name to open.
+        name: The file name to open, as a string or :class:`~pathlib.Path`.
         mode: The file mode (one of ``r``, ``r+`` or ``w+``).
         permissive: Read the file in permissive mode. The default is
             :data:`False`.
@@ -281,7 +284,7 @@ def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False, extended_heade
     with a reasonable default value).
 
     Args:
-        name: The file name to use.
+        name: The file name to use, as a string or :class:`~pathlib.Path`.
         shape: The shape of the data array to open, as a 2-, 3- or 4-tuple of
             ints. For example, ``(nz, ny, nx)`` for a new 3D volume, or
             ``(ny, nx)`` for a new 2D image.

@@ -59,7 +59,7 @@ class MrcFile(MrcInterpreter):
         extended header and data arrays.
         
         Args:
-            name: The file name to open.
+            name: The file name to open, as a string or pathlib Path.
             mode: The file mode to use. This should be one of the following:
                 ``r`` for read-only, ``r+`` for read and write, or ``w+`` for a
                 new empty file. The default is ``r``.
@@ -97,7 +97,8 @@ class MrcFile(MrcInterpreter):
         
         if mode not in ['r', 'r+', 'w+']:
             raise ValueError("Mode '{0}' not supported".format(mode))
-        
+
+        name = str(name)  # in case name is a pathlib Path
         if ('w' in mode and os.path.exists(name) and not overwrite):
             raise ValueError("File '{0}' already exists; set overwrite=True "
                              "to overwrite it".format(name))
