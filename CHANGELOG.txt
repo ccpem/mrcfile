@@ -1,6 +1,11 @@
 Change log for mrcfile
 ======================
 
+Version 1.4.1 (2022-07-14)
+--------------------------
+
+* Add support for passing file names as pathlib Path objects.
+
 Version 1.4.1 (2022-07-12)
 --------------------------
 
