@@ -3,7 +3,10 @@ os: linux
 dist: focal
 arch: amd64
 language: python
-cache: pip
+cache:
+  pip: true
+  directories:
+    - .tox
 python:
   - "2.7"
   - "3.6"
