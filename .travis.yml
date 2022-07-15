@@ -35,16 +35,10 @@ jobs:
       dist: xenial
     - arch: arm64
       python: "3.6"
-      # Skip numpy 1.18 because the installation fails
-      script: tox -e "py36-numpy{1.16,1.17,1.19}"
     - arch: arm64
       python: "3.7"
-      # Skip numpy 1.18 because the installation fails
-      script: tox -e "py37-numpy{1.16,1.17,1.19,1.20,1.21}"
     - arch: arm64
       python: "3.8"
-      # Skip numpy 1.18 because the installation fails
-      script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22}"
     - arch: arm64
       python: "3.9"
     - arch: arm64
