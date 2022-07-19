@@ -53,19 +53,17 @@ jobs:
     - arch: ppc64le
       python: "3.7"
       # Build up to the full range of numpy versions
-      script: tox -e "py37-numpy{1.16,1.17,1.18}"
+      script: tox -e "py37-numpy{1.16,1.17}"
     - arch: ppc64le
       python: "3.8"
       # Build up to the full range of numpy versions
-      script: tox -e "py38-numpy{1.17,1.18,1.19}"
+      script: tox -e "py38-numpy{1.17,1.18}"
     - arch: ppc64le
       python: "3.9"
       # Build up to the full range of numpy versions
-      script: tox -e "py39-numpy{1.19,1.20,1.21}"
+      script: tox -e "py39-numpy{1.19,1.20}"
     - arch: ppc64le
       python: "3.10"
-      # Build up to the full range of numpy versions
-      script: tox -e "py310-numpy{1.21,1.22,1.23}"
 
     # s390x build image has a pip cache permissions problem (except for Python 2.7)
     # List all s390x jobs explicitly with adjusted install scripts
