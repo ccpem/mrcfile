@@ -53,7 +53,7 @@ jobs:
     - arch: ppc64le
       python: "3.7"
       # Build up to the full range of numpy versions
-      script: tox -e "py37-numpy{1.16,1.17,1.18,1.19}"
+      script: tox -e "py37-numpy{1.16,1.17,1.18,1.19,1.20}"
     - arch: ppc64le
       python: "3.8"
       # Build up to the full range of numpy versions
