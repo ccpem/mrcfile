@@ -81,6 +81,8 @@ class MrcObject(object):
     * :meth:`update_header_stats`
     * :meth:`reset_header_stats`
     * :meth:`print_header`
+    * :meth:`get_labels`
+    * :meth:`add_label`
     
     Attributes and methods relevant to subclasses:
     
