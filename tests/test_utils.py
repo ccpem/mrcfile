@@ -1,3 +1,4 @@
+# coding: utf-8
 # Copyright (c) 2016, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 
@@ -8,6 +9,8 @@ Tests for utils.py
 # Import Python 3 features for future-proofing
 # Deliberately do NOT import unicode_literals due to a bug in numpy dtypes:
 # https://github.com/numpy/numpy/issues/2407
+# and also because some tests for string <-> byte conversion need to test both unicode
+# and non-unicode literals.
 from __future__ import absolute_import, division, print_function
 
 import sys
@@ -220,6 +223,56 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_pretty_machine_stamp(self):
         machst = utils.machine_stamp_from_byte_order('<')
         assert utils.pretty_machine_stamp(machst) == "0x44 0x44 0x00 0x00"
+
+    def test_is_printable_ascii_with_printable_string(self):
+        assert utils.is_printable_ascii('Letters + digits012359 + punctuation*&^%$!#')
+
+    def test_is_printable_ascii_rejects_newline(self):
+        assert not utils.is_printable_ascii('\n')
+
+    def test_is_printable_ascii_rejects_tab(self):
+        assert not utils.is_printable_ascii('\t')
+
+    def test_is_printable_ascii_rejects_null_byte(self):
+        assert not utils.is_printable_ascii('\x00')
+
+    def test_is_printable_ascii_rejects_other_unprintable_bytes(self):
+        # Try a few others; not comprehensive.
+        assert not utils.is_printable_ascii('\x01')
+        assert not utils.is_printable_ascii('\x02')
+        assert not utils.is_printable_ascii('\x03')
+
+    def test_is_printable_ascii_rejects_non_ascii_printable_character(self):
+        assert not utils.is_printable_ascii('£')
+
+    def test_printable_string_from_bytes_leaves_ascii_unchanged(self):
+        val = b'Letters + digits012359 + punctuation*&^%$!#'
+        result = utils.printable_string_from_bytes(val)
+        assert result == 'Letters + digits012359 + punctuation*&^%$!#'
+
+    def test_printable_string_from_bytes_strips_unprintable_characters(self):
+        val = b'Test \n non-printable string \t \x01\x00'
+        assert utils.printable_string_from_bytes(val) == 'Test  non-printable string  '
+
+    def test_printable_string_from_bytes_strips_non_ascii_characters(self):
+        val = b'Test non-ASCII string \xa3'
+        assert utils.printable_string_from_bytes(val) == 'Test non-ASCII string '
+
+    def test_bytes_from_string_with_ascii_string(self):
+        assert utils.bytes_from_string('ASCII string 123#!') == b'ASCII string 123#!'
+
+    def test_bytes_from_string_with_non_ascii_string_raises_exception(self):
+        with self.assertRaises(UnicodeError):
+            utils.bytes_from_string('Non-ASCII string £')
+
+    def test_bytes_from_string_with_unicode_string(self):
+        # To make sure things work properly in Python 2
+        assert utils.bytes_from_string(u'Unicode string') == b'Unicode string'
+
+    def test_bytes_from_string_with_unicode_non_ascii_string_raises_exception(self):
+        # To make sure things work properly in Python 2
+        with self.assertRaises(UnicodeError):
+            assert utils.bytes_from_string(u'Unicode non-ASCII £')
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+# coding: utf-8
 # Copyright (c) 2016, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 
@@ -653,6 +654,41 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert label.startswith('Created by mrcfile.py    ')
         time = label[-40:].strip()
         datetime.strptime(time, '%Y-%m-%d %H:%M:%S')  # will throw if bad format
+
+    def test_get_labels(self):
+        labels = self.mrcobject.get_labels()
+        assert len(labels) == 1
+        assert labels[0].startswith('Created by mrcfile.py    ')
+
+    def test_get_labels_strips_unprintable_characters(self):
+        self.mrcobject.header.label[0] = b'Test \nlabel\x01\x00'
+        labels = self.mrcobject.get_labels()
+        assert labels[0] == 'Test label'
+
+    def test_add_label_with_normal_string(self):
+        self.mrcobject.add_label('Test label')
+        assert self.mrcobject.header.nlabl == 2
+        labels = self.mrcobject.get_labels()
+        assert len(labels) == 2
+        assert labels[0].startswith('Created by mrcfile.py    ')
+        assert labels[1] == 'Test label'
+
+    def test_adding_too_long_label_raises_exception(self):
+        with self.assertRaises(ValueError):
+            self.mrcobject.add_label('-' * 81)
+
+    def test_adding_more_than_ten_labels_raises_exception(self):
+        self.mrcobject.header.nlabl = 10
+        with self.assertRaises(IndexError):
+            self.mrcobject.add_label('Test label')
+
+    def test_adding_non_ascii_label_raises_exception(self):
+        with self.assertRaisesRegex(ValueError, "non-printable or non-ASCII"):
+            self.mrcobject.add_label('Test label £')
+
+    def test_adding_non_printable_label_raises_exception(self):
+        with self.assertRaisesRegex(ValueError, "non-printable or non-ASCII"):
+            self.mrcobject.add_label('Test label \n\x00')
     
     def test_print_header(self):
         print_stream = io.StringIO()

@@ -35,6 +35,7 @@ Functions
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import string
 import sys
 
 import numpy as np
@@ -274,3 +275,41 @@ def spacegroup_is_volume_stack(ispg):
         :data:`True` if the space group number is in the range 401--630.
     """
     return 401 <= ispg <= 630
+
+
+printable_chars = ' ' + string.ascii_letters + string.digits + string.punctuation
+
+
+def is_printable_ascii(string_):
+    """Check if a string is entirely composed of printable ASCII characters."""
+    try:
+        # Python 3 version
+        return str.isprintable(string_) and str.isascii(string_)
+    except AttributeError:
+        # Probably Python 2, fall back to checking characters individually
+        try:
+            return all(char in printable_chars for char in string_)
+        except UnicodeDecodeError:
+            return False
+
+
+def printable_string_from_bytes(bytes_):
+    """Convert bytes into a printable ASCII string by removing non-printable characters.
+    """
+    string_ = bytes.decode(bytes_, encoding='ascii', errors='ignore')
+    if not is_printable_ascii(string_):
+        string_ = "".join(list(s for s in string_ if is_printable_ascii(s)))
+    return string_
+
+
+def bytes_from_string(string_):
+    """Convert a string to bytes.
+
+    Even though this is a one-liner, the details are tricky to get right so things work
+    properly in both Python 2 and 3. It's broken out as a separate function so it can be
+    thoroughly tested.
+
+    Raises:
+        UnicodeError: If the input contains non-ASCII characters.
+    """
+    return str.encode(str(string_), encoding='ascii', errors='strict')

@@ -584,6 +584,51 @@ class MrcObject(object):
         for item in self.header.dtype.names:
             print('{0:15s} : {1}'.format(item, self.header[item]),
                   file=print_file)
+
+    def get_labels(self):
+        """Get the labels from the MRC header.
+
+        Up to ten labels are stored in the header as arrays of 80 bytes. This method
+        returns the labels as Python strings, filtered to remove non-printable
+        characters. To access the raw bytes (including any non-printable characters) use
+        the ``header.label`` attribute (and note that ``header.nlabl`` stores the number
+        of labels currently set).
+
+        Returns:
+            The labels, as a list of strings. The list will contain between 0 and 10
+            items, each containing up to 80 characters.
+        """
+        return [
+            utils.printable_string_from_bytes(label)
+            for label in self.header.label[:self.header.nlabl]
+        ]
+
+    def add_label(self, label):
+        """Add a label to the MRC header.
+
+        The new label will be stored after any labels already in the header. If all ten
+        labels are already in use, an exception will be raised.
+
+        Future versions of this method might add checks to ensure that labels containing
+        valid text are not overwritten even if the ``nlabl`` value is incorrect.
+
+        Args:
+            label: The label value to store, as a string containing only printable
+                ASCII characters.
+
+        Raises:
+            :exc:`ValueError`: If the label is longer than 80 bytes or contains
+                non-printable or non-ASCII characters.
+            :exc:`IndexError`: If the file already contains 10 labels and so an
+                additional label cannot be stored.
+        """
+        if not utils.is_printable_ascii(label):
+            raise ValueError("Label contains non-printable or non-ASCII characters")
+        label_bytes = utils.bytes_from_string(label)
+        if len(label_bytes) > 80:
+            raise ValueError("Label value has more than 80 bytes")
+        self.header.label[self.header.nlabl] = label
+        self.header.nlabl += 1
     
     def validate(self, print_file=None):
         """Validate this MrcObject.
