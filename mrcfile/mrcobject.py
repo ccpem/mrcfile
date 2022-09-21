@@ -541,11 +541,11 @@ class MrcObject(object):
 
         if self.data.size > 0:
             # Header stats are always in float32. If we have complex data, this doesn't
-            # make sense so leave min, max and mean at their default un-set values
-            if self.data.dtype == np.complex64:
-                # Avoid overflow by using a complex128 accumulator and avoid
-                # ComplexWarning by explicitly taking the real part
-                self.header.rms = np.float32(self.data.std(dtype=np.complex128).real)
+            # make sense so just set rms and leave min, max and mean at their default
+            # un-set values
+            if np.iscomplexobj(self.data):
+                # Avoid ComplexWarning by explicitly taking the real part
+                self.header.rms = np.float32(self.data.std().real)
             else:
                 min = self.data.min()
                 max = self.data.max()
@@ -555,13 +555,10 @@ class MrcObject(object):
                 if np.isinf(min) or np.isinf(max):
                     warnings.warn("Data array contains infinite values", RuntimeWarning)
 
-                self.header.dmin = min
-                self.header.dmax = max
-
-                # Use a float64 accumulator to calculate mean and standard deviation
-                # This prevents overflow errors during calculation
-                self.header.dmean = np.float32(self.data.mean(dtype=np.float64))
-                self.header.rms = np.float32(self.data.std(dtype=np.float64))
+                self.header.dmin = np.float32(min)
+                self.header.dmax = np.float32(max)
+                self.header.dmean = self.data.mean(dtype=np.float32)
+                self.header.rms = self.data.std(dtype=np.float32)
         else:
             self.reset_header_stats()
     
@@ -767,26 +764,27 @@ class MrcObject(object):
         if self.data is not None:
             real_rms = real_min = real_max = real_mean = 0
             if len(self.data > 0):
+                real_mean = self.data.mean(dtype=np.float64)
                 real_rms = self.data.std()
                 real_min = self.data.min()
                 real_max = self.data.max()
-                real_mean = self.data.mean()
-            if (self.header.rms >= 0 and not np.isclose(real_rms, self.header.rms)):
-                log("Error in data statistics: RMS deviation is {0} but the value "
-                    "in the header is {1}".format(real_rms, self.header.rms))
+            if (self.header.rms >= 0
+                    and not np.isclose(real_rms, self.header.rms, rtol=0.01)):
+                log("Data statistics appear to be inaccurate: RMS deviation is {0} but"
+                    " the value in the header is {1}".format(real_rms, self.header.rms))
                 valid = False
             if self.header.dmin < self.header.dmax and self.header.dmin != real_min:
-                log("Error in data statistics: minimum is {0} but the value "
-                    "in the header is {1}".format(real_min, self.header.dmin))
+                log("Data statistics appear to be inaccurate: minimum is {0} but the"
+                    " value in the header is {1}".format(real_min, self.header.dmin))
                 valid = False
             if self.header.dmin < self.header.dmax and self.header.dmax != real_max:
-                log("Error in data statistics: maximum is {0} but the value "
-                    "in the header is {1}".format(real_max, self.header.dmax))
+                log("Data statistics appear to be inaccurate: maximum is {0} but the"
+                    " value in the header is {1}".format(real_max, self.header.dmax))
                 valid = False
             if (self.header.dmean > min(self.header.dmin, self.header.dmax)
-                and not np.isclose(real_mean, self.header.dmean)):
-                log("Error in data statistics: mean is {0} but the value "
-                    "in the header is {1}".format(real_mean, self.header.dmean))
+                    and not np.isclose(real_mean, self.header.dmean, rtol=0.01)):
+                log("Data statistics appear to be inaccurate: mean is {0} but the"
+                    " value in the header is {1}".format(real_mean, self.header.dmean))
                 valid = False
         
         return valid

@@ -140,7 +140,7 @@ class MrcFileTest(MrcObjectTest):
             calc_max = mrc.data.max()
             calc_min = mrc.data.min()
             calc_mean = mrc.data.mean(dtype=np.float64)
-            calc_std = mrc.data.std(dtype=np.float64)
+            calc_std = mrc.data.std()
             calc_sum = mrc.data.sum()
             
             # Compare calculated values with header records
@@ -722,16 +722,19 @@ class MrcFileTest(MrcObjectTest):
 
 
 def create_test_float32_array(dtype=np.float32):
-    """Create a 10 x 9 array of float values over almost all of float32 range"""
+    """Create a 10 x 9 array of float values.
+
+    Values above 10^19 cause data.std(dtype=np.float32) to overflow, so we
+    stay inside that range to avoid warnings."""
     data = np.zeros((9, 10), dtype=dtype)
-    data[:4] = np.negative(np.logspace(38.5, -38.5, 40).reshape(4, 10))
-    data[5:] = np.logspace(-38.5, 38.5, 40).reshape(4, 10)
+    data[:4] = np.negative(np.logspace(19, -38, 40).reshape(4, 10))
+    data[5:] = np.logspace(-38, 19, 40).reshape(4, 10)
     return data
 
 
 def create_test_complex64_array():
     floats = create_test_float32_array()
-    data = 1j * floats[::-1]
+    data = 0.1j * floats[::-1]
     data += floats
     assert data.dtype.type == np.complex64
     return data

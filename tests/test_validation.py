@@ -394,8 +394,8 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                   print_file=self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert ("Error in data statistics: RMS deviation is {0} but the value "
-                "in the header is 9.0".format(data.std()) in print_output)
+        assert ("Data statistics appear to be inaccurate: RMS deviation is {0} but the"
+                " value in the header is 9.0".format(data.std()) in print_output)
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -419,8 +419,8 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                   print_file=self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert ("Error in data statistics: minimum is {0} but the value "
-                "in the header is -11".format(data.min()) in print_output)
+        assert ("Data statistics appear to be inaccurate: minimum is {0} but the value"
+                " in the header is -11".format(data.min()) in print_output)
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -433,8 +433,8 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                   print_file=self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert ("Error in data statistics: maximum is {0} but the value "
-                "in the header is 15".format(data.max()) in print_output)
+        assert ("Data statistics appear to be inaccurate: maximum is {0} but the value"
+                " in the header is 15".format(data.max()) in print_output)
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -459,8 +459,9 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                   print_file=self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert ("Error in data statistics: mean is {0} but the value "
-                "in the header is -2.5".format(data.mean()) in print_output)
+        assert ("Data statistics appear to be inaccurate: mean is {0} but the value in"
+                " the header is -2.5".format(data.mean(dtype=np.float64))
+                in print_output)
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -475,8 +476,9 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                   print_file=self.print_stream)
         assert result == False
         print_output = self.print_stream.getvalue()
-        assert ("Error in data statistics: mean is {0} but the value "
-                "in the header is -2.5".format(data.mean()) in print_output)
+        assert ("Data statistics appear to be inaccurate: mean is {0} but the value in"
+                " the header is -2.5".format(data.mean(dtype=np.float64))
+                in print_output)
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     

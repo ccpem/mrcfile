@@ -30,6 +30,14 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     
     def setUp(self):
         super(MrcObjectTest, self).setUp()
+
+        # Make sure we don't have any unexpected warnings by raising them all
+        # as errors unless they are explicitly caught or ignored
+        warning_context = warnings.catch_warnings()
+        warning_context.__enter__()
+        warnings.simplefilter("error")
+        self.addCleanup(warning_context.__exit__)
+
         self.mrcobject = MrcObject()
         self.mrcobject._create_default_attributes()
     
@@ -398,8 +406,8 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         header = self.mrcobject.header
         assert header.dmin == np.float32(vol.min())
         assert header.dmax == np.float32(vol.max())
-        assert header.dmean == np.float32(vol.mean(dtype=np.float64))
-        assert header.rms == np.float32(vol.std(dtype=np.float64))
+        assert header.dmean == np.float32(vol.mean(dtype=np.float32))
+        assert header.rms == np.float32(vol.std(dtype=np.float32))
     
     def test_stats_are_updated_on_request(self):
         x, y = 4, 3
@@ -424,7 +432,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert header.dmin == np.float32(data.min())
         assert header.dmax == np.float32(data.max())
         assert header.dmean == np.float32(data.mean(dtype=np.float64))
-        assert header.rms == np.float32(data.std(dtype=np.float64))
+        assert header.rms == np.float32(data.std())
 
     def test_reset_header_stats_are_undetermined(self):
         self.mrcobject.set_data(np.arange(12, dtype=np.float32).reshape(3, 4))
@@ -471,7 +479,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
             assert header.dmax < header.dmin
             assert header.dmean < header.dmin
             assert header.dmean < header.dmax
-            self.assertAlmostEqual(header.rms, np.float32(data.std(dtype=np.float64)))
+            self.assertAlmostEqual(header.rms, np.float32(data.std()))
 
     def test_warning_for_stats_with_nan(self):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
