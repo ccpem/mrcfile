@@ -45,19 +45,25 @@ jobs:
       python: "3.10"
 
     # PPC
+    # Just build one numpy version on each ppc64 instance to avoid timeouts
     - arch: ppc64le
       python: "2.7"
       dist: xenial
     - arch: ppc64le
       python: "3.6"
+      script: tox -e "py36-numpy1.16"
     - arch: ppc64le
       python: "3.7"
+      script: tox -e "py37-numpy1.18"
     - arch: ppc64le
       python: "3.8"
+      script: tox -e "py38-numpy1.20"
     - arch: ppc64le
       python: "3.9"
+      script: tox -e "py39-numpy1.22"
     - arch: ppc64le
       python: "3.10"
+      script: tox -e "py310-numpy1.23"
 
     # s390x build image has a pip cache permissions problem (except for Python 2.7)
     # List all s390x jobs explicitly with adjusted install scripts
