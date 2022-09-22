@@ -1,12 +1,16 @@
 Change log for mrcfile
 ======================
 
-Changes for next version
-------------------------
+Version 1.4.3 (2022-09-22)
+--------------------------
 
-* Add helper functions for working with header labels
+* Add helper functions for working with header labels.
+* Update header statistics calculation to use float32 instead of float64. This
+  is about twice as fast and uses less memory, but does make the calculations
+  slightly less accurate and will overflow (to 'inf') if the data array
+  contains very large values (larger than approximately 1e19).
 
-Version 1.4.1 (2022-07-14)
+Version 1.4.2 (2022-07-14)
 --------------------------
 
 * Add support for passing file names as pathlib Path objects.

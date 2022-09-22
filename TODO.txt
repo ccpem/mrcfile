@@ -7,8 +7,6 @@ Planned or possible future developments for mrcfile.py
 
 * Fixing of invalid files
 
-* Helper methods for handling header labels
-
 * Handling of additional extended header types
 
 * Data axis swapping (would need clarity about whether header fields such as
