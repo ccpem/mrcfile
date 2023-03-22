@@ -64,6 +64,7 @@ class MrcObject(object):
 
     * :attr:`header`
     * :attr:`extended_header`
+    * :attr:`indexed_extended_header`
     * :attr:`data`
     * :attr:`voxel_size`
     * :attr:`nstart`

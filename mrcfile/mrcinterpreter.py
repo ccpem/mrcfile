@@ -109,9 +109,6 @@ class MrcInterpreter(MrcObject):
             RuntimeWarning: If ``iostream`` is given, the data it contains
                 cannot be interpreted as a valid MRC file and ``permissive``
                 is :data:`True`.
-            RuntimeWarning: If the header's ``exttyp`` field is set to a known
-                value but the extended header's size is not a multiple of the
-                number of bytes in the corresponding dtype.
         """
         super(MrcInterpreter, self).__init__(**kwargs)
 
