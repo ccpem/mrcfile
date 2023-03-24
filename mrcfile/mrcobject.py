@@ -196,6 +196,7 @@ class MrcObject(object):
     def indexed_extended_header(self):
         """Get the indexed part of the extended header as a
         :class:`numpy array <numpy.ndarray>` with the appropriate dtype set.
+
         Currently only ``'FEI1'`` and ``'FEI2'` extended headers are supported.
         Modifications to the indexed extended header will not change the
         extended header data recorded in this :class:`MrcObject`. If the
