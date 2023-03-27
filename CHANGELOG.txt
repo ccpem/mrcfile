@@ -1,6 +1,15 @@
 Change log for mrcfile
 ======================
 
+Changes for next version
+------------------------
+
+* Add new 'indexed_extended_header' attribute to access the indexed part of
+  the extended header if it exists (thanks to David Waterman). Note that this
+  introduces a change in behaviour: code that used the 'extended_header'
+  attribute directly to access items in FEI1- and FEI2-type extended headers
+  will need to be updated to use 'indexed_extended_header' instead.
+
 Version 1.4.3 (2022-09-22)
 --------------------------
 
