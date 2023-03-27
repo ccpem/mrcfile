@@ -489,7 +489,7 @@ an indexable extended header array, even if the extended header itself
 contains trailing padding bytes.
 
 Currently two extended header types (``exttyp``) are recognised as indexable:
-``'FEI1'`` and ``'FEI2'`. Other types may be added in future.
+``'FEI1'`` and ``'FEI2'``. Other types may be added in future.
 
 Voxel size
 ~~~~~~~~~~
