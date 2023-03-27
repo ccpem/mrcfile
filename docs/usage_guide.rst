@@ -10,10 +10,10 @@ introduction, see the :doc:`overview <readme>`.
    import shutil
    import tempfile
    import warnings
-   
+
    import numpy as np
    import mrcfile
-   
+
    old_cwd = os.getcwd()
    tempdir = tempfile.mkdtemp()
    os.chdir(tempdir)
@@ -47,11 +47,11 @@ write access as `numpy arrays`_. :
    >>> import mrcfile
    >>> with mrcfile.new('tmp.mrc') as mrc:
    ...     mrc.set_data(example_data)
-   ... 
+   ...
    >>> # The file is now saved on disk. Open it again and check the data:
    >>> with mrcfile.open('tmp.mrc') as mrc:
    ...     mrc.data
-   ... 
+   ...
    array([[ 0,  1,  2,  3],
           [ 4,  5,  6,  7],
           [ 8,  9, 10, 11]], dtype=int8)
@@ -91,11 +91,11 @@ files very easily:
    >>> # Make a new gzipped MRC file:
    >>> with mrcfile.new('tmp.mrc.gz', compression='gzip') as mrc:
    ...     mrc.set_data(example_data * 2)
-   ... 
+   ...
    >>> # Open it again with the normal open function:
    >>> with mrcfile.open('tmp.mrc.gz') as mrc:
    ...     mrc.data
-   ... 
+   ...
    array([[ 0,  2,  4,  6],
           [ 8, 10, 12, 14],
           [16, 18, 20, 22]], dtype=int8)
@@ -103,7 +103,7 @@ files very easily:
    >>> # Same again for bzip2:
    >>> with mrcfile.new('tmp.mrc.bz2', compression='bzip2') as mrc:
    ...     mrc.set_data(example_data * 3)
-   ... 
+   ...
    >>> # Open it again with the normal read function:
    >>> mrcfile.read('tmp.mrc.bz2')
    array([[ 0,  3,  6,  9],
@@ -376,7 +376,7 @@ Accessing the header and data
 
 The header and data arrays can be accessed using the
 :attr:`~mrcfile.mrcobject.MrcObject.header`,
-:attr:`~mrcfile.mrcobject.MrcObject.extended_header` and 
+:attr:`~mrcfile.mrcobject.MrcObject.extended_header` and
 :attr:`~mrcfile.mrcobject.MrcObject.data` attributes:
 
 .. doctest::
@@ -387,7 +387,7 @@ The header and data arrays can be accessed using the
    rec.array((4, 3, 1, ...),
              dtype=[('nx', ...)])
    >>> mrc.extended_header
-   array([], 
+   array([],
          dtype='|V1')
    >>> mrc.data
    array([[ 0,  1,  2,  3],
@@ -422,7 +422,7 @@ the file mode is ``r``) the arrays can be modified in-place:
           [1, 1, 1, 1]], dtype=int8)
    >>> mrc.close()
 
-To replace the data or extended header completely, call the 
+To replace the data or extended header completely, call the
 :meth:`~mrcfile.mrcobject.MrcObject.set_data` and
 :meth:`~mrcfile.mrcobject.MrcObject.set_extended_header` methods:
 
@@ -448,7 +448,7 @@ To replace the data or extended header completely, call the
    >>> string_array = np.fromstring(b'The extended header can hold any kind of numpy array', dtype='S52')
    >>> mrc.set_extended_header(string_array)
    >>> mrc.extended_header
-   array([b'The extended header can hold any kind of numpy array'], 
+   array([b'The extended header can hold any kind of numpy array'],
          dtype='|S52')
    >>> # Setting the extended header updates the header's nsymbt field to match
    >>> mrc.header.nsymbt
@@ -466,12 +466,30 @@ For a quick overview of the contents of a file's header, call
 
    >>> with mrcfile.open('tmp.mrc') as mrc:
    ...     mrc.print_header()
-   ... 
+   ...
    nx              : 5
    ny              : 2
    nz              : 2
    mode            : 1
    nxstart ...
+
+Indexing the extended header
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The :attr:`~mrcfile.mrcobject.MrcObject.extended_header` attribute will
+return an array of the bytes in the extended header. However, some
+extended headers are structured and consist of a sequence of metadata
+blocks, where each block corresponds to a single image, or slice, in the
+data array. The attribute
+:attr:`~mrcfile.mrcobject.MrcObject.indexed_extended_header` is intended
+for more convenient access to the indexed sequence of metadata blocks,
+for known extended header types. It will return an array with the
+appropriate numpy dtype set (or ``None`` in the case of failure) for
+an indexable extended header array, even if the extended header itself
+contains trailing padding bytes.
+
+Currently two extended header types (``exttyp``) are recognised as indexable:
+``'FEI1'`` and ``'FEI2'`. Other types may be added in future.
 
 Voxel size
 ~~~~~~~~~~
@@ -486,7 +504,7 @@ and ``z``, for the voxel size in each dimension:
 
    >>> with mrcfile.open('tmp.mrc') as mrc:
    ...     mrc.voxel_size
-   ... 
+   ...
    rec.array((0.,  0.,  0.),
              dtype=[('x', '<f4'), ('y', '<f4'), ('z', '<f4')])
 
@@ -630,7 +648,7 @@ is valid:
 .. doctest::
 
    >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
-   
+
    >>> # Check the current data shape and header dimensions match
    >>> mrc.data.shape
    (3, 4)
@@ -670,7 +688,7 @@ correct:
    >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
    >>> mrc.data.shape
    (2, 2, 5)
-   
+
    >>> # Change the data shape in-place and check the header
    >>> mrc.data.shape = (5, 4)
    >>> mrc.header.nx == mrc.data.shape[-1]
@@ -803,7 +821,7 @@ default:
 .. doctest::
 
    >>> mrc = mrcfile.open('tmp.mrc', mode='r+')
-   
+
    >>> # New 3D data in an existing image file is treated as an image stack:
    >>> mrc.set_data(data_3d)
    >>> len(mrc.data.shape)
@@ -827,7 +845,7 @@ default:
    1
    >>> mrc.close()
 
-Call :meth:`~mrcfile.mrcobject.MrcObject.set_image_stack` and 
+Call :meth:`~mrcfile.mrcobject.MrcObject.set_image_stack` and
 :meth:`~mrcfile.mrcobject.MrcObject.set_volume` to change the interpretation of
 3D data. (Note: as well as changing ``ispg``, these methods also change ``mz``
 to be 1 for image stacks and equal to ``nz`` for volumes.)
@@ -1087,7 +1105,7 @@ Errors will cause messages to be printed to the console, and
    >>> with mrcfile.new('tmp.mrc', overwrite=True) as mrc:
    ...     mrc.set_data(example_data)
    ...     mrc.header.mz = -1
-   ... 
+   ...
 
    >>> # Now it should fail validation and print a helpful message
    >>> mrcfile.validate('tmp.mrc')
@@ -1246,6 +1264,7 @@ Attributes:
 
 * :attr:`~mrcfile.mrcobject.MrcObject.header`
 * :attr:`~mrcfile.mrcobject.MrcObject.extended_header`
+* :attr:`~mrcfile.mrcobject.MrcObject.indexed_extended_header`
 * :attr:`~mrcfile.mrcobject.MrcObject.data`
 * :attr:`~mrcfile.mrcobject.MrcObject.voxel_size`
 
