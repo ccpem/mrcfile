@@ -13,7 +13,7 @@ python:
   - "3.8"
   - "3.9"
   - "3.10"
-  - "3.11-dev"
+  - "3.11"
 install: pip install tox-travis
 script: tox
 
@@ -43,6 +43,8 @@ jobs:
       python: "3.9"
     - arch: arm64
       python: "3.10"
+    - arch: arm64
+      python: "3.11"
 
     # PPC
     # Just build one numpy version on each ppc64 instance to avoid timeouts
@@ -64,6 +66,9 @@ jobs:
     - arch: ppc64le
       python: "3.10"
       script: tox -e "py310-numpy1.23"
+    - arch: ppc64le
+      python: "3.11"
+      script: tox -e "py311-numpy1.24"
 
     # s390x build image has a pip cache permissions problem (except for Python 2.7)
     # List all s390x jobs explicitly with adjusted install scripts
@@ -92,6 +97,11 @@ jobs:
         - pip install tox-travis
     - arch: s390x
       python: "3.10"
+      install:
+        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
+        - pip install tox-travis
+    - arch: s390x
+      python: "3.11"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis

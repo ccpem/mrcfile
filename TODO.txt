@@ -11,3 +11,5 @@ Planned or possible future developments for mrcfile.py
 
 * Data axis swapping (would need clarity about whether header fields such as
   cell size and dimensions apply to axes before or after swapping)
+
+* Raise a ResourceWarning if __del__ is called before close()
