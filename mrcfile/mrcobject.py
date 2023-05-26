@@ -181,11 +181,11 @@ class MrcObject(object):
     def extended_header(self):
         """Get the extended header as a :class:`numpy array <numpy.ndarray>`.
 
-        The dtype will be void (raw data, dtype ``'V'``). If the actual data type
+        The dtype will be void (raw data, dtype ``V'``). If the actual data type
         of the extended header is known, the dtype of the array can be changed
-        to match. For supported types (e.g. ``'FEI1'`` and ``'FEI2'`), the
+        to match. For supported types (e.g. ``'FEI1'`` and ``'FEI2'``), the
         indexed part of the extended header (excluding any zero padding) can be
-        accessed using :meth:`indexed_extended_header`
+        accessed using :meth:`indexed_extended_header`.
 
         The extended header may be modified in place. To replace it completely,
         call :meth:`set_extended_header`.
@@ -197,13 +197,13 @@ class MrcObject(object):
         """Get the indexed part of the extended header as a
         :class:`numpy array <numpy.ndarray>` with the appropriate dtype set.
 
-        Currently only ``'FEI1'`` and ``'FEI2'` extended headers are supported.
+        Currently only ``'FEI1'`` and ``'FEI2'`` extended headers are supported.
         Modifications to the indexed extended header will not change the
         extended header data recorded in this :class:`MrcObject`. If the
         extended header type is unrecognised or extended header data is not of
         sufficient length a warning will be produced and the indexed extended
-        header will be None."""
-
+        header will be None.
+        """
         # Use the header's byte order for the extended header
         dtype = get_ext_header_dtype(self.header.exttyp,
                                      self.header.mode.dtype.byteorder)
