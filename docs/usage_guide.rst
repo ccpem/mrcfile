@@ -318,8 +318,8 @@ The problems that can cause an exception when opening an MRC file are:
    little-endian and continues trying to read the file. If the file is actually
    big-endian, the mode and data size checks will also fail because these
    values depend on the endianness and will be nonsensical.
-#. The mode number is not recognised. Currently accepted modes are 0, 1, 2, 4
-   and 6.
+#. The mode number is not recognised. Currently accepted modes are 0, 1, 2, 4, 6
+   and 12.
 #. The data block is not large enough for the specified data type and
    dimensions.
 
