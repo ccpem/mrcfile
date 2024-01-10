@@ -268,9 +268,14 @@ class MrcObject(object):
         mode = utils.mode_from_dtype(data.dtype)
         new_dtype = (utils.dtype_from_mode(mode)
                      .newbyteorder(data.dtype.byteorder))
+        
+        # Set new_dtype to None if it is the same type as the original array,
+        # to avoid numpy >= 1.24 copying the array unnecessarily
+        if new_dtype == data.dtype:
+            new_dtype = None
 
         # Copy the data if necessary to ensure correct dtype and C ordering
-        new_data = np.asanyarray(data, new_dtype, order='C')
+        new_data = np.ascontiguousarray(data, dtype=new_dtype)
 
         # Replace the old data array with the new one, and update the header
         self._close_data()
