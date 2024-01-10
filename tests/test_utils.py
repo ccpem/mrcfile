@@ -71,6 +71,14 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
         dtype = utils.dtype_from_mode(np.array([1]))
         assert dtype == np.dtype(np.int16)
     
+    def test_empty_mode_array_raises_error(self):
+        with self.assertRaises(ValueError):
+            utils.dtype_from_mode(np.array([]))
+    
+    def test_mode_array_with_two_items_raises_error(self):
+        with self.assertRaises(ValueError):
+            utils.dtype_from_mode(np.array([1, 2]))
+    
     def test_float16_dtype_is_converted_to_mode_12(self):
         mode = utils.mode_from_dtype(np.dtype(np.float16))
         assert mode == 12

@@ -163,9 +163,13 @@ def dtype_from_mode(mode):
     
     Raises:
         :exc:`ValueError`: If there is no corresponding dtype for the given
-            mode.
+            mode, or if ``mode`` is an array and does not contain exactly one
+            item.
     """
-    mode = int(mode)
+    if isinstance(mode, np.ndarray):
+        if mode.size != 1:
+            raise ValueError("Mode array should contain exactly one item")
+        mode = mode.item()
     if mode in _mode_to_dtype:
         return np.dtype(_mode_to_dtype[mode])
     else:
