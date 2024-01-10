@@ -1,8 +1,8 @@
 Change log for mrcfile
 ======================
 
-Changes for next version
-------------------------
+Version 1.5.0 (2024-01-10)
+--------------------------
 
 * Add new 'indexed_extended_header' attribute to access the indexed part of
   the extended header if it exists (thanks to David Waterman). Note that this
