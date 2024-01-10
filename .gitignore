@@ -18,6 +18,10 @@
 .pydevproject
 .settings/
 .idea/
+.vscode/
+
+# Pyenv version file
+.python-version
 
 # Other
 dev-notes.rst
