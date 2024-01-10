@@ -9,6 +9,7 @@ Changes for next version
   introduces a change in behaviour: code that used the 'extended_header'
   attribute directly to access items in FEI1- and FEI2-type extended headers
   will need to be updated to use 'indexed_extended_header' instead.
+* Add support for numpy 1.24, 1.25 and 1.26 and Python 3.12
 
 Version 1.4.3 (2022-09-22)
 --------------------------
