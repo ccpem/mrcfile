@@ -120,9 +120,11 @@ jobs:
         - pip install tox-travis
 
     # FreeBSD build
-    - name: osx / Python 2.7 and 3.7
+    - name: FreeBSD
       os: freebsd
       language: python
+      install: pip install tox
+      script: tox --skip-missing-interpreters
 
     # Mac build
     - name: osx / Python 2.7 and 3.7
@@ -139,3 +141,5 @@ jobs:
         - choco install python --version 3.8.0
         - python -m pip install --upgrade pip
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      install: pip install tox
+      script: tox --skip-missing-interpreters
