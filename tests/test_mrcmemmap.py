@@ -51,7 +51,8 @@ class MrcMemmapTest(MrcFileTest):
             mrc.header.mz = mrc.header.nz = 3
         # The exception type and message are different on Linux and Windows
         expected_error_msg = ("mmap length is greater than file size"
-                              "|Not enough storage is available")
+                              "|Not enough storage is available"
+                              "|Not enough memory resources are available")
         with self.assertRaisesRegex(Exception, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
     

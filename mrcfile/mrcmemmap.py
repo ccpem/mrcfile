@@ -123,7 +123,7 @@ class MrcMemmap(MrcFile):
                                    mode=acc_mode,
                                    offset=header_nbytes,
                                    shape=shape)
-        except ValueError as ex:
+        except Exception as ex:
             if self._permissive:
                 warnings.warn("Error opening memmap", RuntimeWarning)
                 self._data = None
