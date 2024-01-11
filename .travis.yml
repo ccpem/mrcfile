@@ -117,9 +117,23 @@ jobs:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
 
+    # FreeBSD build
+    - name: osx / Python 2.7 and 3.7
+      os: freebsd
+      language: python
+
     # Mac build
     - name: osx / Python 2.7 and 3.7
       os: osx
       language: generic
       install: pip2 install tox
       script: tox --skip-missing-interpreters
+
+    # Windows build
+    - name: Windows / Python 3.8
+      os: windows
+      language: shell
+      before_install:
+        - choco install python --version 3.8.0
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
