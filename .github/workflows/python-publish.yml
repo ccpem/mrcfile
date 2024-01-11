@@ -33,14 +33,13 @@ jobs:
 
     - name: Publish package to PyPI
       if: github.event_name == 'release'
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
+      uses: pypa/gh-action-pypi-publish@v1.8.11
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
 
     - name: Publish package to Test PyPI
       if: github.event_name == 'workflow_dispatch'
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
+      uses: pypa/gh-action-pypi-publish@v1.8.11
       with:
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        repository_url: https://test.pypi.org/legacy/
+        repository-url: https://test.pypi.org/legacy/
