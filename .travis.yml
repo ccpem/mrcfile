@@ -102,12 +102,15 @@ jobs:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
       # Exclude numpy v1.18 that doesn't build properly
-      script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22,1.23,1.24}"
+      # Also cut down list of numpy versions so build doesn't time out
+      script: tox -e "py38-numpy{1.17,1.21,1.24}"
     - arch: s390x
       python: "3.9"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
+      # Cut down list of numpy versions so build doesn't time out
+      script: tox -e "py39-numpy{1.19,1.22,1.26}"
     - arch: s390x
       python: "3.10"
       install:
@@ -120,11 +123,9 @@ jobs:
         - pip install tox-travis
 
     # FreeBSD build
-    - name: FreeBSD
+    - name: FreeBSD / Python 2.7
       os: freebsd
       language: python
-      install: pip install tox
-      script: tox --skip-missing-interpreters
 
     # Mac build
     - name: osx / Python 2.7 and 3.7
