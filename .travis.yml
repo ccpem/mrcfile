@@ -36,10 +36,16 @@ jobs:
       dist: xenial
     - arch: arm64
       python: "3.6"
+      # Exclude numpy v1.18 that doesn't build properly
+      script: tox -e "py36-numpy{1.16,1.17,1.19}"
     - arch: arm64
       python: "3.7"
+      # Exclude numpy v1.18 that doesn't build properly
+      script: tox -e "py37-numpy{1.16,1.17,1.19,1.20,1.21}"
     - arch: arm64
       python: "3.8"
+      # Exclude numpy v1.18 that doesn't build properly
+      script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22,1.23,1.24}"
     - arch: arm64
       python: "3.9"
     - arch: arm64
@@ -57,7 +63,7 @@ jobs:
       script: tox -e "py36-numpy1.16"
     - arch: ppc64le
       python: "3.7"
-      script: tox -e "py37-numpy1.18"
+      script: tox -e "py37-numpy1.17"
     - arch: ppc64le
       python: "3.8"
       script: tox -e "py38-numpy1.20"
@@ -81,16 +87,22 @@ jobs:
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
+      # Exclude numpy v1.18 that doesn't build properly
+      script: tox -e "py36-numpy{1.16,1.17,1.19}"
     - arch: s390x
       python: "3.7"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
+      # Exclude numpy v1.18 that doesn't build properly
+      script: tox -e "py37-numpy{1.16,1.17,1.19,1.20,1.21}"
     - arch: s390x
       python: "3.8"
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
+      # Exclude numpy v1.18 that doesn't build properly
+      script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22,1.23,1.24}"
     - arch: s390x
       python: "3.9"
       install:
