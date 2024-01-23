@@ -20,6 +20,7 @@ import numpy as np
 
 from .helpers import AssertRaisesRegexMixin
 from mrcfile import constants
+from mrcfile import dtypes
 from mrcfile.mrcobject import MrcObject
 from mrcfile import utils
 
@@ -715,6 +716,27 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert result == False
         print_output = print_stream.getvalue()
         assert "Header field 'ispg' is negative" in print_output
+
+    def test_setting_origin_as_separate_fields(self):
+        self.mrcobject.header.origin.x = 1
+        self.mrcobject.header.origin.y = -5
+        self.mrcobject.header.origin.z = 128
+        expected = np.core.records.fromrecords((1., -5., 128.),
+                                               dtype=dtypes.VOXEL_SIZE_DTYPE)
+        np.testing.assert_equal(self.mrcobject.header.origin, expected)
+
+    def test_setting_origin_as_single_field(self):
+        origin = np.core.records.fromrecords((-1., 1., 0.),
+                                             dtype=dtypes.VOXEL_SIZE_DTYPE)
+        self.mrcobject.header.origin = origin
+        np.testing.assert_equal(self.mrcobject.header.origin, origin)
+
+    def test_setting_origin_as_single_tuple(self):
+        origin = (-1., 1., 0.)
+        self.mrcobject.header.origin = origin
+        expected = np.core.records.fromrecords(origin,
+                                               dtype=dtypes.VOXEL_SIZE_DTYPE)
+        np.testing.assert_equal(self.mrcobject.header.origin, expected)
 
 
 if __name__ == '__main__':
