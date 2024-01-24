@@ -123,6 +123,10 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
     NewMrc = MrcFile
     name = str(name)  # in case name is a pathlib Path
     if os.path.exists(name):
+        if "w" in mode:
+            raise ValueError("File '{0}' already exists; use a different name, or"
+                             " delete it first or call 'mrcfile.new()' with"
+                             " 'overwrite=True' to overwrite it".format(name))
         with io.open(name, 'rb') as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
         # Check for map ID string to avoid trying to decompress normal files

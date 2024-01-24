@@ -101,6 +101,13 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert repr(mrc) == ("MrcFile('{0}', mode='w+')"
                                  .format(self.temp_mrc_name))
 
+    def test_error_overwriting_file_with_open_function(self):
+        assert not os.path.exists(self.temp_mrc_name)
+        open(self.temp_mrc_name, 'w+').close()
+        assert os.path.exists(self.temp_mrc_name)
+        with self.assertRaisesRegex(ValueError, "call 'mrcfile\.new\(\)'"):
+            mrcfile.open(self.temp_mrc_name, mode='w+')
+
     def test_header_only_opening(self):
         with mrcfile.open(self.example_mrc_name, header_only=True) as mrc:
             assert mrc.header is not None
