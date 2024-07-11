@@ -17,6 +17,10 @@ import unittest
 import warnings
 
 import numpy as np
+try:
+    from numpy.exceptions import ComplexWarning
+except ImportError:
+    from numpy import ComplexWarning
 
 from . import helpers
 from .test_mrcobject import MrcObjectTest
@@ -549,7 +553,7 @@ class MrcFileTest(MrcObjectTest):
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_native.mrc')
         # Suppress complex casting warnings from statistics calculations
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", np.ComplexWarning)
+            warnings.simplefilter("ignore", ComplexWarning)
             self.write_file_then_read_and_assert_data_unchanged(name, data)
 
     def test_writing_image_mode_4_little_endian(self):
@@ -557,7 +561,7 @@ class MrcFileTest(MrcObjectTest):
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_le.mrc')
         # Suppress complex casting warnings from statistics calculations
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", np.ComplexWarning)
+            warnings.simplefilter("ignore", ComplexWarning)
             self.write_file_then_read_and_assert_data_unchanged(name, data)
 
     def test_writing_image_mode_4_big_endian(self):
@@ -565,7 +569,7 @@ class MrcFileTest(MrcObjectTest):
         name = os.path.join(self.test_output, 'test_img_10x9_mode4_be.mrc')
         # Suppress complex casting warnings from statistics calculations
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", np.ComplexWarning)
+            warnings.simplefilter("ignore", ComplexWarning)
             self.write_file_then_read_and_assert_data_unchanged(name, data)
 
     def test_writing_image_mode_4_with_inf_and_nan(self):
@@ -707,7 +711,7 @@ class MrcFileTest(MrcObjectTest):
         data = np.arange(12, dtype=np.int16).reshape(3, 4)
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(data)
-            wrong_byte_order = mrc.header.mode.newbyteorder().dtype.byteorder
+            wrong_byte_order = mrc.header.mode.dtype.newbyteorder().byteorder
             mrc.header.machst = utils.machine_stamp_from_byte_order(wrong_byte_order)
         with self.assertRaisesRegex(ValueError, "Unrecognised mode"):
             self.newmrc(self.temp_mrc_name)

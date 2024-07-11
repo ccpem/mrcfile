@@ -17,6 +17,14 @@ import warnings
 from datetime import datetime
 
 import numpy as np
+try:
+    from numpy.exceptions import ComplexWarning
+except ImportError:
+    from numpy import ComplexWarning
+try:
+    from numpy.rec import fromrecords
+except ImportError:
+    from numpy.core.records import fromrecords
 
 from .helpers import AssertRaisesRegexMixin
 from mrcfile import constants
@@ -313,7 +321,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         data = np.arange(6, dtype=np.complex64).reshape(3, 2)
         # Suppress complex casting warnings from statistics calculations
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore", np.ComplexWarning)
+            warnings.simplefilter("ignore", ComplexWarning)
             self.mrcobject.set_data(data)
             assert self.mrcobject.data.dtype == np.complex64
             assert self.mrcobject.header.mode == 4
@@ -371,7 +379,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert utils.byte_orders_equal(header.mode.dtype.byteorder,
                                        orig_byte_order)
         
-        self.mrcobject.set_data(data.newbyteorder())
+        self.mrcobject.set_data(data.view(data.dtype.newbyteorder()))
         assert not utils.byte_orders_equal(header.mode.dtype.byteorder,
                                            orig_byte_order)
         assert header.mode == 2
@@ -512,7 +520,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
             assert len(w) >= 1, str(len(w)) + " warnings issued"
             assert "Data array contains infinite values" in [str(i.message) for i in w]
             header = self.mrcobject.header
-            assert header.dmin == np.NINF
+            assert header.dmin == -np.inf
             assert header.dmax == np.inf
             assert np.isnan(header.dmean)
             assert np.isnan(header.rms)
@@ -721,21 +729,20 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.mrcobject.header.origin.x = 1
         self.mrcobject.header.origin.y = -5
         self.mrcobject.header.origin.z = 128
-        expected = np.core.records.fromrecords((1., -5., 128.),
-                                               dtype=dtypes.VOXEL_SIZE_DTYPE)
+        expected = fromrecords((1., -5., 128.),
+                               dtype=dtypes.VOXEL_SIZE_DTYPE)
         np.testing.assert_equal(self.mrcobject.header.origin, expected)
 
     def test_setting_origin_as_single_field(self):
-        origin = np.core.records.fromrecords((-1., 1., 0.),
-                                             dtype=dtypes.VOXEL_SIZE_DTYPE)
+        origin = fromrecords((-1., 1., 0.),
+                             dtype=dtypes.VOXEL_SIZE_DTYPE)
         self.mrcobject.header.origin = origin
         np.testing.assert_equal(self.mrcobject.header.origin, origin)
 
     def test_setting_origin_as_single_tuple(self):
         origin = (-1., 1., 0.)
         self.mrcobject.header.origin = origin
-        expected = np.core.records.fromrecords(origin,
-                                               dtype=dtypes.VOXEL_SIZE_DTYPE)
+        expected = fromrecords(origin, dtype=dtypes.VOXEL_SIZE_DTYPE)
         np.testing.assert_equal(self.mrcobject.header.origin, expected)
 
 

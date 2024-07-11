@@ -228,7 +228,8 @@ class MrcInterpreter(MrcObject):
                 utils.dtype_from_mode(header.mode)
             except ValueError:
                 try:
-                    utils.dtype_from_mode(header.mode.newbyteorder())
+                    opp_mode = header.mode.view(header.mode.dtype.newbyteorder())
+                    utils.dtype_from_mode(opp_mode)
                     # If we get here the new byte order is probably correct
                     # Use it and issue a warning
                     header.dtype = header.dtype.newbyteorder()
