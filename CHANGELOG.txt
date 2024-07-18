@@ -1,6 +1,11 @@
 Change log for mrcfile
 ======================
 
+Version 1.5.2 (2024-07-18)
+--------------------------
+
+* Fix opening of very large files with mmap (thanks to Hanjin Liu)
+
 Version 1.5.1 (2024-07-11)
 --------------------------
 

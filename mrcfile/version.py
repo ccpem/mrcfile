@@ -5,4 +5,4 @@
 no dependencies.
 """
 
-__version__ = '1.5.1-dev'
+__version__ = '1.5.2'
