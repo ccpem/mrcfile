@@ -114,7 +114,7 @@ class MrcMemmap(MrcFile):
     def _open_memmap(self, dtype, shape):
         """Open a new memmap array pointing at the file's data block."""
         acc_mode = 'r' if self._read_only else 'r+'
-        header_nbytes = self.header.nbytes + self.header.nsymbt
+        header_nbytes = int(self.header.nbytes + self.header.nsymbt)
         
         self._iostream.flush()
         try:
