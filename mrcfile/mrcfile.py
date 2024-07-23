@@ -133,7 +133,8 @@ class MrcFile(MrcInterpreter):
     def _read_data(self):
         """Override _read_data() to check file size matches data block size."""
         file_size = self._get_file_size()
-        header_size = self.header.nbytes + self.header.nsymbt
+        #int casting is needed to prevent OverflowErrors
+        header_size = int(self.header.nbytes + self.header.nsymbt)
         remaining_file_size = file_size - header_size
 
         super(MrcFile, self)._read_data(max_bytes=remaining_file_size)
