@@ -355,8 +355,13 @@ class MrcFileTest(MrcObjectTest):
             warnings.simplefilter("always")
             with self.newmrc(self.temp_mrc_name, permissive=True) as mrc:
                 assert mrc.data is None
-            assert len(w) == 1
+            assert len(w) > 0
+            assert str(w[0].message) in (
+                "Expected {} bytes in data block but limit is 24".format(nx * ny * nz),
+                "Error opening memmap",
+            )
             assert issubclass(w[0].category, RuntimeWarning)
+            assert len(w) == 1
 
     def test_can_edit_header_in_read_write_mode(self):
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
