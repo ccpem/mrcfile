@@ -328,6 +328,7 @@ class MrcFileTest(MrcObjectTest):
         with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
 
+    @unittest.skipIf(sys.maxsize <= np.iinfo(np.int32).max, "can't run test on 32-bit")
     def test_data_is_not_read_if_dimensions_are_too_huge(self):
         # Prepare x, y and z counts to try to trigger an out-of-memory error
         # The individual values need to fit in int32 values to be stored in the header
