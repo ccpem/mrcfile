@@ -210,7 +210,7 @@ class MrcObject(object):
 
         # Interpret one element
         try:
-            if self.extended_header.size < dtype.itemsize:
+            if self.extended_header.nbytes < dtype.itemsize:
                 raise ValueError
             first = self.extended_header[0:dtype.itemsize]
             first.dtype = dtype
@@ -224,7 +224,7 @@ class MrcObject(object):
 
         nbytes = int(self.header["nz"]) * dtype.itemsize
         try:
-            if self.extended_header.size < nbytes:
+            if self.extended_header.nbytes < nbytes:
                 raise ValueError
             full = self.extended_header[0:nbytes]
             full.dtype = dtype
