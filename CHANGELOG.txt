@@ -1,10 +1,20 @@
 Change log for mrcfile
 ======================
 
+Version 1.5.3 (2024-07-24)
+--------------------------
+
+* Fix opening of large files in numpy 2.0 (in general this time, not just for
+  mmap)
+* Raise errors if data or extended header arrays are too large for their
+  dimensions to be stored in the header
+* Validate header statistics only if they are set
+
 Version 1.5.2 (2024-07-18)
 --------------------------
 
-* Fix opening of very large files with mmap (thanks to Hanjin Liu)
+* Fix opening of very large files with mmap in numpy 2.0 (thanks to Hanjin
+  Liu)
 
 Version 1.5.1 (2024-07-11)
 --------------------------
