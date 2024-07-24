@@ -159,7 +159,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         assert self.mrcobject.extended_header is ext2
         assert self.mrcobject.header.nsymbt == ext2.nbytes
     
-    @unittest.skipIf(sys.maxsize > np.iinfo(np.int32).max, "can't run test on 32-bit")
+    @unittest.skipIf(sys.maxsize <= np.iinfo(np.int32).max, "can't run test on 32-bit")
     def test_replacing_extended_header_too_big(self):
         ext = np.empty((int(np.iinfo(np.int32).max) + 1,), dtype='V1')
         with self.assertRaisesRegex(ValueError, "extended header is too large"):
@@ -283,7 +283,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
             self.mrcobject.set_data(np.arange(2, dtype=np.int16)
                                     .reshape(1, 1, 1, 1, 2))
     
-    @unittest.skipIf(sys.maxsize > np.iinfo(np.int32).max, "can't run test on 32-bit")
+    @unittest.skipIf(sys.maxsize <= np.iinfo(np.int32).max, "can't run test on 32-bit")
     def test_data_array_too_big_raises_exception(self):
         data = np.empty((int(np.iinfo(np.int32).max) + 1, 1), dtype=np.int8)
         with self.assertRaisesRegex(ValueError, "data array is too large"):
