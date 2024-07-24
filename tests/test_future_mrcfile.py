@@ -16,7 +16,7 @@ from mrcfile.future_mrcfile import FutureMrcFile
 from . import helpers
 
 
-def test_function(*args, **kwargs):
+def sleep_and_return_args(*args, **kwargs):
     """Simple test function to wait a short time and return its arguments."""
     time.sleep(0.01)
     return [args, kwargs]
@@ -33,7 +33,7 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     """
 
     def setUp(self):
-        self.future_mrc_file = FutureMrcFile(test_function)
+        self.future_mrc_file = FutureMrcFile(sleep_and_return_args)
 
     def tearDown(self):
         pass
@@ -46,7 +46,7 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_add_done_callback(self):
         with self.assertRaises(NotImplementedError):
-            self.future_mrc_file.add_done_callback(test_function)
+            self.future_mrc_file.add_done_callback(sleep_and_return_args)
 
     def test_running_and_done_status(self):
         assert self.future_mrc_file.running() == True
@@ -58,7 +58,7 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     def test_arguments_passed_correctly(self):
         args = (1, 2, 'a')
         kwargs = {'a': 'b', 'c': 3}
-        future_mrc_file = FutureMrcFile(test_function, args, kwargs)
+        future_mrc_file = FutureMrcFile(sleep_and_return_args, args, kwargs)
         result = future_mrc_file.result()
         assert result[0] == args
         assert result[1] == kwargs
@@ -70,11 +70,11 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_timeout_from_result(self):
         with self.assertRaisesRegex(RuntimeError, "Timed out"):
-            FutureMrcFile(test_function).result(0.001)
+            FutureMrcFile(sleep_and_return_args).result(0.001)
 
     def test_timeout_from_exception(self):
         with self.assertRaisesRegex(RuntimeError, "Timed out"):
-            FutureMrcFile(test_function).exception(0.001)
+            FutureMrcFile(sleep_and_return_args).exception(0.001)
 
     def test_exception(self):
         future_mrc_file = FutureMrcFile(lambda: 1/0)
