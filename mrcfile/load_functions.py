@@ -17,6 +17,8 @@ from __future__ import (absolute_import, division, print_function,
 import io
 import os
 
+import numpy as np
+
 from . import utils
 from .bzip2mrcfile import Bzip2MrcFile
 from .constants import MAP_ID, MAP_ID_OFFSET_BYTES
@@ -319,14 +321,22 @@ def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False, extended_heade
         :exc:`ValueError`: If the MRC mode is invalid.
         :exc:`ValueError`: If the file already exists and overwrite is
             :data:`False`.
+        :exc:`ValueError`: If the extended header or any of the dimensions of
+                the shape have a size greater than 2,147,483,647 (and
+                therefore the size cannot be stored in the header).
     """
+    for dim in shape:
+        if dim > np.iinfo(np.int32).max:
+            raise ValueError("New shape is too large! Found a dimension of"
+                             " size {}. The maximum allowed is {}."
+                             .format(dim, np.iinfo(np.int32).max))
+
     mrc = MrcMemmap(name, mode='w+', overwrite=overwrite)
 
     # Add the extended header and type. We need to do this before creating the
     # memory mapped file to avoid having to copy lots of data
     if extended_header is not None:
-        mrc._extended_header = extended_header
-        mrc.header.nsymbt = extended_header.nbytes
+        mrc.set_extended_header(extended_header)
     if exttyp is not None:
         mrc.header.exttyp = exttyp
 

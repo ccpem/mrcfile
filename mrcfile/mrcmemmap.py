@@ -60,8 +60,9 @@ class MrcMemmap(MrcFile):
         very time consuming with large files, if the new extended header
         occupies a different number of bytes than the previous one.
         """
-        self._check_writeable()
-        if extended_header.nbytes != self._extended_header.nbytes:
+        old_ext_header_size = self._extended_header.nbytes
+        super(MrcMemmap, self).set_extended_header(extended_header)
+        if extended_header.nbytes != old_ext_header_size:
             data_copy = self._data.copy()
             self._close_data()
             self._extended_header = extended_header
@@ -70,8 +71,6 @@ class MrcMemmap(MrcFile):
             self._iostream.truncate(header_nbytes + data_copy.nbytes)
             self._open_memmap(data_copy.dtype, data_copy.shape)
             np.copyto(self._data, data_copy)
-        else:
-            self._extended_header = extended_header
     
     def flush(self):
         """Flush the header and data arrays to the file buffer."""

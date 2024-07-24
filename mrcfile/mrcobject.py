@@ -241,8 +241,18 @@ class MrcObject(object):
 
         If you set the extended header you should also set the
         ``header.exttyp`` field to indicate the type of extended header.
+
+        Raises:
+            :exc:`ValueError`: If the new extended header has more than
+                2,147,483,647 bytes (and therefore its size cannot be stored
+                in the header).
         """
         self._check_writeable()
+        if extended_header.nbytes > np.iinfo(np.int32).max:
+            raise ValueError("New extended header is too large! It has {} "
+                             "bytes. The maximum allowed is {}."
+                             .format(extended_header.nbytes,
+                                     np.iinfo(np.int32).max))
         self._extended_header = extended_header
         self.header.nsymbt = extended_header.nbytes
 
@@ -259,6 +269,11 @@ class MrcObject(object):
         statistics (min, max, mean and rms) stored in the header will also be
         updated.
 
+        Raises:
+            :exc:`ValueError`: if the new data has a dimension larger than
+                2,147,483,647 (and therefore its size cannot be stored in the
+                header).
+
         Warns:
             RuntimeWarning: If the data array contains Inf or NaN values.
         """
@@ -268,6 +283,13 @@ class MrcObject(object):
         mode = utils.mode_from_dtype(data.dtype)
         new_dtype = (utils.dtype_from_mode(mode)
                      .newbyteorder(data.dtype.byteorder))
+        
+        for dim in data.shape:
+            if dim > np.iinfo(np.int32).max:
+                raise ValueError("New data array is too large! Found a "
+                                 "dimension of size {}. The maximum allowed "
+                                 "is {}."
+                                 .format(dim, np.iinfo(np.int32).max))
         
         # Set new_dtype to None if it is the same type as the original array,
         # to avoid numpy >= 1.24 copying the array unnecessarily

@@ -231,6 +231,39 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
             assert file_size == mrc.header.nbytes + mrc.data.nbytes
 
+    def test_new_mmap_with_extended_header(self):
+        with mrcfile.new_mmap(self.temp_mrc_name,
+                              (3, 4, 5),
+                              mrc_mode=2,
+                              fill=1.1,
+                              extended_header=np.zeros(1, dtype=np.int8),
+                              exttyp='TYPE') as mrc:
+            assert repr(mrc) == ("MrcMemmap('{0}', mode='w+')"
+                                 .format(self.temp_mrc_name))
+            assert mrc.data.shape == (3, 4, 5)
+            assert np.all(mrc.data == 1.1)
+            assert mrc.header.nx == 5
+            assert mrc.header.nsymbt == 1
+            assert mrc.extended_header.nbytes == 1
+            assert mrc.header.exttyp == b'TYPE'
+            file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
+            exp_size = mrc.header.nbytes + mrc.extended_header.nbytes + mrc.data.nbytes
+            assert file_size == exp_size
+
+    def test_new_mmap_with_extended_header_too_big(self):
+        ext = np.empty((int(np.iinfo(np.int32).max) + 1,), dtype='V1')
+        with self.assertRaisesRegex(ValueError, "extended header is too large"):
+            mrcfile.new_mmap(self.temp_mrc_name,
+                             (3, 4, 5, 6),
+                             mrc_mode=2,
+                             fill=1.1,
+                             extended_header=ext)
+
+    def test_new_mmap_with_shape_too_big(self):
+        with self.assertRaisesRegex(ValueError, "shape is too large"):
+            mrcfile.new_mmap(self.temp_mrc_name,
+                             (np.iinfo(np.int32).max + 1, 1))
+
     def test_write(self):
         data_in = np.random.random((10, 10)).astype(np.float16)
         mrcfile.write(self.temp_mrc_name, data_in, voxel_size=1.1)
