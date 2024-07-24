@@ -114,7 +114,10 @@ class MrcMemmap(MrcFile):
     def _open_memmap(self, dtype, shape):
         """Open a new memmap array pointing at the file's data block."""
         acc_mode = 'r' if self._read_only else 'r+'
-        header_nbytes = int(self.header.nbytes + self.header.nsymbt)
+        # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
+        # self.extended_header might be None in permissive read mode. Need to convert to
+        # Python int (rather than numpy int32) to avoid possible overflow.
+        header_nbytes = self.header.nbytes + int(self.header.nsymbt)
         
         self._iostream.flush()
         try:
@@ -155,7 +158,10 @@ class MrcMemmap(MrcFile):
     def _set_new_data(self, data):
         """Override of :meth:`_set_new_data` to handle opening a new memmap and
         copying data into it."""
-        file_size = self.header.nbytes + self.header.nsymbt + data.nbytes
+        # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
+        # self.extended_header might be None in permissive read mode. Need to convert to
+        # Python int (rather than numpy int32) to avoid possible overflow.
+        file_size = self.header.nbytes + int(self.header.nsymbt) + data.nbytes
         self._iostream.truncate(file_size)
         self._open_memmap(data.dtype, data.shape)
         np.copyto(self._data, data, casting='no')
