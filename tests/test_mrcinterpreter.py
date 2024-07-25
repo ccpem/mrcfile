@@ -15,12 +15,12 @@ import warnings
 
 import numpy as np
 
-from .test_mrcobject import MrcObjectTest
+from . import test_mrcobject
 from mrcfile.constants import MAP_ID_OFFSET_BYTES
 from mrcfile.mrcinterpreter import MrcInterpreter
 
 
-class MrcInterpreterTest(MrcObjectTest):
+class MrcInterpreterTest(test_mrcobject.MrcObjectTest):
     
     """Unit tests for MrcInterpreter class.
     

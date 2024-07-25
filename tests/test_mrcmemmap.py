@@ -14,11 +14,11 @@ import unittest
 
 import numpy as np
 
-from .test_mrcfile import MrcFileTest
+from . import test_mrcfile
 from mrcfile.mrcmemmap import MrcMemmap
 
 
-class MrcMemmapTest(MrcFileTest):
+class MrcMemmapTest(test_mrcfile.MrcFileTest):
     
     """Unit tests for MRC file I/O with memory-mapped files.
     

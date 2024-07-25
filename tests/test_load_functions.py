@@ -103,10 +103,12 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                                  .format(self.temp_mrc_name))
 
     def test_error_overwriting_file_with_open_function(self):
-        assert not os.path.exists(self.temp_mrc_name)
-        open(self.temp_mrc_name, 'w+').close()
-        assert os.path.exists(self.temp_mrc_name)
-        with self.assertRaisesRegex(ValueError, "call 'mrcfile\.new\(\)'"):
+        # Convert name to str to avoid TypeErrors in Python 2.7 with pathlib
+        temp_mrc_name_str = str(self.temp_mrc_name)
+        assert not os.path.exists(temp_mrc_name_str)
+        open(temp_mrc_name_str, 'w+').close()
+        assert os.path.exists(temp_mrc_name_str)
+        with self.assertRaisesRegex(ValueError, r"call 'mrcfile\.new\(\)'"):
             mrcfile.open(self.temp_mrc_name, mode='w+')
 
     def test_header_only_opening(self):

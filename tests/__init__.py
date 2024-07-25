@@ -11,25 +11,28 @@ import unittest
 
 from .test_bzip2mrcfile import Bzip2MrcFileTest
 from .test_command_line import CommandLineTest
+from .test_dtypes import DtypesTest
 from .test_future_mrcfile import FutureMrcFileTest
 from .test_gzipmrcfile import GzipMrcFileTest
-from .test_load_functions import LoadFunctionTest
-from .test_mrcobject import MrcObjectTest
-from .test_mrcinterpreter import MrcInterpreterTest
+from .test_load_functions import LoadFunctionTest, LoadFunctionTestWithPathlib
 from .test_mrcfile import MrcFileTest
+from .test_mrcinterpreter import MrcInterpreterTest
 from .test_mrcmemmap import MrcMemmapTest
+from .test_mrcobject import MrcObjectTest
 from .test_utils import UtilsTest
 from .test_validation import ValidationTest
 
 test_classes = [
     Bzip2MrcFileTest,
     CommandLineTest,
+    DtypesTest,
     FutureMrcFileTest,
     GzipMrcFileTest,
     LoadFunctionTest,
-    MrcObjectTest,
-    MrcInterpreterTest,
+    LoadFunctionTestWithPathlib,
     MrcFileTest,
+    MrcInterpreterTest,
+    MrcObjectTest,
     MrcMemmapTest,
     UtilsTest,
     ValidationTest

@@ -22,8 +22,7 @@ try:
 except ImportError:
     from numpy import ComplexWarning
 
-from . import helpers
-from .test_mrcobject import MrcObjectTest
+from . import helpers, test_mrcobject
 from mrcfile.mrcfile import MrcFile
 from mrcfile.mrcobject import (IMAGE_STACK_SPACEGROUP, VOLUME_SPACEGROUP,
                                VOLUME_STACK_SPACEGROUP)
@@ -58,7 +57,7 @@ except ImportError:
 #     return tests
 
 
-class MrcFileTest(MrcObjectTest):
+class MrcFileTest(test_mrcobject.MrcObjectTest):
 
     """Unit tests for MRC file I/O.
 

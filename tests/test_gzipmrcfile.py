@@ -12,11 +12,11 @@ from __future__ import (absolute_import, division, print_function,
 import os
 import unittest
 
-from .test_mrcfile import MrcFileTest
+from . import test_mrcfile
 from mrcfile.gzipmrcfile import GzipMrcFile
 
 
-class GzipMrcFileTest(MrcFileTest):
+class GzipMrcFileTest(test_mrcfile.MrcFileTest):
     
     """Unit tests for gzipped MRC file I/O.
     
