@@ -1,6 +1,11 @@
 Change log for mrcfile
 ======================
 
+Version 1.5.4 (2025-01-21)
+--------------------------
+
+* Fix rare bug in mmap alignment with certain extended header sizes
+
 Version 1.5.3 (2024-07-24)
 --------------------------
 
