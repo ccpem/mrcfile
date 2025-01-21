@@ -16,6 +16,7 @@ Classes:
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import mmap
 import os
 import warnings
 
@@ -68,7 +69,14 @@ class MrcMemmap(MrcFile):
             self._extended_header = extended_header
             self.header.nsymbt = extended_header.nbytes
             header_nbytes = self.header.nbytes + extended_header.nbytes
-            self._iostream.truncate(header_nbytes + data_copy.nbytes)
+            total_nbytes = header_nbytes + data_copy.nbytes
+
+            # Workaround for https://github.com/ccpem/mrcfile/issues/65
+            if data_copy.nbytes == 0 and total_nbytes % mmap.ALLOCATIONGRANULARITY == 0:
+                # Add one extra byte here to avoid triggering mmap error
+                total_nbytes += 1
+
+            self._iostream.truncate(total_nbytes)
             self._open_memmap(data_copy.dtype, data_copy.shape)
             np.copyto(self._data, data_copy)
     
@@ -137,6 +145,12 @@ class MrcMemmap(MrcFile):
             file_size = self._get_file_size()
             remaining_file_size = file_size - header_nbytes
             data_size = self.data.nbytes
+
+            # Workaround for https://github.com/ccpem/mrcfile/issues/65
+            if data_size == 0 and header_nbytes % mmap.ALLOCATIONGRANULARITY == 0:
+                # Expect a file one byte larger here to avoid triggering mmap error
+                data_size = 1
+
             if data_size < remaining_file_size:
                 msg = ("MRC file is {0} bytes larger than expected"
                        .format(remaining_file_size - data_size))

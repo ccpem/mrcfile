@@ -9,6 +9,7 @@ Tests for mrcfile __init__.py loading functions.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import mmap
 import os
 import shutil
 import sys
@@ -231,7 +232,8 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert mrc.data.shape == (3, 4, 5, 6)
             assert np.all(mrc.data == 1.1)
             assert mrc.header.nx == 6
-            file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
+            mrc._iostream.seek(0, os.SEEK_END)
+            file_size = mrc._iostream.tell()
             assert file_size == mrc.header.nbytes + mrc.data.nbytes
 
     def test_new_mmap_with_extended_header(self):
@@ -249,7 +251,36 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert mrc.header.nsymbt == 1
             assert mrc.extended_header.nbytes == 1
             assert mrc.header.exttyp == b'TYPE'
-            file_size = mrc._iostream.tell() # relies on flush() leaving stream at end
+            mrc._iostream.seek(0, os.SEEK_END)
+            file_size = mrc._iostream.tell()
+            exp_size = mrc.header.nbytes + mrc.extended_header.nbytes + mrc.data.nbytes
+            assert file_size == exp_size
+
+    def test_new_mmap_with_aligned_offset(self):
+        # Test for awkward situation in https://github.com/ccpem/mrcfile/issues/65
+        # A zero-size mmap is created during the process of creating a new MrcMemmap
+        # object. If the header size is an exact multiple of mmap.ALLOCATIONGRANULARITY,
+        # mmap creation fails with an error.
+        problem_ext_head_size = mmap.ALLOCATIONGRANULARITY - 1024
+        with mrcfile.new_mmap(self.temp_mrc_name,
+                              (3, 4, 5),
+                              mrc_mode=2,
+                              fill=1.1,
+                              extended_header=np.zeros(problem_ext_head_size,
+                                                       dtype=np.int8)) as mrc:
+            assert repr(mrc) == ("MrcMemmap('{0}', mode='w+')"
+                                 .format(self.temp_mrc_name))
+            assert mrc.data.shape == (3, 4, 5)
+            assert np.all(mrc.data == 1.1)
+            assert mrc.header.nx == 5
+            assert mrc.header.nsymbt == problem_ext_head_size
+            assert mrc.extended_header.nbytes == problem_ext_head_size
+
+            # The workaround for this bug adds one extra byte to the file to avoid
+            # triggering the mmap error. After a data array has been set, the file size
+            # should be normal again.
+            mrc._iostream.seek(0, os.SEEK_END)
+            file_size = mrc._iostream.tell()
             exp_size = mrc.header.nbytes + mrc.extended_header.nbytes + mrc.data.nbytes
             assert file_size == exp_size
 
