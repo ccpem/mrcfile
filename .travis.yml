@@ -12,7 +12,7 @@ python:
   - "3.8"
   - "3.9"
   - "3.10"
-  - "3.11"
+  # - "3.11"  # skip this one and add it separately to include docs build
   - "3.12"
   - "3.13"
 install: pip install tox-travis
@@ -33,8 +33,8 @@ jobs:
       dist: xenial
     - arch: arm64
       python: "3.8"
-      # Exclude numpy v1.18 that doesn't build properly
-      script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22,1.23,1.24}"
+      # Exclude numpy v1.17 and v1.18 that don't build properly
+      script: tox -e "py38-numpy{1.19,1.20,1.21,1.22,1.23,1.24}"
     - arch: arm64
       python: "3.9"
     - arch: arm64
@@ -76,9 +76,9 @@ jobs:
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
-      # Exclude numpy v1.18 that doesn't build properly
+      # Exclude numpy v1.17 and v1.18 that don't build properly
       # Also cut down list of numpy versions so build doesn't time out
-      script: tox -e "py38-numpy{1.17,1.21,1.24}"
+      script: tox -e "py38-numpy{1.21,1.24}"
     - arch: s390x
       python: "3.9"
       install:
@@ -96,6 +96,8 @@ jobs:
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
+      # Exclude numpy v2.2 that doesn't build properly
+      script: tox -e "py311-numpy{1.23,1.24,1.25,1.26,2.0,2.1}"
 
     # FreeBSD build
     - name: FreeBSD / Python 2.7
