@@ -5,6 +5,7 @@ Version 1.5.4 (2025-01-21)
 --------------------------
 
 * Fix rare bug in mmap alignment with certain extended header sizes
+* Add support for Python 3.13 and numpy 2.1 & 2.2
 
 Version 1.5.3 (2024-07-24)
 --------------------------
