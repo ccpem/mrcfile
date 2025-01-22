@@ -433,8 +433,8 @@ To replace the data or extended header completely, call the
    >>> data_3d = np.linspace(-1000, 1000, 20, dtype=np.int16).reshape(2, 2, 5)
    >>> mrc.set_data(data_3d)
    >>> mrc.data
-   array([[[-1000,  -894,  -789,  -684,  -578],
-           [ -473,  -368,  -263,  -157,   -52]],
+   array([[[-1000,  -895,  -790,  -685,  -579],
+           [ -474,  -369,  -264,  -158,   -53]],
           [[   52,   157,   263,   368,   473],
            [  578,   684,   789,   894,  1000]]], dtype=int16)
    >>> # Setting a new data array updates the header dimensions to match
