@@ -91,6 +91,8 @@ jobs:
       install:
         - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
         - pip install tox-travis
+      # Exclude numpy v2.2 that doesn't build properly
+      script: tox -e "py310-numpy{1.21,1.22,1.23,1.24,1.25,1.26,2.0,2.1}"
     - arch: s390x
       python: "3.11"
       install:
