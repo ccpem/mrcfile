@@ -15,6 +15,7 @@ python:
   - "3.10"
   - "3.11"
   - "3.12"
+  - "3.13"
 install: pip install tox-travis
 script: tox
 
@@ -35,14 +36,6 @@ jobs:
       python: "2.7"
       dist: xenial
     - arch: arm64
-      python: "3.6"
-      # Exclude numpy v1.18 that doesn't build properly
-      script: tox -e "py36-numpy{1.16,1.17,1.19}"
-    - arch: arm64
-      python: "3.7"
-      # Exclude numpy v1.18 that doesn't build properly
-      script: tox -e "py37-numpy{1.16,1.17,1.19,1.20,1.21}"
-    - arch: arm64
       python: "3.8"
       # Exclude numpy v1.18 that doesn't build properly
       script: tox -e "py38-numpy{1.17,1.19,1.20,1.21,1.22,1.23,1.24}"
@@ -55,18 +48,15 @@ jobs:
     - arch: arm64
       dist: jammy
       python: "3.12"
+    - arch: arm64
+      dist: jammy
+      python: "3.13"
 
     # PPC
     # Just build one numpy version on each ppc64 instance to avoid timeouts
     - arch: ppc64le
       python: "2.7"
       dist: xenial
-    - arch: ppc64le
-      python: "3.6"
-      script: tox -e "py36-numpy1.16"
-    - arch: ppc64le
-      python: "3.7"
-      script: tox -e "py37-numpy1.17"
     - arch: ppc64le
       python: "3.8"
       script: tox -e "py38-numpy1.20"
@@ -85,20 +75,6 @@ jobs:
     - arch: s390x
       python: "2.7"
       dist: xenial
-    - arch: s390x
-      python: "3.6"
-      install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
-        - pip install tox-travis
-      # Exclude numpy v1.18 that doesn't build properly
-      script: tox -e "py36-numpy{1.16,1.17,1.19}"
-    - arch: s390x
-      python: "3.7"
-      install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
-        - pip install tox-travis
-      # Exclude numpy v1.18 that doesn't build properly
-      script: tox -e "py37-numpy{1.16,1.17,1.19,1.20,1.21}"
     - arch: s390x
       python: "3.8"
       install:
