@@ -34,6 +34,23 @@ class Bzip2MrcFileTest(test_mrcfile.MrcFileTest):
         self.ext_header_mrc_name = os.path.join(self.test_data, 'EMD-3001.map.bz2')
         self.fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc.bz2')
         self.fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc.bz2')
+
+        # Create .bz2 files from .mrc files if necessary
+        if not os.path.isfile(self.fei1_ext_header_mrc_name):
+            print("Test data file fei-extended.mrc.bz2 not found. Creating a new copy...")
+            fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
+            import bz2
+            with open(fei1_ext_header_mrc_name, "rb") as mrc:
+                with bz2.open(self.fei1_ext_header_mrc_name, 'wb') as bzf:
+                    bzf.write(mrc.read())
+
+        if not os.path.isfile(self.fei2_ext_header_mrc_name):
+            print("Test data file epu2.9_example.mrc.bz2 not found. Creating a new copy...")
+            fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc')
+            import bz2
+            with open(fei2_ext_header_mrc_name, "rb") as mrc:
+                with bz2.open(self.fei2_ext_header_mrc_name, 'wb') as bzf:
+                    bzf.write(mrc.read())
         
         # Set the newmrc method to the GzipMrcFile constructor
         self.newmrc = Bzip2MrcFile

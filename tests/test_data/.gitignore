@@ -1,0 +1,6 @@
+# Ignore compressed copies of example data files
+# These are created when needed for running the tests
+/epu2.9_example.mrc.bz2
+/epu2.9_example.mrc.gz
+/fei-extended.mrc.bz2
+/fei-extended.mrc.gz

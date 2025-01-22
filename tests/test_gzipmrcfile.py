@@ -34,7 +34,24 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
         self.ext_header_mrc_name = os.path.join(self.test_data, 'emd_3001.map.gz')
         self.fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc.gz')
         self.fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc.gz')
-        
+
+        # Create .gz files from .mrc files if necessary
+        if not os.path.isfile(self.fei1_ext_header_mrc_name):
+            print("Test data file fei-extended.mrc.gz not found. Creating a new copy...")
+            fei1_ext_header_mrc_name = os.path.join(self.test_data, 'fei-extended.mrc')
+            import gzip
+            with open(fei1_ext_header_mrc_name, "rb") as mrc:
+                with gzip.open(self.fei1_ext_header_mrc_name, 'wb') as gzipf:
+                    gzipf.write(mrc.read())
+
+        if not os.path.isfile(self.fei2_ext_header_mrc_name):
+            print("Test data file epu2.9_example.mrc.gz not found. Creating a new copy...")
+            fei2_ext_header_mrc_name = os.path.join(self.test_data, 'epu2.9_example.mrc')
+            import gzip
+            with open(fei2_ext_header_mrc_name, "rb") as mrc:
+                with gzip.open(self.fei2_ext_header_mrc_name, 'wb') as gzipf:
+                    gzipf.write(mrc.read())
+
         # Set the newmrc method to the GzipMrcFile constructor
         self.newmrc = GzipMrcFile
         
