@@ -1,5 +1,7 @@
 include CHANGELOG.txt
 graft tests
+exclude tests/test_data/epu2.9_example.mrc.*
+exclude tests/test_data/fei-extended.mrc.*
 graft docs
 global-exclude */__pycache__/*
 global-exclude *.pyc
