@@ -18,7 +18,7 @@ from . import helpers
 
 def sleep_and_return_args(*args, **kwargs):
     """Simple test function to wait a short time and return its arguments."""
-    time.sleep(0.01)
+    time.sleep(0.1)
     return [args, kwargs]
 
 
@@ -70,11 +70,11 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
 
     def test_timeout_from_result(self):
         with self.assertRaisesRegex(RuntimeError, "Timed out"):
-            FutureMrcFile(sleep_and_return_args).result(0.001)
+            FutureMrcFile(sleep_and_return_args).result(0.0001)
 
     def test_timeout_from_exception(self):
         with self.assertRaisesRegex(RuntimeError, "Timed out"):
-            FutureMrcFile(sleep_and_return_args).exception(0.001)
+            FutureMrcFile(sleep_and_return_args).exception(0.0001)
 
     def test_exception(self):
         future_mrc_file = FutureMrcFile(lambda: 1/0)
