@@ -3,8 +3,8 @@ mrcfile.py
 
 |build-status| |readthedocs| |python-versions| |pypi-version| |conda-forge-version|
 
-.. |build-status| image:: https://github.com/ccpem/mrcfile/actions/workflows/python-app.yml/badge.svg?branch=master
-    :target: https://github.com/ccpem/mrcfile/actions/workflows/python-app.yml
+.. |build-status| image:: https://github.com/ccpem/mrcfile/actions/workflows/python-test.yml/badge.svg?branch=master
+    :target: https://github.com/ccpem/mrcfile/actions/workflows/python-test.yml
     :alt: Build Status
 
 .. |readthedocs| image:: https://readthedocs.org/projects/mrcfile/badge/
