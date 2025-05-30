@@ -66,3 +66,5 @@ from __future__ import (absolute_import, division, print_function,
 from .load_functions import new, open, read, write, open_async, mmap, new_mmap
 from .validator import validate
 from .version import __version__
+
+__all__ = ["new", "open", "read", "write", "open_async", "mmap", "new_mmap", "validate", "__version__"]

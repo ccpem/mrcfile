@@ -406,9 +406,9 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_non_c_contiguous_data_is_made_c_contiguous(self):
         x, y, z = 4, 3, 2
         data = np.arange(z * y * x, dtype=np.int16).reshape(z, y, x).transpose()
-        assert data.flags.c_contiguous == False
+        assert not data.flags.c_contiguous
         self.mrcobject.set_data(data)
-        assert self.mrcobject.data.flags.c_contiguous == True
+        assert self.mrcobject.data.flags.c_contiguous
         assert self.mrcobject.data is not data
     
     def test_new_header_stats_are_undetermined(self):
@@ -733,7 +733,7 @@ class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
         self.mrcobject.header.ispg = -10
         print_stream = io.StringIO()
         result = self.mrcobject.validate(print_file=print_stream)
-        assert result == False
+        assert result is False
         print_output = print_stream.getvalue()
         assert "Header field 'ispg' is negative" in print_output
 

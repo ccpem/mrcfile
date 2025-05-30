@@ -39,21 +39,21 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         pass
 
     def test_cancel(self):
-        assert self.future_mrc_file.cancel() == False
+        assert self.future_mrc_file.cancel() is False
 
     def test_cancelled(self):
-        assert self.future_mrc_file.cancelled() == False
+        assert self.future_mrc_file.cancelled() is False
 
     def test_add_done_callback(self):
         with self.assertRaises(NotImplementedError):
             self.future_mrc_file.add_done_callback(sleep_and_return_args)
 
     def test_running_and_done_status(self):
-        assert self.future_mrc_file.running() == True
-        assert self.future_mrc_file.done() == False
+        assert self.future_mrc_file.running() is True
+        assert self.future_mrc_file.done() is False
         self.future_mrc_file.result()
-        assert self.future_mrc_file.running() == False
-        assert self.future_mrc_file.done() == True
+        assert self.future_mrc_file.running() is False
+        assert self.future_mrc_file.done() is True
 
     def test_arguments_passed_correctly(self):
         args = (1, 2, 'a')

@@ -77,7 +77,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.set_data(np.arange(36, dtype=np.float32).reshape(3, 3, 4))
             mrc.voxel_size = 2.3
         result = mrcfile.validate(self.temp_mrc_name, self.print_stream)
-        assert result == True
+        assert result is True
         print_output = self.print_stream.getvalue()
         assert print_output == (
             "Checking if " + self.temp_mrc_name + " is a valid MRC2014 file...\n"
@@ -88,7 +88,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_emdb_file(self):
         result = mrcfile.validate(self.example_mrc_name, self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == (
             "Checking if " + self.example_mrc_name + " is a valid MRC2014 file...\n"
@@ -99,7 +99,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_gzip_emdb_file(self):
         result = mrcfile.validate(self.gzip_mrc_name, self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == (
             "Checking if " + self.gzip_mrc_name + " is a valid MRC2014 file...\n"
@@ -110,7 +110,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_bzip2_emdb_file(self):
         result = mrcfile.validate(self.bzip2_mrc_name, self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == (
             "Checking if " + self.bzip2_mrc_name + " is a valid MRC2014 file...\n"
@@ -121,7 +121,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     
     def test_emdb_cryst_file(self):
         result = mrcfile.validate(self.ext_header_mrc_name, self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert print_output.strip() == (
             "Checking if " + self.ext_header_mrc_name + " is a valid MRC2014 file...\n"
@@ -136,7 +136,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             warnings.simplefilter("always")
             result = mrcfile.validate(self.temp_mrc_name,
                                       print_file=self.print_stream)
-            assert result == False
+            assert result is False
             print_output = self.print_stream.getvalue()
             assert message.lower() in print_output.lower()
             assert len(w) == 1
@@ -162,7 +162,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.map = b'MAP\0'
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Map ID string is incorrect" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -204,7 +204,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.mx = -10
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Header field 'mx' is negative" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -215,7 +215,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.my = -10
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Header field 'my' is negative" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -226,7 +226,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.mz = -10
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Header field 'mz' is negative" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -237,7 +237,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.ispg = -10
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Header field 'ispg' is negative" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -248,7 +248,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.nlabl = -3
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Header field 'nlabl' is negative" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -259,7 +259,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.cella.x = -10
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Cell dimension 'x' is negative" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -272,7 +272,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.maps = -200
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Invalid axis mapping: found [-200, 3, 4]" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -284,7 +284,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with warnings.catch_warnings(record=True):
             result = mrcfile.validate(self.temp_mrc_name,
                                       print_file=self.print_stream)
-            assert result == True
+            assert result is True
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -295,7 +295,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with warnings.catch_warnings(record=True):
             result = mrcfile.validate(self.temp_mrc_name,
                                       print_file=self.print_stream)
-            assert result == False
+            assert result is False
             print_output = self.print_stream.getvalue()
             assert ("Error in dimensions for volume stack: nz should be "
                     "divisible by mz. Found nz = 6, mz = 5" in print_output)
@@ -308,7 +308,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.nlabl = 3
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Error in header labels: "
                 "nlabl is 3 but 2 labels contain text" in print_output)
@@ -321,7 +321,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.nlabl = 1
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Error in header labels: "
                 "nlabl is 1 but 2 labels contain text" in print_output)
@@ -334,7 +334,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.nlabl = 2
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Error in header labels: empty labels appear between "
                 "text-containing labels" in print_output)
@@ -346,8 +346,9 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.nversion = 20140
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == True
+        assert result is True
         print_output = self.print_stream.getvalue()
+        assert "File appears to be valid" in print_output
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -356,7 +357,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.nversion = 20139
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "File does not declare MRC format version 20140 or 20141" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -367,7 +368,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.set_extended_header(np.arange(10))
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Extended header type is undefined or unrecognised" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -379,7 +380,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.exttyp = 'Fake'
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert "Extended header type is undefined or unrecognised" in print_output
         assert len(sys.stdout.getvalue()) == 0
@@ -392,7 +393,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.rms = 9.0
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Data statistics appear to be inaccurate: RMS deviation is {0} but the"
                 " value in the header is 9.0".format(data.std()) in print_output)
@@ -406,7 +407,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.rms = -15
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == True
+        assert result is True
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -417,7 +418,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmin = -11
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Data statistics appear to be inaccurate: minimum is {0} but the value"
                 " in the header is -11".format(data.min()) in print_output)
@@ -431,7 +432,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmax = 15
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Data statistics appear to be inaccurate: maximum is {0} but the value"
                 " in the header is 15".format(data.max()) in print_output)
@@ -446,7 +447,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmax = 30.0
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == True
+        assert result is True
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -457,7 +458,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmean = -2.5
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Data statistics appear to be inaccurate: mean is {0} but the value in"
                 " the header is -2.5".format(data.mean(dtype=np.float64))
@@ -474,7 +475,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmean = -2.5
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert ("Data statistics appear to be inaccurate: mean is {0} but the value in"
                 " the header is -2.5".format(data.mean(dtype=np.float64))
@@ -489,7 +490,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmean = -11
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == True
+        assert result is True
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -502,7 +503,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             mrc.header.dmean = 29.9
         result = mrcfile.validate(self.temp_mrc_name,
                                   print_file=self.print_stream)
-        assert result == True
+        assert result is True
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
     
@@ -528,7 +529,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         with warnings.catch_warnings(record=True):
             result = mrcfile.validate(self.temp_mrc_name,
                                       print_file=self.print_stream)
-            assert result == False
+            assert result is False
             print_output = self.print_stream.getvalue()
             assert len(print_output.split('\n')) == 16
         assert len(sys.stdout.getvalue()) == 0
@@ -556,7 +557,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
     def test_validate_good_files(self):
         good_files = self.create_good_files()
         result = validate_all(good_files, print_file=self.print_stream)
-        assert result == True
+        assert result is True
         print_output = self.print_stream.getvalue()
         assert print_output == (
             "Checking if " + good_files[0] + " is a valid MRC2014 file...\n"
@@ -579,7 +580,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             self.gzip_mrc_name
         ]
         result = validate_all(bad_files, print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert len(print_output) > 0
         assert "Checking if " + bad_files[0] + " is a valid MRC2014 file..." in print_output
@@ -598,7 +599,7 @@ class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             self.gzip_mrc_name
         ]
         result = validate_all(files, print_file=self.print_stream)
-        assert result == False
+        assert result is False
         print_output = self.print_stream.getvalue()
         assert len(print_output) > 0
         assert len(sys.stdout.getvalue()) == 0

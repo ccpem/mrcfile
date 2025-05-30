@@ -681,7 +681,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
         mrc = self.newmrc(self.temp_mrc_name, mode='w+')
         mrc.set_data(vol)
         mrc.flush()
-        assert mrc.data.flags.c_contiguous == True
+        assert mrc.data.flags.c_contiguous
 
         # Transpose the data array in-place
         strides = mrc.data.strides
@@ -691,7 +691,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
         np.testing.assert_array_equal(transposed_vol, mrc.data)
 
         # Confirm data is no longer C-contiguous
-        assert mrc.data.flags.c_contiguous == False
+        assert not mrc.data.flags.c_contiguous
 
         # Flush and close should work without errors
         mrc.flush()
@@ -705,12 +705,12 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
         vol = img // np.arange(1, 6, dtype=np.int16).reshape(z, 1, 1)
         vol = vol.transpose()
 
-        assert vol.flags.c_contiguous == False
+        assert not vol.flags.c_contiguous
 
         # Write data and confirm it's C-contiguous
         with self.newmrc(self.temp_mrc_name, mode='w+') as mrc:
             mrc.set_data(vol)
-            assert mrc.data.flags.c_contiguous == True
+            assert mrc.data.flags.c_contiguous
 
     def test_permissive_read_with_wrong_machine_stamp(self):
         data = np.arange(12, dtype=np.int16).reshape(3, 4)

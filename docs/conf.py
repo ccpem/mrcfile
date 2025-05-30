@@ -20,6 +20,8 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../'))
 
+from mrcfile.version import __version__
+
 
 # -- General configuration ------------------------------------------------
 
@@ -56,8 +58,6 @@ author = u'Colin Palmer'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
-
-from mrcfile.version import __version__
 
 # The short X.Y version.
 version = __version__
