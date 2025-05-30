@@ -8,8 +8,6 @@ cache:
   directories:
     - .tox
 python:
-  - "2.7"
-  - "3.8"
   - "3.9"
   - "3.10"
   # - "3.11"  # skip this one and add it separately to include docs build
@@ -29,13 +27,6 @@ jobs:
 
     # ARM
     - arch: arm64
-      python: "2.7"
-      dist: xenial
-    - arch: arm64
-      python: "3.8"
-      # Exclude numpy v1.17 and v1.18 that don't build properly
-      script: tox -e "py38-numpy{1.19,1.20,1.21,1.22,1.23,1.24}"
-    - arch: arm64
       python: "3.9"
     - arch: arm64
       python: "3.10"
@@ -51,12 +42,6 @@ jobs:
     # PPC
     # Just build one numpy version on each ppc64 instance to avoid timeouts
     - arch: ppc64le
-      python: "2.7"
-      dist: xenial
-    - arch: ppc64le
-      python: "3.8"
-      script: tox -e "py38-numpy1.20"
-    - arch: ppc64le
       python: "3.9"
       script: tox -e "py39-numpy1.22"
     - arch: ppc64le
@@ -66,19 +51,8 @@ jobs:
       python: "3.11"
       script: tox -e "py311-numpy2.0"
 
-    # s390x build image has a pip cache permissions problem (except for Python 2.7)
+    # s390x build image has a pip cache permissions problem
     # List all s390x jobs explicitly with adjusted install scripts
-    - arch: s390x
-      python: "2.7"
-      dist: xenial
-    - arch: s390x
-      python: "3.8"
-      install:
-        - sudo chown -Rv $(id -u):$(id -g) ~/.cache/pip/wheels || true
-        - pip install tox-travis
-      # Exclude numpy v1.17 and v1.18 that don't build properly
-      # Also cut down list of numpy versions so build doesn't time out
-      script: tox -e "py38-numpy{1.21,1.24}"
     - arch: s390x
       python: "3.9"
       install:
@@ -102,7 +76,7 @@ jobs:
       script: tox -e "py311-numpy{1.23,1.24,1.25,1.26,2.0,2.1}"
 
     # FreeBSD build
-    - name: FreeBSD / Python 2.7
+    - name: FreeBSD / Python 3.8
       os: freebsd
       language: python
 
@@ -110,16 +84,16 @@ jobs:
     - name: osx / Python 2.7 and 3.7
       os: osx
       language: generic
-      install: pip2 install tox
+      install: pip install tox
       script: tox --skip-missing-interpreters
 
     # Windows build
-    - name: Windows / Python 3.8
+    - name: Windows / Python 3.13
       os: windows
       language: shell
       before_install:
-        - choco install python --version 3.8.0
+        - choco install python313
         - python -m pip install --upgrade pip
-      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+      env: PATH=/c/Python313:/c/Python313/Scripts:$PATH
       install: pip install tox
       script: tox --skip-missing-interpreters

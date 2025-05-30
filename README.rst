@@ -30,7 +30,7 @@ is used in structural biology to store image and volume data.
 
 It allows MRC files to be created and opened easily using a very simple API,
 which exposes the file's header and data as `numpy`_ arrays. The code runs in
-Python 2 and 3 and is fully unit-tested.
+Python 3 and is fully unit-tested.
 
 .. _MRC2014 file format: http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 .. _numpy: http://www.numpy.org/
@@ -50,7 +50,7 @@ Key Features
 * Seamless support for gzip and bzip2 files
 * Memory-mapped file option for fast random access to very large files
 * Asynchronous opening option for background loading of multiple files
-* Runs in Python 2 & 3, on Linux, Mac OS X and Windows
+* Runs in Python 3, on Linux, Mac OS X and Windows
 
 Installation
 ------------
