@@ -37,5 +37,7 @@ jobs:
     - name: Lint with Ruff
       run: ruff check --output-format=github --target-version=py39
     - name: Test with tox
+      env:
+        PYTHON_VERSION_NO_DOTS: ${{ join(fromJSON('["' + matrix.python-version + '"]'), '') }}
       run: |
-        tox --skip-missing-interpreters
+        tox -f py$PYTHON_VERSION_NO_DOTS
