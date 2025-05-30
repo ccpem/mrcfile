@@ -38,4 +38,4 @@ jobs:
       run: ruff check --output-format=github --target-version=py39
     - name: Test with tox
       run: |
-        tox -e py
+        tox --skip-missing-interpreters
