@@ -66,7 +66,8 @@ class Bzip2MrcFile(MrcFile):
         """Override because BZ2File in Python 2 does not support
         :meth:`~io.BufferedIOBase.readinto`."""
         if hasattr(self._iostream, "readinto"):
-            # Python 3 - BZ2File supports ``readinto()`` so we just use the normal implementation
+            # Python 3 - BZ2File supports ``readinto()`` so we just use the normal
+            # implementation
             return super(Bzip2MrcFile, self)._read_bytearray_from_stream(
                 number_of_bytes
             )

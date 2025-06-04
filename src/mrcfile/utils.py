@@ -307,7 +307,10 @@ def is_printable_ascii(string_):
 
 
 def printable_string_from_bytes(bytes_):
-    """Convert bytes into a printable ASCII string by removing non-printable characters."""
+    """Convert bytes into a printable ASCII string.
+
+    Non-printable characters are removed.
+    """
     string_ = bytes.decode(bytes_, encoding="ascii", errors="ignore")
     if not is_printable_ascii(string_):
         string_ = "".join([s for s in string_ if is_printable_ascii(s)])

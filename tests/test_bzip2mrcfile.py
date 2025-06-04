@@ -51,7 +51,8 @@ class Bzip2MrcFileTest(test_mrcfile.MrcFileTest):
 
         if not os.path.isfile(self.fei2_ext_header_mrc_name):
             print(
-                "Test data file epu2.9_example.mrc.bz2 not found. Creating a new copy..."
+                "Test data file epu2.9_example.mrc.bz2 not found. Creating a new"
+                " copy..."
             )
             fei2_ext_header_mrc_name = os.path.join(
                 self.test_data, "epu2.9_example.mrc"

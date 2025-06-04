@@ -232,9 +232,9 @@ class MrcInterpreter(MrcObject):
                     # Use it and issue a warning
                     header.dtype = header.dtype.newbyteorder()
                     pretty_machst = utils.pretty_machine_stamp(header.machst)
-                    msg = "Machine stamp '{0}' does not match the apparent byte order '{1}'"
                     warnings.warn(
-                        msg.format(pretty_machst, header.mode.dtype.byteorder),
+                        f"Machine stamp '{pretty_machst}' does not match the apparent"
+                        f" byte order '{header.mode.dtype.byteorder}'",
                         RuntimeWarning,
                     )
                 except ValueError:
