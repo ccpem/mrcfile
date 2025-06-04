@@ -701,7 +701,7 @@ class MrcObject(object):
         self.header.label[self.header.nlabl] = label
         self.header.nlabl += 1
 
-    def validate(self, print_file=None):
+    def validate(self, print_file=None):  # noqa: C901
         """Validate this MrcObject.
 
         This method runs a series of tests to check whether this object
@@ -791,7 +791,7 @@ class MrcObject(object):
             axes.add(int(self.header[field]))
         if axes != {1, 2, 3}:
             log("Invalid axis mapping: found {0}, should be [1, 2, 3]"
-                .format(sorted(list(axes))))
+                .format(sorted(axes)))
             valid = False
 
         # Check mz value for volume stacks

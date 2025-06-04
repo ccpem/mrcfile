@@ -244,7 +244,7 @@ def open_async(name, mode='r', permissive=False):
         A :class:`~mrcfile.future_mrcfile.FutureMrcFile` object.
 
     """
-    return FutureMrcFile(open, (name,), dict(mode=mode, permissive=permissive))
+    return FutureMrcFile(open, (name,), {"mode": mode, "permissive": permissive})
 
 
 def mmap(name, mode='r', permissive=False):

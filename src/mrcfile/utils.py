@@ -92,7 +92,7 @@ def data_shape_from_header(header):
     return shape
 
 
-_dtype_to_mode = dict(f2=12, f4=2, i1=0, i2=1, u1=6, u2=6, c8=4)
+_dtype_to_mode = {"f2": 12, "f4": 2, "i1": 0, "i2": 1, "u1": 6, "u2": 6, "c8": 4}
 
 def mode_from_dtype(dtype):
     """Return the MRC mode number corresponding to the given :class:`numpy
@@ -302,7 +302,7 @@ def printable_string_from_bytes(bytes_):
     """
     string_ = bytes.decode(bytes_, encoding='ascii', errors='ignore')
     if not is_printable_ascii(string_):
-        string_ = "".join(list(s for s in string_ if is_printable_ascii(s)))
+        string_ = "".join([s for s in string_ if is_printable_ascii(s)])
     return string_
 
 

@@ -44,3 +44,21 @@ documentation = "https://mrcfile.readthedocs.io/"
 [project.scripts]
 'mrcfile-header' = 'mrcfile.command_line:print_headers'
 'mrcfile-validate' = 'mrcfile.validator:main'
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.9
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "C", "W"]
+
+# Skip long lines and whitespace-only lines for now
+ignore = ["E501", "W293"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
