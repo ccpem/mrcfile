@@ -11,8 +11,7 @@ the package.
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import io
 import os
@@ -30,7 +29,7 @@ from .mrcmemmap import MrcMemmap
 
 def new(name, data=None, compression=None, overwrite=False):
     """Create a new MRC file.
-    
+
     Args:
         name: The file name to use, as a string or :class:`~pathlib.Path`.
         data: Data to put in the file, as a :class:`numpy array
@@ -45,11 +44,11 @@ def new(name, data=None, compression=None, overwrite=False):
         overwrite: Flag to force overwriting of an existing file. If
             :data:`False` and a file of the same name already exists, the file
             is not overwritten and an exception is raised.
-    
+
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
         subclass of it if ``compression`` is specified).
-    
+
     Raises:
         :exc:`ValueError`: If the file already exists and overwrite is
             :data:`False`.
@@ -58,36 +57,35 @@ def new(name, data=None, compression=None, overwrite=False):
     Warns:
         RuntimeWarning: If the data array contains Inf or NaN values.
     """
-    if compression == 'gzip':
+    if compression == "gzip":
         NewMrc = GzipMrcFile
-    elif compression == 'bzip2':
+    elif compression == "bzip2":
         NewMrc = Bzip2MrcFile
     elif compression is not None:
-        raise ValueError("Unknown compression format '{0}'"
-                         .format(compression))
+        raise ValueError("Unknown compression format '{0}'".format(compression))
     else:
         NewMrc = MrcFile
-    mrc = NewMrc(name, mode='w+', overwrite=overwrite)
+    mrc = NewMrc(name, mode="w+", overwrite=overwrite)
     if data is not None:
         mrc.set_data(data)
     return mrc
 
 
-def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssignment
+def open(name, mode="r", permissive=False, header_only=False):  # @ReservedAssignment
     """Open an MRC file.
-    
+
     This function opens both normal and compressed MRC files. Supported
     compression formats are: gzip, bzip2.
-    
+
     It is possible to use this function to create new MRC files (using mode
     ``w+``) but the :func:`new` function is more flexible.
-    
+
     This function offers a permissive read mode for attempting to open corrupt
     or invalid files. In permissive mode, :mod:`warnings` are issued instead of
     exceptions if problems with the file are encountered. See
     :class:`~mrcfile.mrcinterpreter.MrcInterpreter` or the
     :doc:`usage guide <../usage_guide>` for more information.
-    
+
     Args:
         name: The file name to open, as a string or :class:`~pathlib.Path`.
         mode: The file mode to use. This should be one of the following: ``r``
@@ -97,12 +95,12 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
             :data:`False`.
         header_only: Only read the header (and extended header) from the file.
             The default is :data:`False`.
-    
+
     Returns:
         An :class:`~mrcfile.mrcfile.MrcFile` object (or a
         :class:`~mrcfile.gzipmrcfile.GzipMrcFile` object if the file is
         gzipped).
-    
+
     Raises:
         :exc:`ValueError`: If the mode is not one of ``r``, ``r+`` or ``w+``.
         :exc:`ValueError`: If the file is not a valid MRC file and
@@ -112,7 +110,7 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
             an existing file.)
         :exc:`OSError`: If the mode is ``r`` or ``r+`` and the file does not
             exist.
-    
+
     Warns:
         RuntimeWarning: If the file appears to be a valid MRC file but the data
             block is longer than expected from the dimensions in the header.
@@ -126,10 +124,12 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
     name = str(name)  # in case name is a pathlib Path
     if os.path.exists(name):
         if "w" in mode:
-            raise ValueError("File '{0}' already exists; use a different name, or"
-                             " delete it first or call 'mrcfile.new()' with"
-                             " 'overwrite=True' to overwrite it".format(name))
-        with io.open(name, 'rb') as f:
+            raise ValueError(
+                "File '{0}' already exists; use a different name, or"
+                " delete it first or call 'mrcfile.new()' with"
+                " 'overwrite=True' to overwrite it".format(name)
+            )
+        with io.open(name, "rb") as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
         # Check for map ID string to avoid trying to decompress normal files
         # where the nx value happens to include the magic number for a
@@ -137,13 +137,12 @@ def open(name, mode='r', permissive=False, header_only=False):  # @ReservedAssig
         # compressed files which happen to have 'MAP ' at position 208, but
         # that is less likely and if it does occur, the CompressedMrcFile
         # class can always be used directly instead.)
-        if start[-len(MAP_ID):] != MAP_ID:
-            if start[:2] == b'\x1f\x8b':
+        if start[-len(MAP_ID) :] != MAP_ID:
+            if start[:2] == b"\x1f\x8b":
                 NewMrc = GzipMrcFile
-            elif start[:2] == b'BZ':
+            elif start[:2] == b"BZ":
                 NewMrc = Bzip2MrcFile
-    return NewMrc(name, mode=mode, permissive=permissive,
-                  header_only=header_only)
+    return NewMrc(name, mode=mode, permissive=permissive, header_only=header_only)
 
 
 def read(name):
@@ -160,7 +159,7 @@ def read(name):
     Returns:
         A :class:`numpy array<numpy.ndarray>` containing the data from the file.
     """
-    with open(name, mode='r', permissive=True) as mrc:
+    with open(name, mode="r", permissive=True) as mrc:
         data = mrc.data.copy()
     return data
 
@@ -196,16 +195,16 @@ def write(name, data=None, overwrite=False, voxel_size=None):
     """
     name = str(name)  # in case name is a pathlib Path
     compression = None
-    if name.endswith('.gz'):
-        compression = 'gzip'
-    elif name.endswith('.bz2'):
-        compression = 'bzip2'
+    if name.endswith(".gz"):
+        compression = "gzip"
+    elif name.endswith(".bz2"):
+        compression = "bzip2"
     with new(name, data, compression, overwrite) as mrc:
         if voxel_size is not None:
             mrc.voxel_size = voxel_size
 
 
-def open_async(name, mode='r', permissive=False):
+def open_async(name, mode="r", permissive=False):
     """Open an MRC file asynchronously in a separate thread.
 
     This allows a file to be opened in the background while the main thread
@@ -247,34 +246,42 @@ def open_async(name, mode='r', permissive=False):
     return FutureMrcFile(open, (name,), {"mode": mode, "permissive": permissive})
 
 
-def mmap(name, mode='r', permissive=False):
+def mmap(name, mode="r", permissive=False):
     """Open a memory-mapped MRC file.
-    
+
     This allows much faster opening of large files, because the data is only
     accessed on disk when a slice is read or written from the data array. See
     the :class:`~mrcfile.mrcmemmap.MrcMemmap` class documentation for more
     information.
-    
+
     Because the memory-mapped data array accesses the disk directly, compressed
     files cannot be opened with this function. In all other ways, :func:`mmap`
     behaves in exactly the same way as :func:`open`. The
     :class:`~mrcfile.mrcmemmap.MrcMemmap` object returned by this function can
     be used in exactly the same way as a normal
     :class:`~mrcfile.mrcfile.MrcFile` object.
-    
+
     Args:
         name: The file name to open, as a string or :class:`~pathlib.Path`.
         mode: The file mode (one of ``r``, ``r+`` or ``w+``).
         permissive: Read the file in permissive mode. The default is
             :data:`False`.
-    
+
     Returns:
         An :class:`~mrcfile.mrcmemmap.MrcMemmap` object.
     """
     return MrcMemmap(name, mode=mode, permissive=permissive)
 
 
-def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False, extended_header=None, exttyp=None):
+def new_mmap(
+    name,
+    shape,
+    mrc_mode=0,
+    fill=None,
+    overwrite=False,
+    extended_header=None,
+    exttyp=None,
+):
     """Create a new, empty memory-mapped MRC file.
 
     This function is useful for creating very large files. The initial contents
@@ -327,11 +334,14 @@ def new_mmap(name, shape, mrc_mode=0, fill=None, overwrite=False, extended_heade
     """
     for dim in shape:
         if dim > np.iinfo(np.int32).max:
-            raise ValueError("New shape is too large! Found a dimension of"
-                             " size {}. The maximum allowed is {}."
-                             .format(dim, np.iinfo(np.int32).max))
+            raise ValueError(
+                "New shape is too large! Found a dimension of"
+                " size {}. The maximum allowed is {}.".format(
+                    dim, np.iinfo(np.int32).max
+                )
+            )
 
-    mrc = MrcMemmap(name, mode='w+', overwrite=overwrite)
+    mrc = MrcMemmap(name, mode="w+", overwrite=overwrite)
 
     # Add the extended header and type. We need to do this before creating the
     # memory mapped file to avoid having to copy lots of data

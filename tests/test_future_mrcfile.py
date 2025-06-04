@@ -6,8 +6,7 @@ Tests for future_mrcfile.py.
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import time
 import unittest
@@ -23,7 +22,6 @@ def sleep_and_return_args(*args, **kwargs):
 
 
 class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
-
     """Unit tests for FutureMrcFile.
 
     These tests only make sure that the FutureMrcFile class works correctly
@@ -56,8 +54,8 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
         assert self.future_mrc_file.done() is True
 
     def test_arguments_passed_correctly(self):
-        args = (1, 2, 'a')
-        kwargs = {'a': 'b', 'c': 3}
+        args = (1, 2, "a")
+        kwargs = {"a": "b", "c": 3}
         future_mrc_file = FutureMrcFile(sleep_and_return_args, args, kwargs)
         result = future_mrc_file.result()
         assert result[0] == args
@@ -77,7 +75,7 @@ class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             FutureMrcFile(sleep_and_return_args).exception(0.0001)
 
     def test_exception(self):
-        future_mrc_file = FutureMrcFile(lambda: 1/0)
+        future_mrc_file = FutureMrcFile(lambda: 1 / 0)
         ex = future_mrc_file.exception()
         assert isinstance(ex, ZeroDivisionError)
         with self.assertRaises(ZeroDivisionError) as cm:

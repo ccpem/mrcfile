@@ -14,8 +14,7 @@ Classes:
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import threading
 
@@ -47,9 +46,7 @@ class FutureMrcFile(object):
         """
         self._result_holder = [None]
         self._open_function = open_function
-        self._thread = threading.Thread(target=self._run,
-                                        args=args,
-                                        kwargs=kwargs)
+        self._thread = threading.Thread(target=self._run, args=args, kwargs=kwargs)
         self._thread.start()
 
     def _run(self, *args, **kwargs):
@@ -156,7 +153,7 @@ class FutureMrcFile(object):
         """
         self._thread.join(timeout=timeout)
         if self._thread.is_alive():
-            raise RuntimeError('Timed out waiting for result')
+            raise RuntimeError("Timed out waiting for result")
         return self._result_holder[0]
 
     def add_done_callback(self, fn):

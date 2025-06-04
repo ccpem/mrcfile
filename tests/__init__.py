@@ -4,8 +4,7 @@
 """Tests for the mrcfile package."""
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import unittest
 
@@ -35,8 +34,9 @@ test_classes = [
     MrcObjectTest,
     MrcMemmapTest,
     UtilsTest,
-    ValidationTest
+    ValidationTest,
 ]
+
 
 def load_tests(loader, tests, pattern):
     suite = unittest.TestSuite()

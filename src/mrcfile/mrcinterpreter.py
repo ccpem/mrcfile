@@ -13,8 +13,7 @@ Classes:
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import warnings
 
@@ -27,7 +26,6 @@ from .constants import MAP_ID
 
 
 class MrcInterpreter(MrcObject):
-
     """An object which interprets an I/O stream as MRC / CCP4 map data.
 
     The header and data are handled as numpy arrays - see
@@ -78,8 +76,7 @@ class MrcInterpreter(MrcObject):
 
     """
 
-    def __init__(self, iostream=None, permissive=False, header_only=False,
-                 **kwargs):
+    def __init__(self, iostream=None, permissive=False, header_only=False, **kwargs):
         """Initialise a new MrcInterpreter object.
 
         This initialiser reads the stream if it is given. In general,
@@ -193,15 +190,16 @@ class MrcInterpreter(MrcObject):
 
         # Use a recarray to allow access to fields as attributes
         # (e.g. header.mode instead of header['mode'])
-        header = np.frombuffer(header_arr, dtype=HEADER_DTYPE).reshape(()).view(np.recarray)
+        header = (
+            np.frombuffer(header_arr, dtype=HEADER_DTYPE).reshape(()).view(np.recarray)
+        )
 
         # Check the map ID to make sure this is an MRC file. The full map ID
         # should be 'MAP ', but we check only the first three bytes because
         # this is the form specified in the MRC2014 paper and is used by some
         # other software.
         if bytes(header.map)[:3] != MAP_ID[:3]:
-            msg = ("Map ID string not found - "
-                   "not an MRC file, or file is corrupt")
+            msg = "Map ID string not found - not an MRC file, or file is corrupt"
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
             else:
@@ -212,7 +210,7 @@ class MrcInterpreter(MrcObject):
             byte_order = utils.byte_order_from_machine_stamp(header.machst)
         except ValueError as err:
             if self._permissive:
-                byte_order = '<' # try little-endian as a sensible default
+                byte_order = "<"  # try little-endian as a sensible default
                 warnings.warn(str(err), RuntimeWarning)
             else:
                 raise
@@ -235,8 +233,10 @@ class MrcInterpreter(MrcObject):
                     header.dtype = header.dtype.newbyteorder()
                     pretty_machst = utils.pretty_machine_stamp(header.machst)
                     msg = "Machine stamp '{0}' does not match the apparent byte order '{1}'"
-                    warnings.warn(msg.format(pretty_machst, header.mode.dtype.byteorder),
-                                  RuntimeWarning)
+                    warnings.warn(
+                        msg.format(pretty_machst, header.mode.dtype.byteorder),
+                        RuntimeWarning,
+                    )
                 except ValueError:
                     # Neither byte order gives a valid mode. Ignore for now,
                     # and a warning will be issued by _read_data()
@@ -263,11 +263,16 @@ class MrcInterpreter(MrcObject):
                 extended header indicated by the header and ``permissive``
                 is :data:`True`.
         """
-        ext_header_arr, bytes_read = self._read_bytearray_from_stream(int(self.header.nsymbt))
+        ext_header_arr, bytes_read = self._read_bytearray_from_stream(
+            int(self.header.nsymbt)
+        )
 
         if bytes_read < self.header.nsymbt:
-            msg = ("Expected {0} bytes in extended header but could only read {1}"
-                   .format(self.header.nsymbt, bytes_read))
+            msg = (
+                "Expected {0} bytes in extended header but could only read {1}".format(
+                    self.header.nsymbt, bytes_read
+                )
+            )
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
                 self._extended_header = None
@@ -275,7 +280,7 @@ class MrcInterpreter(MrcObject):
             else:
                 raise ValueError(msg)
 
-        self._extended_header = np.frombuffer(ext_header_arr, dtype='V1')
+        self._extended_header = np.frombuffer(ext_header_arr, dtype="V1")
 
         self._extended_header.flags.writeable = not self._read_only
 
@@ -304,8 +309,9 @@ class MrcInterpreter(MrcObject):
             dtype = utils.data_dtype_from_header(self.header)
         except ValueError as err:
             if self._permissive:
-                warnings.warn("{0} - data block cannot be read".format(err),
-                              RuntimeWarning)
+                warnings.warn(
+                    "{0} - data block cannot be read".format(err), RuntimeWarning
+                )
                 self._data = None
                 return
             else:
@@ -318,8 +324,9 @@ class MrcInterpreter(MrcObject):
             nbytes *= axis_length
 
         if max_bytes > 0 and nbytes > max_bytes:
-            msg = ("Expected {0} bytes in data block but limit is {1}"
-                   .format(nbytes, max_bytes))
+            msg = "Expected {0} bytes in data block but limit is {1}".format(
+                nbytes, max_bytes
+            )
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
                 self._data = None
@@ -330,8 +337,9 @@ class MrcInterpreter(MrcObject):
         data_arr, bytes_read = self._read_bytearray_from_stream(nbytes)
 
         if bytes_read < nbytes:
-            msg = ("Expected {0} bytes in data block but could only read {1}"
-                   .format(nbytes, bytes_read))
+            msg = "Expected {0} bytes in data block but could only read {1}".format(
+                nbytes, bytes_read
+            )
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
                 self._data = None

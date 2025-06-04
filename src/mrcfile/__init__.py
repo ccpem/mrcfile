@@ -60,11 +60,20 @@ http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from .load_functions import new, open, read, write, open_async, mmap, new_mmap
 from .validator import validate
 from .version import __version__
 
-__all__ = ["new", "open", "read", "write", "open_async", "mmap", "new_mmap", "validate", "__version__"]
+__all__ = [
+    "new",
+    "open",
+    "read",
+    "write",
+    "open_async",
+    "mmap",
+    "new_mmap",
+    "validate",
+    "__version__",
+]

@@ -13,8 +13,7 @@ The names of the corresponding command line scripts can be found in the
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 
@@ -24,10 +23,10 @@ import mrcfile
 def print_headers(names=None, print_file=None):
     """
     Print the MRC header contents from a list of files.
-    
+
     This function opens files in permissive mode to allow headers of invalid
     files to be examined.
-    
+
     Args:
         names: A list of file names. If not given or :data:`None`, the names
             are taken from the command line arguments.
@@ -41,7 +40,7 @@ def print_headers(names=None, print_file=None):
         parser = argparse.ArgumentParser(
             description="Print the MRC header contents from a list of files."
         )
-        parser.add_argument("filename", nargs='*', help="Input MRC file")
+        parser.add_argument("filename", nargs="*", help="Input MRC file")
         args = parser.parse_args()
         names = args.filename
     for name in names:

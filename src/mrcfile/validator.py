@@ -13,8 +13,7 @@ line.
 """
 
 # Import Python 3 features for future-proofing
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
 import sys
@@ -26,11 +25,11 @@ from . import load_functions
 def main(args=None):
     """
     Validate a list of MRC files given as command arguments.
-    
+
     The return value is used as the process exit code when this function is
     called by running this module or from the corresponding ``console_scripts``
     entry point.
-    
+
     Returns:
         ``0`` if all command arguments are names of valid MRC files. ``1`` if
         no file names are given or any of the files is not a valid MRC file.
@@ -39,11 +38,11 @@ def main(args=None):
         args = sys.argv[1:]
     parser = argparse.ArgumentParser(
         description="Validate a list of MRC files. Exit status is 0 if all "
-                    "input files are valid, or 1 if any input file is "
-                    "invalid. Descriptions of the problems with any invalid "
-                    "files are written to the standard output."
+        "input files are valid, or 1 if any input file is "
+        "invalid. Descriptions of the problems with any invalid "
+        "files are written to the standard output."
     )
-    parser.add_argument("filename", nargs='*', help="Input MRC file")
+    parser.add_argument("filename", nargs="*", help="Input MRC file")
     args = parser.parse_args(args)
     names = args.filename
     if validate_all(names):
@@ -53,9 +52,9 @@ def main(args=None):
 
 def validate_all(names, print_file=None):
     """Validate a list of MRC files.
-    
+
     This function calls :func:`validate` for each file name in the given list.
-    
+
     Args:
         names: A sequence of file names to open and validate.
         print_file: The output text stream to use for printing messages about
@@ -63,14 +62,14 @@ def validate_all(names, print_file=None):
             argument of the :func:`validate` function. The default is
             :data:`None`, which means output will be printed to
             :data:`sys.stdout`.
-    
+
     Returns:
         :data:`True` if all of the files are valid, or :data:`False` if any of
         the files do not meet the MRC format specification in any way.
-    
+
     Raises:
         :exc:`OSError`: If one of the files does not exist or cannot be opened.
-    
+
     Warns:
         RuntimeWarning: If one of the files is seriously invalid because it has
             no map ID string, an incorrect machine stamp, an unknown mode
@@ -85,28 +84,28 @@ def validate_all(names, print_file=None):
 
 def validate(name, print_file=None):
     """Validate an MRC file.
-    
+
     This function first opens the file by calling :func:`~mrcfile.open` (with
     ``permissive=True``), then calls :meth:`~mrcfile.mrcfile.MrcFile.validate`,
     which runs a series of tests to check whether the file complies with the
     MRC2014 format specification.
-    
+
     If the file is completely valid, this function returns :data:`True`,
     otherwise it returns :data:`False`. Messages explaining the validation
     result will be printed to :data:`sys.stdout` by default, but if a text
     stream is given (using the ``print_file`` argument) output will be printed
     to that instead.
-    
+
     Badly invalid files will also cause :mod:`warning <warnings>` messages to
     be issued, which will be written to :data:`sys.stderr` by default. See the
     documentation of the :mod:`warnings` module for information on how to
     suppress or capture warning output.
-    
+
     Because the file is opened by calling :func:`open`, gzip- and
     bzip2-compressed MRC files can be validated easily using this function.
-    
+
     After the file has been opened, it is checked for problems. The tests are:
-    
+
     #. MRC format ID string: The ``map`` field in the header should contain
        "MAP ".
     #. Machine stamp: The machine stamp should contain one of
@@ -135,21 +134,21 @@ def validate(name, print_file=None):
        actual data in the file, or marked as undetermined.
     #. File size: The size of the file on disk should match the expected size
        calculated from the MRC header.
-    
+
     Args:
         name: The file name to open and validate.
         print_file: The output text stream to use for printing messages about
             the validation. This is passed directly to the ``file`` argument of
             Python's :func:`print` function. The default is :data:`None`, which
             means output will be printed to :data:`sys.stdout`.
-    
+
     Returns:
         :data:`True` if the file is valid, or :data:`False` if the file does
         not meet the MRC format specification in any way.
-    
+
     Raises:
         :exc:`OSError`: If the file does not exist or cannot be opened.
-    
+
     Warns:
         RuntimeWarning: If the file is seriously invalid because it has no map
             ID string, an incorrect machine stamp, an unknown mode number, or
@@ -167,5 +166,5 @@ def validate(name, print_file=None):
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
