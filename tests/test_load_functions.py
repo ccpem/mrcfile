@@ -5,15 +5,13 @@
 Tests for mrcfile __init__.py loading functions.
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import mmap
 import os
 import shutil
 import sys
 import tempfile
 import unittest
+from pathlib import Path
 
 import numpy as np
 
@@ -22,18 +20,8 @@ from mrcfile.bzip2mrcfile import Bzip2MrcFile
 from mrcfile.gzipmrcfile import GzipMrcFile
 from . import helpers
 
-# Try to import pathlib if we can
-pathlib_unavailable = False
-try:
-    from pathlib import Path
-except ImportError:
-    try:
-        from pathlib2 import Path
-    except ImportError:
-        pathlib_unavailable = True
 
-
-class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
+class LoadFunctionTest(unittest.TestCase):
     """Unit tests for MRC loading functions."""
 
     def setUp(self):
@@ -60,7 +48,6 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
                 "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
             )
 
-    @unittest.skipIf(pathlib_unavailable, "pathlib not available")
     def test_normal_opening_pathlib(self):
         """Single test to ensure pathlib functionality is tested even if there's
         a problem with the LoadFunctionTestWithPathlib class"""
@@ -103,11 +90,9 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert repr(mrc) == ("MrcFile('{0}', mode='w+')".format(self.temp_mrc_name))
 
     def test_error_overwriting_file_with_open_function(self):
-        # Convert name to str to avoid TypeErrors in Python 2.7 with pathlib
-        temp_mrc_name_str = str(self.temp_mrc_name)
-        assert not os.path.exists(temp_mrc_name_str)
-        open(temp_mrc_name_str, "w+").close()
-        assert os.path.exists(temp_mrc_name_str)
+        assert not os.path.exists(self.temp_mrc_name)
+        open(self.temp_mrc_name, "w+").close()
+        assert os.path.exists(self.temp_mrc_name)
         with self.assertRaisesRegex(ValueError, r"call 'mrcfile\.new\(\)'"):
             mrcfile.open(self.temp_mrc_name, mode="w+")
 
@@ -330,7 +315,6 @@ class LoadFunctionTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
             assert isinstance(mrc, GzipMrcFile)
 
 
-@unittest.skipIf(pathlib_unavailable, "pathlib not available")
 class LoadFunctionTestWithPathlib(LoadFunctionTest):
     """Class to run the load function tests using pathlib paths instead of strings."""
 

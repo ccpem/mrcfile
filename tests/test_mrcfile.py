@@ -5,15 +5,13 @@
 Tests for mrcfile.py
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os
 import shutil
 import sys
 import tempfile
 import unittest
 import warnings
+from pathlib import Path
 
 import numpy as np
 
@@ -30,16 +28,6 @@ from mrcfile.mrcobject import (
     VOLUME_STACK_SPACEGROUP,
 )
 import mrcfile.utils as utils
-
-# Try to import pathlib if we can
-pathlib_unavailable = False
-try:
-    from pathlib import Path
-except ImportError:
-    try:
-        from pathlib2 import Path
-    except ImportError:
-        pathlib_unavailable = True
 
 
 # Doctest stuff commented out for now - would be nice to get it working!
@@ -248,7 +236,6 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
             mrc._read()
             np.testing.assert_array_equal(orig_data, mrc.data)
 
-    @unittest.skipIf(pathlib_unavailable, "pathlib not available")
     def test_opening_with_pathlib(self):
         path = Path(self.example_mrc_name)
         with self.newmrc(path) as mrc:

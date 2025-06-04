@@ -6,24 +6,16 @@
 Tests for utils.py
 """
 
-# Import Python 3 features for future-proofing
-# Deliberately do NOT import unicode_literals due to a bug in numpy dtypes:
-# https://github.com/numpy/numpy/issues/2407
-# and also because some tests for string <-> byte conversion need to test both unicode
-# and non-unicode literals.
-from __future__ import absolute_import, division, print_function
-
 import sys
 import unittest
 
 import numpy as np
 
 import mrcfile.utils as utils
-from .helpers import AssertRaisesRegexMixin
 from mrcfile.dtypes import HEADER_DTYPE
 
 
-class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
+class UtilsTest(unittest.TestCase):
     """Unit tests for mrcfile.utils"""
 
     def test_header_dtype_is_correct_length(self):
@@ -268,22 +260,6 @@ class UtilsTest(AssertRaisesRegexMixin, unittest.TestCase):
     def test_printable_string_from_bytes_strips_non_ascii_characters(self):
         val = b"Test non-ASCII string \xa3"
         assert utils.printable_string_from_bytes(val) == "Test non-ASCII string "
-
-    def test_bytes_from_string_with_ascii_string(self):
-        assert utils.bytes_from_string("ASCII string 123#!") == b"ASCII string 123#!"
-
-    def test_bytes_from_string_with_non_ascii_string_raises_exception(self):
-        with self.assertRaises(UnicodeError):
-            utils.bytes_from_string("Non-ASCII string £")
-
-    def test_bytes_from_string_with_unicode_string(self):
-        # To make sure things work properly in Python 2
-        assert utils.bytes_from_string("Unicode string") == b"Unicode string"
-
-    def test_bytes_from_string_with_unicode_non_ascii_string_raises_exception(self):
-        # To make sure things work properly in Python 2
-        with self.assertRaises(UnicodeError):
-            assert utils.bytes_from_string("Unicode non-ASCII £")
 
 
 if __name__ == "__main__":

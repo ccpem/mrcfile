@@ -5,14 +5,10 @@
 Tests for future_mrcfile.py.
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import time
 import unittest
 
 from mrcfile.future_mrcfile import FutureMrcFile
-from . import helpers
 
 
 def sleep_and_return_args(*args, **kwargs):
@@ -21,7 +17,7 @@ def sleep_and_return_args(*args, **kwargs):
     return [args, kwargs]
 
 
-class FutureMrcFileTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
+class FutureMrcFileTest(unittest.TestCase):
     """Unit tests for FutureMrcFile.
 
     These tests only make sure that the FutureMrcFile class works correctly

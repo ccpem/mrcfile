@@ -5,9 +5,6 @@
 Tests for mrcfile command line entry point functions.
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import io
 import os
 import shutil
@@ -19,7 +16,7 @@ from mrcfile import command_line, validator
 from . import helpers
 
 
-class CommandLineTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
+class CommandLineTest(unittest.TestCase):
     """Unit tests for mrcfile command line functions."""
 
     def setUp(self):

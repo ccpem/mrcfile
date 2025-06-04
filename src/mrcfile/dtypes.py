@@ -12,11 +12,6 @@ of the package.
 
 """
 
-# Import Python 3 features for future-proofing
-# Deliberately do NOT import unicode_literals due to a bug in numpy dtypes:
-# https://github.com/numpy/numpy/issues/2407
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 
 from .utils import normalise_byte_order

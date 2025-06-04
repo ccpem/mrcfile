@@ -12,9 +12,6 @@ Classes:
 
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from datetime import datetime
 import warnings
 
@@ -699,7 +696,7 @@ class MrcObject(object):
         """
         if not utils.is_printable_ascii(label):
             raise ValueError("Label contains non-printable or non-ASCII characters")
-        label_bytes = utils.bytes_from_string(label)
+        label_bytes = str.encode(label, encoding="ascii", errors="strict")
         if len(label_bytes) > 80:
             raise ValueError("Label value has more than 80 bytes")
         self.header.label[self.header.nlabl] = label

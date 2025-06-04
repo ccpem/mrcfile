@@ -5,19 +5,13 @@
 Tests for dtypes.py
 """
 
-# Import Python 3 features for future-proofing
-# Deliberately do NOT import unicode_literals due to a bug in numpy dtypes:
-# https://github.com/numpy/numpy/issues/2407
-from __future__ import absolute_import, division, print_function
-
 import unittest
 
 import mrcfile.dtypes as dtypes
 import mrcfile.utils as utils
-from .helpers import AssertRaisesRegexMixin
 
 
-class DtypesTest(AssertRaisesRegexMixin, unittest.TestCase):
+class DtypesTest(unittest.TestCase):
     """Unit tests for mrcfile.dtypes"""
 
     def test_invalid_byte_order_raises_exception(self):

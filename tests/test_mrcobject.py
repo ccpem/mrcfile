@@ -6,9 +6,6 @@
 Tests for mrcobject.py
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import io
 import sys
 import unittest
@@ -26,14 +23,13 @@ try:
 except ImportError:
     from numpy.core.records import fromrecords
 
-from .helpers import AssertRaisesRegexMixin
 from mrcfile import constants
 from mrcfile import dtypes
 from mrcfile.mrcobject import MrcObject
 from mrcfile import utils
 
 
-class MrcObjectTest(AssertRaisesRegexMixin, unittest.TestCase):
+class MrcObjectTest(unittest.TestCase):
     """Unit tests for MrcObject class"""
 
     def setUp(self):

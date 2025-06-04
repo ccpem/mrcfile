@@ -31,9 +31,6 @@ Functions
 
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import string
 import sys
 
@@ -295,15 +292,7 @@ printable_chars = " " + string.ascii_letters + string.digits + string.punctuatio
 
 def is_printable_ascii(string_):
     """Check if a string is entirely composed of printable ASCII characters."""
-    try:
-        # Python 3 version
-        return str.isprintable(string_) and str.isascii(string_)
-    except AttributeError:
-        # Probably Python 2, fall back to checking characters individually
-        try:
-            return all(char in printable_chars for char in string_)
-        except UnicodeDecodeError:
-            return False
+    return str.isprintable(string_) and str.isascii(string_)
 
 
 def printable_string_from_bytes(bytes_):
@@ -315,16 +304,3 @@ def printable_string_from_bytes(bytes_):
     if not is_printable_ascii(string_):
         string_ = "".join([s for s in string_ if is_printable_ascii(s)])
     return string_
-
-
-def bytes_from_string(string_):
-    """Convert a string to bytes.
-
-    Even though this is a one-liner, the details are tricky to get right so things work
-    properly in both Python 2 and 3. It's broken out as a separate function so it can be
-    thoroughly tested.
-
-    Raises:
-        UnicodeError: If the input contains non-ASCII characters.
-    """
-    return str.encode(str(string_), encoding="ascii", errors="strict")

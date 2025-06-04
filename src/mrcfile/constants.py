@@ -8,9 +8,6 @@ Constants used by the ``mrcfile.py`` library.
 
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 MAP_ID = b"MAP "
 MAP_ID_OFFSET_BYTES = 208  # location of 'MAP ' string in an MRC file
 

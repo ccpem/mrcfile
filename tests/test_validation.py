@@ -5,24 +5,13 @@
 Tests for mrcfile validation functions.
 """
 
-# Import Python 3 features for future-proofing
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os
 import shutil
 import sys
 import tempfile
 import unittest
 import warnings
-
-# Avoid str/unicode issues when traceback.print_exc tries to write to StringIO
-# (see https://stackoverflow.com/a/34872005)
-try:
-    # Python 2
-    from cStringIO import StringIO
-except ImportError:
-    # Python 3
-    from io import StringIO
+from io import StringIO
 
 import numpy as np
 
@@ -31,7 +20,7 @@ from mrcfile.validator import validate_all
 from . import helpers
 
 
-class ValidationTest(helpers.AssertRaisesRegexMixin, unittest.TestCase):
+class ValidationTest(unittest.TestCase):
     """Unit tests for MRC validation functions."""
 
     def setUp(self):
