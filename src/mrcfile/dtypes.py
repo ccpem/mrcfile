@@ -16,7 +16,6 @@ import numpy as np
 
 from .utils import normalise_byte_order
 
-
 HEADER_DTYPE = np.dtype(
     [
         ("nx", "i4"),  # Number of columns

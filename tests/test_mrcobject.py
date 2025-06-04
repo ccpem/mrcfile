@@ -23,10 +23,8 @@ try:
 except ImportError:
     from numpy.core.records import fromrecords
 
-from mrcfile import constants
-from mrcfile import dtypes
+from mrcfile import constants, dtypes, utils
 from mrcfile.mrcobject import MrcObject
-from mrcfile import utils
 
 
 class MrcObjectTest(unittest.TestCase):

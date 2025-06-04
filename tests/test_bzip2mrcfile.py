@@ -8,8 +8,9 @@ Tests for bzip2mrcfile.py
 import os
 import unittest
 
-from . import test_mrcfile
 from mrcfile.bzip2mrcfile import Bzip2MrcFile
+
+from . import test_mrcfile
 
 
 class Bzip2MrcFileTest(test_mrcfile.MrcFileTest):

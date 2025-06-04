@@ -8,8 +8,9 @@ Tests for gzipmrcfile.py
 import os
 import unittest
 
-from . import test_mrcfile
 from mrcfile.gzipmrcfile import GzipMrcFile
+
+from . import test_mrcfile
 
 
 class GzipMrcFileTest(test_mrcfile.MrcFileTest):

@@ -59,18 +59,18 @@ http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 
 """
 
-from .load_functions import new, open, read, write, open_async, mmap, new_mmap
+from .load_functions import mmap, new, new_mmap, open, open_async, read, write
 from .validator import validate
 from .version import __version__
 
 __all__ = [
-    "new",
-    "open",
-    "read",
-    "write",
-    "open_async",
-    "mmap",
-    "new_mmap",
-    "validate",
     "__version__",
+    "mmap",
+    "new",
+    "new_mmap",
+    "open",
+    "open_async",
+    "read",
+    "validate",
+    "write",
 ]

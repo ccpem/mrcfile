@@ -20,15 +20,15 @@ try:
 except ImportError:
     from numpy import ComplexWarning
 
-from . import helpers, test_mrcobject
+import mrcfile.utils as utils
 from mrcfile.mrcfile import MrcFile
 from mrcfile.mrcobject import (
     IMAGE_STACK_SPACEGROUP,
     VOLUME_SPACEGROUP,
     VOLUME_STACK_SPACEGROUP,
 )
-import mrcfile.utils as utils
 
+from . import helpers, test_mrcobject
 
 # Doctest stuff commented out for now - would be nice to get it working!
 # import doctest

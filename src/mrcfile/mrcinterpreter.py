@@ -17,9 +17,9 @@ import warnings
 import numpy as np
 
 from . import utils
+from .constants import MAP_ID
 from .dtypes import HEADER_DTYPE
 from .mrcobject import MrcObject
-from .constants import MAP_ID
 
 
 class MrcInterpreter(MrcObject):

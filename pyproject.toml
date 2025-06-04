@@ -53,7 +53,7 @@ indent-width = 4
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "C", "W"]
+select = ["E", "F", "C", "W", "I", "RUF022"]
 ignore = []
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

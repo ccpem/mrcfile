@@ -10,8 +10,9 @@ import unittest
 
 import numpy as np
 
-from . import test_mrcfile
 from mrcfile.mrcmemmap import MrcMemmap
+
+from . import test_mrcfile
 
 
 class MrcMemmapTest(test_mrcfile.MrcFileTest):

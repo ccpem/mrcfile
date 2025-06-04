@@ -12,19 +12,19 @@ Classes:
 
 """
 
-from datetime import datetime
 import warnings
+from datetime import datetime
 
 import numpy as np
 
 from . import utils
-from .dtypes import HEADER_DTYPE, VOXEL_SIZE_DTYPE, NSTART_DTYPE, get_ext_header_dtype
 from .constants import (
-    MAP_ID,
     IMAGE_STACK_SPACEGROUP,
+    MAP_ID,
     VOLUME_SPACEGROUP,
     VOLUME_STACK_SPACEGROUP,
 )
+from .dtypes import HEADER_DTYPE, NSTART_DTYPE, VOXEL_SIZE_DTYPE, get_ext_header_dtype
 
 
 class MrcObject(object):

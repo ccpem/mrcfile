@@ -18,6 +18,7 @@ import numpy as np
 import mrcfile
 from mrcfile.bzip2mrcfile import Bzip2MrcFile
 from mrcfile.gzipmrcfile import GzipMrcFile
+
 from . import helpers
 
 
