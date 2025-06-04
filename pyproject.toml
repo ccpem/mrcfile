@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["mrcfile"]
+
+[tool.setuptools.dynamic]
+version = {attr = "mrcfile.version.__version__"}
+readme = {file = ["README.rst"]}
+
+[project]
+name = "mrcfile"
+authors = [
+    {name = "Colin Palmer", email = "colin.palmer@stfc.ac.uk"},
+]
+dynamic = ["version", "readme"]
+description = "MRC file I/O library"
+license = "BSD-3-Clause"
+license-files = ["LICENSE.txt"]
+requires-python = ">=3.9"
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Natural Language :: English',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Topic :: Scientific/Engineering :: Bio-Informatics',
+    'Topic :: Software Development :: Libraries :: Python Modules'
+]
+dependencies = ["numpy >= 1.16.0"]
+
+[project.urls]
+homepage = "https://github.com/ccpem/mrcfile"
+documentation = "https://mrcfile.readthedocs.io/"
+
+[project.scripts]
+'mrcfile-header' = 'mrcfile.command_line:print_headers'
+'mrcfile-validate' = 'mrcfile.validator:main'

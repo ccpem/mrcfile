@@ -8,7 +8,7 @@ mrcfile.py
     :alt: Build Status
 
 .. |readthedocs| image:: https://readthedocs.org/projects/mrcfile/badge/
-    :target: http://mrcfile.readthedocs.org
+    :target: https://mrcfile.readthedocs.io/
     :alt: Documentation
     
 .. |python-versions| image:: https://img.shields.io/pypi/pyversions/mrcfile.svg
@@ -32,8 +32,8 @@ It allows MRC files to be created and opened easily using a very simple API,
 which exposes the file's header and data as `numpy`_ arrays. The code runs in
 Python 3 and is fully unit-tested.
 
-.. _MRC2014 file format: http://www.ccpem.ac.uk/mrc_format/mrc2014.php
-.. _numpy: http://www.numpy.org/
+.. _MRC2014 file format: https://www.ccpem.ac.uk/mrc-format/mrc2014/
+.. _numpy: https://numpy.org/
 
 This library aims to allow users and developers to read and write
 standard-compliant MRC files in Python as easily as possible, and with no
@@ -66,7 +66,7 @@ Or from `conda-forge`_::
 It is also included in the ``ccpem-python`` environment in the  `CCP-EM`_
 software suite.
 
-.. _CCP-EM: http://www.ccpem.ac.uk
+.. _CCP-EM: https://www.ccpem.ac.uk
 
 The source code (including the full test suite) can be found `on GitHub`_.
 
