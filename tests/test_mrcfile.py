@@ -14,7 +14,11 @@ import warnings
 from pathlib import Path
 
 import numpy as np
-from numpy.exceptions import ComplexWarning
+
+try:
+    from numpy.exceptions import ComplexWarning
+except ImportError:
+    from numpy import ComplexWarning
 
 from mrcfile import utils
 from mrcfile.mrcfile import MrcFile
