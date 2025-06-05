@@ -53,7 +53,7 @@ indent-width = 4
 target-version = "py39"
 
 [tool.ruff.lint]
-# Possibly useful but not yet selected: ANN, DTZ, EM, LOG, G, TC, D[234]
+# Linting rules
 select = [
     "A",  # flake8-builtins
     "ARG",  # Unused arguments
@@ -72,6 +72,7 @@ select = [
     "FBT",  # Avoid positional boolean arguments
     "FIX",  # flake8-fixme
     "FLY",  # flynt
+    "FURB",  # refurb
     "I",  # isort
     "ICN",  # flake8-import-conventions
     "ISC",  # Implicit string concatenation
@@ -83,21 +84,27 @@ select = [
     "PL",  # Pylint
     "Q",  # flake8-quotes
     "RSE",  # flake8-raise
-    "RUF",
+    "RUF",  # Ruff-specific rules
     "S",  # flake8-bandit
     "SIM",  # flake8-simplify
     "SLF",  # flake8-self
     "SLOT", # flake8-slots
-    "T",  # T100? T20?
+    "T10",  # flake8-debugger
+    "T20",  # flake8-print
     "TD",  # flake8-todos
     "TID",  # flake8-tidy-imports
+    "TRY",  # tryceratops
     "UP",  # pyupgrade
     "W",  # pycodestyle warnings
 ]
+# Possibly useful but not yet selected: ANN, DTZ, EM, LOG, G, TC, D[234]
+
+# Specific rules to ignore
 ignore = [
     "B028",  # explicit stacklevel keyword in warnings
     "COM812",  # trailing commas
     "PLR2004",  # magic values
+    "TRY003",  # long exception messages
     "UP030",  # implicit format fields - aim to remove this one
     "UP032",  # f-strings - aim to remove this one
 ]
@@ -109,13 +116,13 @@ unfixable = []
 [tool.ruff.lint.per-file-ignores]
 # Ignore some rules that are not relevant to test code
 "tests/**.py" = [
-    "D",
-    "S101",
-    "SLF001",
-    "T",
+    "D",  # docstrings
+    "S101",  # assertions
+    "SLF001",  # private member access
+    "T20",  # flake8-print
 ]
 
 # Ignore some rules that are not relevant to docs config file
 "docs/conf.py" = [
-    "D"
+    "D"  # docstrings
 ]

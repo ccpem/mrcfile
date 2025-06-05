@@ -129,12 +129,12 @@ class MrcMemmap(MrcFile):
                 offset=header_nbytes,
                 shape=shape,
             )
-        except Exception as ex:
+        except Exception:
             if self._permissive:
                 warnings.warn("Error opening memmap", RuntimeWarning)
                 self._data = None
             else:
-                raise ex
+                raise
 
         # Check if the file is the expected size.
         if self.data is not None:

@@ -209,11 +209,11 @@ class MrcObject:
         # Interpret one element
         try:
             if self.extended_header.nbytes < dtype.itemsize:
-                raise ValueError
+                raise ValueError  # noqa: TRY301
             first = self.extended_header[0 : dtype.itemsize]
             first.dtype = dtype
             if first["Metadata size"][0] != dtype.itemsize:
-                raise ValueError
+                raise ValueError  # noqa: TRY301
         except ValueError:
             warnings.warn(
                 "The header has exttyp '{}' but the extended header "
@@ -225,7 +225,7 @@ class MrcObject:
         nbytes = int(self.header["nz"]) * dtype.itemsize
         try:
             if self.extended_header.nbytes < nbytes:
-                raise ValueError
+                raise ValueError  # noqa: TRY301
             full = self.extended_header[0:nbytes]
             full.dtype = dtype
         except ValueError:
