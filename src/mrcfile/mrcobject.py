@@ -568,7 +568,7 @@ class MrcObject(object):
         if data_byte_order != "|" and not utils.byte_orders_equal(
             data_byte_order, header_byte_order
         ):
-            header.byteswap(True)
+            header.byteswap(inplace=True)
             header.dtype = header.dtype.newbyteorder(data_byte_order)
         header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)
 

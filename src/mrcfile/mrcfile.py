@@ -47,6 +47,7 @@ class MrcFile(MrcInterpreter):
         self,
         name,
         mode="r",
+        *,
         overwrite=False,
         permissive=False,
         header_only=False,
@@ -128,7 +129,7 @@ class MrcFile(MrcInterpreter):
         """Open a file object to use as the I/O stream."""
         self._iostream = open(name, self._mode + "b")  # noqa: SIM115
 
-    def _read(self, header_only=False):
+    def _read(self, *, header_only=False):
         """Override _read() to move back to start of file first."""
         self._iostream.seek(0)
         super(MrcFile, self)._read(header_only)

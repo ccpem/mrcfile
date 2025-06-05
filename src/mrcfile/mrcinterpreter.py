@@ -74,7 +74,7 @@ class MrcInterpreter(MrcObject):
 
     """
 
-    def __init__(self, iostream=None, permissive=False, header_only=False, **kwargs):
+    def __init__(self, iostream=None, *, permissive=False, header_only=False, **kwargs):
         """Initialise a new MrcInterpreter object.
 
         This initialiser reads the stream if it is given. In general,
@@ -140,7 +140,7 @@ class MrcInterpreter(MrcObject):
         with suppress(Exception):
             self.close()
 
-    def _read(self, header_only=False):
+    def _read(self, *, header_only=False):
         """Read the header, extended header and data from the I/O stream.
 
         Before calling this method, the stream should be open and positioned at

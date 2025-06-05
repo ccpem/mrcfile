@@ -24,7 +24,7 @@ from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
 
 
-def new(name, data=None, compression=None, overwrite=False):
+def new(name, data=None, *, compression=None, overwrite=False):
     """Create a new MRC file.
 
     Args:
@@ -68,7 +68,7 @@ def new(name, data=None, compression=None, overwrite=False):
     return mrc
 
 
-def open(name, mode="r", permissive=False, header_only=False):  # noqa: A001
+def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
     """Open an MRC file.
 
     This function opens both normal and compressed MRC files. Supported
@@ -161,7 +161,7 @@ def read(name):
     return data
 
 
-def write(name, data=None, overwrite=False, voxel_size=None):
+def write(name, data=None, *, overwrite=False, voxel_size=None):
     """Write a new MRC file.
 
     This is a convenience function to allow data to be quickly written to a file (with
@@ -201,7 +201,7 @@ def write(name, data=None, overwrite=False, voxel_size=None):
             mrc.voxel_size = voxel_size
 
 
-def open_async(name, mode="r", permissive=False):
+def open_async(name, mode="r", *, permissive=False):
     """Open an MRC file asynchronously in a separate thread.
 
     This allows a file to be opened in the background while the main thread
@@ -243,7 +243,7 @@ def open_async(name, mode="r", permissive=False):
     return FutureMrcFile(open, (name,), {"mode": mode, "permissive": permissive})
 
 
-def mmap(name, mode="r", permissive=False):
+def mmap(name, mode="r", *, permissive=False):
     """Open a memory-mapped MRC file.
 
     This allows much faster opening of large files, because the data is only
@@ -273,6 +273,7 @@ def mmap(name, mode="r", permissive=False):
 def new_mmap(  # noqa: PLR0913
     name,
     shape,
+    *,
     mrc_mode=0,
     fill=None,
     overwrite=False,

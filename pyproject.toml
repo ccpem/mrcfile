@@ -62,6 +62,7 @@ select = [
     "E",
     "ERA",
     "F",
+    "FBT",
     "I",
     "PLR",
     "RUF",

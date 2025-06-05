@@ -37,7 +37,7 @@ class GzipMrcFile(MrcFile):
         self._iostream.close()
         self._fileobj.close()
 
-    def _read(self, header_only=False):
+    def _read(self, *, header_only=False):
         """Override _read() to ensure gzip file is in read mode."""
         self._ensure_readable_gzip_stream()
         super(GzipMrcFile, self)._read(header_only)

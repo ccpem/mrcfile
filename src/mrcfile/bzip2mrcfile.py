@@ -36,7 +36,7 @@ class Bzip2MrcFile(MrcFile):
             open(name, mode="w").close()
         self._iostream = bz2.BZ2File(name, mode="r")
 
-    def _read(self, header_only=False):
+    def _read(self, *, header_only=False):
         """Override _read() to ensure bzip2 file is in read mode."""
         self._ensure_readable_bzip2_stream()
         super(Bzip2MrcFile, self)._read(header_only)
