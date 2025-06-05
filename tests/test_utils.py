@@ -11,7 +11,7 @@ import unittest
 
 import numpy as np
 
-import mrcfile.utils as utils
+from mrcfile import utils
 from mrcfile.dtypes import HEADER_DTYPE
 
 

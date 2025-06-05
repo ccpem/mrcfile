@@ -155,7 +155,7 @@ def validate(name, print_file=None):
     try:
         with load_functions.open(name, permissive=True) as mrc:
             result = mrc.validate(print_file=print_file)
-    except Exception:
+    except Exception:  # noqa: BLE001
         result = False
         traceback.print_exc(file=print_file)
     if result:

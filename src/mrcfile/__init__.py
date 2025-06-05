@@ -59,7 +59,15 @@ http://www.ccpem.ac.uk/mrc_format/mrc2014.php
 
 """
 
-from .load_functions import mmap, new, new_mmap, open, open_async, read, write
+from .load_functions import (
+    mmap,
+    new,
+    new_mmap,
+    open,  # noqa: A004
+    open_async,
+    read,
+    write,
+)
 from .validator import validate
 from .version import __version__
 

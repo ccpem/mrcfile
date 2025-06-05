@@ -43,9 +43,11 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
             fei1_ext_header_mrc_name = os.path.join(self.test_data, "fei-extended.mrc")
             import gzip
 
-            with open(fei1_ext_header_mrc_name, "rb") as mrc:
-                with gzip.open(self.fei1_ext_header_mrc_name, "wb") as gzipf:
-                    gzipf.write(mrc.read())
+            with (
+                open(fei1_ext_header_mrc_name, "rb") as mrc,
+                gzip.open(self.fei1_ext_header_mrc_name, "wb") as gzipf,
+            ):
+                gzipf.write(mrc.read())
 
         if not os.path.isfile(self.fei2_ext_header_mrc_name):
             print(
@@ -56,9 +58,11 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
             )
             import gzip
 
-            with open(fei2_ext_header_mrc_name, "rb") as mrc:
-                with gzip.open(self.fei2_ext_header_mrc_name, "wb") as gzipf:
-                    gzipf.write(mrc.read())
+            with (
+                open(fei2_ext_header_mrc_name, "rb") as mrc,
+                gzip.open(self.fei2_ext_header_mrc_name, "wb") as gzipf,
+            ):
+                gzipf.write(mrc.read())
 
         # Set the newmrc method to the GzipMrcFile constructor
         self.newmrc = GzipMrcFile

@@ -35,7 +35,7 @@ test_classes = [
 ]
 
 
-def load_tests(loader, tests, pattern):
+def load_tests(loader, _tests, _pattern):
     suite = unittest.TestSuite()
     for test_class in test_classes:
         suite.addTest(loader.loadTestsFromTestCase(test_class))

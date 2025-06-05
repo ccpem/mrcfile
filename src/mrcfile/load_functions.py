@@ -68,7 +68,7 @@ def new(name, data=None, compression=None, overwrite=False):
     return mrc
 
 
-def open(name, mode="r", permissive=False, header_only=False):  # @ReservedAssignment
+def open(name, mode="r", permissive=False, header_only=False):  # noqa: A001
     """Open an MRC file.
 
     This function opens both normal and compressed MRC files. Supported
@@ -270,7 +270,7 @@ def mmap(name, mode="r", permissive=False):
     return MrcMemmap(name, mode=mode, permissive=permissive)
 
 
-def new_mmap(
+def new_mmap(  # noqa: PLR0913
     name,
     shape,
     mrc_mode=0,
@@ -348,7 +348,7 @@ def new_mmap(
         mrc.header.exttyp = exttyp
 
     dtype = utils.dtype_from_mode(mrc_mode)
-    mrc._open_memmap(dtype, shape)
+    mrc._open_memmap(dtype, shape)  # noqa: SLF001
     mrc.update_header_from_data()
     if fill is not None:
         mrc.data[...] = fill

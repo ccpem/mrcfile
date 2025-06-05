@@ -14,13 +14,9 @@ import warnings
 from pathlib import Path
 
 import numpy as np
+from numpy.exceptions import ComplexWarning
 
-try:
-    from numpy.exceptions import ComplexWarning
-except ImportError:
-    from numpy import ComplexWarning
-
-import mrcfile.utils as utils
+from mrcfile import utils
 from mrcfile.mrcfile import MrcFile
 from mrcfile.mrcobject import (
     IMAGE_STACK_SPACEGROUP,
@@ -29,23 +25,6 @@ from mrcfile.mrcobject import (
 )
 
 from . import helpers, test_mrcobject
-
-# Doctest stuff commented out for now - would be nice to get it working!
-# import doctest
-
-# doc_test_dir = tempfile.mkdtemp()
-# doc_test_file = MrcFile(os.path.join(doc_test_dir, 'doc_test.mrc'), 'w+')
-#
-# def tearDownModule():
-#     global doc_test_dir, doc_test_file
-#     doc_test_file.close()
-#     if os.path.exists(doc_test_dir):
-#         shutil.rmtree(doc_test_dir)
-#
-# def load_tests(loader, tests, ignore):
-#     global doc_test_file
-#     tests.addTests(doctest.DocTestSuite(mrcfile, extraglobs={'mrc': doc_test_file}))
-#     return tests
 
 
 class MrcFileTest(test_mrcobject.MrcObjectTest):

@@ -162,7 +162,7 @@ class LoadFunctionTest(unittest.TestCase):
         try:
             msg = "Fake error: valid gzip file with invalid MRC data"
 
-            def error(*args, **kwargs):
+            def error(*_args, **_kwargs):
                 raise IOError(msg)
 
             GzipMrcFile.__init__ = error
@@ -177,7 +177,7 @@ class LoadFunctionTest(unittest.TestCase):
         try:
             msg = "Fake error: valid bzip2 file with invalid MRC data"
 
-            def error(*args, **kwargs):
+            def error(*_args, **_kwargs):
                 raise IOError(msg)
 
             Bzip2MrcFile.__init__ = error

@@ -18,8 +18,7 @@ import warnings
 
 import numpy as np
 
-import mrcfile.utils as utils
-
+from . import utils
 from .mrcfile import MrcFile
 
 

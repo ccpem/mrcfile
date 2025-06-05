@@ -16,6 +16,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+# ruff: noqa: ERA001
 import os
 import sys
 
@@ -53,7 +54,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "mrcfile"
-copyright = "2017, Science and Technology Facilities Council"  # @ReservedAssignment
+copyright = "2017, Science and Technology Facilities Council"  # noqa: A001
 author = "Colin Palmer"
 
 # The version info for the project you're documenting, acts as replacement for

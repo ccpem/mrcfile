@@ -29,7 +29,7 @@ class GzipMrcFile(MrcFile):
 
     def _open_file(self, name):
         """Override _open_file() to open both normal and gzip files."""
-        self._fileobj = open(name, self._mode + "b")
+        self._fileobj = open(name, self._mode + "b")  # noqa: SIM115
         self._iostream = gzip.GzipFile(fileobj=self._fileobj, mode="rb")
 
     def _close_file(self):

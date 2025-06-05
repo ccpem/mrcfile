@@ -7,8 +7,7 @@ Tests for dtypes.py
 
 import unittest
 
-import mrcfile.dtypes as dtypes
-import mrcfile.utils as utils
+from mrcfile import dtypes, utils
 
 
 class DtypesTest(unittest.TestCase):

@@ -13,6 +13,7 @@ Classes:
 """
 
 import warnings
+from contextlib import suppress
 
 import numpy as np
 
@@ -136,10 +137,8 @@ class MrcInterpreter(MrcObject):
         It's better not to rely on this - instead, use a :keyword:`with`
         block or explicitly call the :meth:`close` method.
         """
-        try:
+        with suppress(Exception):
             self.close()
-        except Exception:
-            pass
 
     def _read(self, header_only=False):
         """Read the header, extended header and data from the I/O stream.

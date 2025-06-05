@@ -621,16 +621,16 @@ class MrcObject(object):
                 # Avoid ComplexWarning by explicitly taking the real part
                 self.header.rms = np.float32(self.data.std().real)
             else:
-                min = self.data.min()
-                max = self.data.max()
+                min_ = self.data.min()
+                max_ = self.data.max()
 
-                if np.isnan(min):
+                if np.isnan(min_):
                     warnings.warn("Data array contains NaN values", RuntimeWarning)
-                if np.isinf(min) or np.isinf(max):
+                if np.isinf(min_) or np.isinf(max_):
                     warnings.warn("Data array contains infinite values", RuntimeWarning)
 
-                self.header.dmin = np.float32(min)
-                self.header.dmax = np.float32(max)
+                self.header.dmin = np.float32(min_)
+                self.header.dmax = np.float32(max_)
                 self.header.dmean = self.data.mean(dtype=np.float32)
                 self.header.rms = self.data.std(dtype=np.float32)
         else:
@@ -702,7 +702,7 @@ class MrcObject(object):
         self.header.label[self.header.nlabl] = label
         self.header.nlabl += 1
 
-    def validate(self, print_file=None):  # noqa: C901
+    def validate(self, print_file=None):  # noqa: C901, PLR0912, PLR0915
         """Validate this MrcObject.
 
         This method runs a series of tests to check whether this object
@@ -802,15 +802,17 @@ class MrcObject(object):
             valid = False
 
         # Check mz value for volume stacks
-        if utils.spacegroup_is_volume_stack(self.header.ispg):
-            if self.header.nz % self.header.mz != 0:
-                log(
-                    "Error in dimensions for volume stack: nz should be "
-                    "divisible by mz. Found nz = {0}, mz = {1})".format(
-                        self.header.nz, self.header.mz
-                    )
+        if (
+            utils.spacegroup_is_volume_stack(self.header.ispg)
+            and self.header.nz % self.header.mz != 0
+        ):
+            log(
+                "Error in dimensions for volume stack: nz should be "
+                "divisible by mz. Found nz = {0}, mz = {1})".format(
+                    self.header.nz, self.header.mz
                 )
-                valid = False
+            )
+            valid = False
 
         # Check nlabl is correct
         count = 0

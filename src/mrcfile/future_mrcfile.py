@@ -25,7 +25,7 @@ class FutureMrcFile(object):
 
     """
 
-    def __init__(self, open_function, args=(), kwargs={}):
+    def __init__(self, open_function, args=(), kwargs=None):
         """Initialise a new :class:`FutureMrcFile` object.
 
         This constructor starts a new thread which will invoke the callable
@@ -54,7 +54,7 @@ class FutureMrcFile(object):
         try:
             mrc = self._open_function(*args, **kwargs)
             self._result_holder[0] = mrc
-        except Exception as ex:
+        except Exception as ex:  # noqa: BLE001
             self._result_holder[0] = ex
 
     def cancel(self):

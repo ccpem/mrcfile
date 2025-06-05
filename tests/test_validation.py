@@ -585,7 +585,8 @@ class ValidationTest(unittest.TestCase):
         assert len(sys.stderr.getvalue()) == 0
 
     def test_validate_good_and_bad_files(self):
-        files = self.create_good_files() + [
+        files = [
+            *self.create_good_files(),
             self.not_an_mrc_name,
             self.example_mrc_name,
             self.ext_header_mrc_name,

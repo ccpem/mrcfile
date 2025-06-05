@@ -53,9 +53,38 @@ indent-width = 4
 target-version = "py39"
 
 [tool.ruff.lint]
-select = ["E", "F", "C", "W", "I", "RUF022"]
-ignore = []
+select = [
+    "A",
+    "B",
+    "BLE",
+    "C",
+    "COM",
+    "E",
+    "ERA",
+    "F",
+    "I",
+    "PLR",
+    "RUF",
+    "S",
+    "SIM",
+    "SLF",
+    "T",
+    "W",
+]
+ignore = [
+    "B028",  # explicit stacklevel keyword in warnings
+    "COM812",  # trailing commas
+    "PLR2004",  # magic values
+]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
 fixable = ["ALL"]
 unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore some rules that are not relevant to test code
+"tests/**.py" = [
+    "S101",
+    "SLF001",
+    "T",
+]
