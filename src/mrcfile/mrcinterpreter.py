@@ -105,7 +105,7 @@ class MrcInterpreter(MrcObject):
                 cannot be interpreted as a valid MRC file and ``permissive``
                 is :data:`True`.
         """
-        super(MrcInterpreter, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self._iostream = iostream
         self._permissive = permissive

@@ -26,7 +26,7 @@ class LoadFunctionTest(unittest.TestCase):
     """Unit tests for MRC loading functions."""
 
     def setUp(self):
-        super(LoadFunctionTest, self).setUp()
+        super().setUp()
 
         # Set up test files and names to be used
         self.test_data = helpers.get_test_data_path()
@@ -41,7 +41,7 @@ class LoadFunctionTest(unittest.TestCase):
     def tearDown(self):
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
-        super(LoadFunctionTest, self).tearDown()
+        super().tearDown()
 
     def test_normal_opening(self):
         with mrcfile.open(self.example_mrc_name) as mrc:
@@ -163,7 +163,7 @@ class LoadFunctionTest(unittest.TestCase):
             msg = "Fake error: valid gzip file with invalid MRC data"
 
             def error(*_args, **_kwargs):
-                raise IOError(msg)
+                raise OSError(msg)
 
             GzipMrcFile.__init__ = error
             with self.assertRaisesRegex(IOError, msg):
@@ -178,7 +178,7 @@ class LoadFunctionTest(unittest.TestCase):
             msg = "Fake error: valid bzip2 file with invalid MRC data"
 
             def error(*_args, **_kwargs):
-                raise IOError(msg)
+                raise OSError(msg)
 
             Bzip2MrcFile.__init__ = error
             with self.assertRaisesRegex(IOError, msg):
@@ -320,7 +320,7 @@ class LoadFunctionTestWithPathlib(LoadFunctionTest):
     """Class to run the load function tests using pathlib paths instead of strings."""
 
     def setUp(self):
-        super(LoadFunctionTestWithPathlib, self).setUp()
+        super().setUp()
         self.temp_mrc_name = Path(self.temp_mrc_name)
         self.temp_gz_mrc_name = Path(self.temp_gz_mrc_name)
         self.example_mrc_name = Path(self.example_mrc_name)

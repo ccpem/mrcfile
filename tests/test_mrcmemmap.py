@@ -25,7 +25,7 @@ class MrcMemmapTest(test_mrcfile.MrcFileTest):
 
     def setUp(self):
         # Set up as if for MrcFileTest
-        super(MrcMemmapTest, self).setUp()
+        super().setUp()
 
         # Set the newmrc method to the MrcMemmap constructor
         self.newmrc = MrcMemmap

@@ -26,7 +26,7 @@ class MrcInterpreterTest(test_mrcobject.MrcObjectTest):
     """
 
     def setUp(self):
-        super(MrcInterpreterTest, self).setUp()
+        super().setUp()
 
         # Set up parameters so MrcObject tests run on the MrcInterpreter class
         self.mrcobject = MrcInterpreter()

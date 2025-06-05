@@ -57,7 +57,7 @@ class MrcMemmap(MrcFile):
         occupies a different number of bytes than the previous one.
         """
         old_ext_header_size = self._extended_header.nbytes
-        super(MrcMemmap, self).set_extended_header(extended_header)
+        super().set_extended_header(extended_header)
         if extended_header.nbytes != old_ext_header_size:
             data_copy = self._data.copy()
             self._close_data()

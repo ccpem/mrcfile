@@ -27,7 +27,7 @@ from .constants import (
 from .dtypes import HEADER_DTYPE, NSTART_DTYPE, VOXEL_SIZE_DTYPE, get_ext_header_dtype
 
 
-class MrcObject(object):
+class MrcObject:
     """An object representing image or volume data in the MRC format.
 
     The header, extended header and data are stored as numpy arrays and
@@ -109,7 +109,7 @@ class MrcObject(object):
         by the caller, or might create the standard empty defaults rather than
         setting the attributes to :data:`None`.
         """
-        super(MrcObject, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         # Set empty default attributes
         self._header = None

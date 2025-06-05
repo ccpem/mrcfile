@@ -1,4 +1,3 @@
-# coding: utf-8
 # Copyright (c) 2016, Science and Technology Facilities Council
 # This software is distributed under a BSD licence. See LICENSE.txt.
 
@@ -31,7 +30,7 @@ class MrcObjectTest(unittest.TestCase):
     """Unit tests for MrcObject class"""
 
     def setUp(self):
-        super(MrcObjectTest, self).setUp()
+        super().setUp()
 
         # Make sure we don't have any unexpected warnings by raising them all
         # as errors unless they are explicitly caught or ignored

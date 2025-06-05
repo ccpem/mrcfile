@@ -40,7 +40,7 @@ class Bzip2MrcFile(MrcFile):
     def _read(self, *, header_only=False):
         """Override _read() to ensure bzip2 file is in read mode."""
         self._ensure_readable_bzip2_stream()
-        super(Bzip2MrcFile, self)._read(header_only=header_only)
+        super()._read(header_only=header_only)
 
     def _ensure_readable_bzip2_stream(self):
         """Make sure _iostream is a bzip2 stream that can be read."""
@@ -51,7 +51,7 @@ class Bzip2MrcFile(MrcFile):
     def _get_file_size(self):
         """Override _get_file_size() to ensure stream is readable first."""
         self._ensure_readable_bzip2_stream()
-        return super(Bzip2MrcFile, self)._get_file_size()
+        return super()._get_file_size()
 
     def flush(self):
         """Override :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` since

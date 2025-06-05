@@ -25,7 +25,7 @@ class ValidationTest(unittest.TestCase):
     """Unit tests for MRC validation functions."""
 
     def setUp(self):
-        super(ValidationTest, self).setUp()
+        super().setUp()
 
         # Set up test files and names to be used
         self.test_data = helpers.get_test_data_path()
@@ -58,7 +58,7 @@ class ValidationTest(unittest.TestCase):
         self.print_stream.close()
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
-        super(ValidationTest, self).tearDown()
+        super().tearDown()
 
     def test_good_file(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:

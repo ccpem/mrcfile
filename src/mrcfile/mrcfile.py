@@ -95,7 +95,7 @@ class MrcFile(MrcInterpreter):
                 value but the extended header's size is not a multiple of the
                 number of bytes in the corresponding dtype.
         """
-        super(MrcFile, self).__init__(permissive=permissive, **kwargs)
+        super().__init__(permissive=permissive, **kwargs)
 
         if mode not in ["r", "r+", "w+"]:
             raise ValueError("Mode '{0}' not supported".format(mode))
@@ -133,7 +133,7 @@ class MrcFile(MrcInterpreter):
     def _read(self, *, header_only=False):
         """Override _read() to move back to start of file first."""
         self._iostream.seek(0)
-        super(MrcFile, self)._read(header_only=header_only)
+        super()._read(header_only=header_only)
 
     def _read_data(self):
         """Override _read_data() to check file size matches data block size."""
@@ -144,7 +144,7 @@ class MrcFile(MrcInterpreter):
         header_size = self.header.nbytes + int(self.header.nsymbt)
         remaining_file_size = file_size - header_size
 
-        super(MrcFile, self)._read_data(max_bytes=remaining_file_size)
+        super()._read_data(max_bytes=remaining_file_size)
 
         # Check if the file is the expected size.
         if self.data is not None:
@@ -169,7 +169,7 @@ class MrcFile(MrcInterpreter):
         This override calls :meth:`.MrcInterpreter.close` to ensure the stream
         is flushed and closed, then closes the file object.
         """
-        super(MrcFile, self).close()
+        super().close()
         self._close_file()
 
     def _close_file(self):
@@ -222,7 +222,7 @@ class MrcFile(MrcInterpreter):
             :data:`True` if the file is valid, or :data:`False` if the file
             does not meet the MRC format specification in any way.
         """
-        valid = super(MrcFile, self).validate(print_file=print_file)
+        valid = super().validate(print_file=print_file)
 
         if self.data is not None:
             # Check file size

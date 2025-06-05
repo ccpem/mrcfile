@@ -16,7 +16,7 @@ Classes:
 import threading
 
 
-class FutureMrcFile(object):
+class FutureMrcFile:
     """Object representing an MRC file being opened asynchronously.
 
     This API deliberately mimics a :class:`~concurrent.futures.Future` object

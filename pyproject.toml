@@ -91,12 +91,15 @@ select = [
     "T",  # T100? T20?
     "TD",  # flake8-todos
     "TID",  # flake8-tidy-imports
+    "UP",  # pyupgrade
     "W",  # pycodestyle warnings
 ]
 ignore = [
     "B028",  # explicit stacklevel keyword in warnings
     "COM812",  # trailing commas
     "PLR2004",  # magic values
+    "UP030",  # implicit format fields - aim to remove this one
+    "UP032",  # f-strings - aim to remove this one
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

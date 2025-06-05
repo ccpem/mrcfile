@@ -41,7 +41,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
     """
 
     def setUp(self):
-        super(MrcFileTest, self).setUp()
+        super().setUp()
 
         # Set up test files and names to be used
         self.test_data = helpers.get_test_data_path()
@@ -65,7 +65,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
         self.mrcobject.close()
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
-        super(MrcFileTest, self).tearDown()
+        super().tearDown()
 
     ############################################################################
     #

@@ -21,7 +21,7 @@ class CommandLineTest(unittest.TestCase):
     """Unit tests for mrcfile command line functions."""
 
     def setUp(self):
-        super(CommandLineTest, self).setUp()
+        super().setUp()
 
         # Set up test files and names to be used
         self.test_data = helpers.get_test_data_path()
@@ -49,7 +49,7 @@ class CommandLineTest(unittest.TestCase):
 
         if os.path.exists(self.test_output):
             shutil.rmtree(self.test_output)
-        super(CommandLineTest, self).tearDown()
+        super().tearDown()
 
     def test_print_header_no_args(self):
         command_line.print_headers([], print_file=self.print_stream)

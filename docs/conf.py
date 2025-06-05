@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # mrcfile documentation build configuration file, created by
 # sphinx-quickstart on Thu Jan  5 19:08:23 2017.

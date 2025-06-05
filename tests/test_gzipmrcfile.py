@@ -23,7 +23,7 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
 
     def setUp(self):
         # Set up as if for MrcFileTest
-        super(GzipMrcFileTest, self).setUp()
+        super().setUp()
 
         # Replace test MRC files with their gzipped equivalents
         self.example_mrc_name = os.path.join(self.test_data, "emd_3197.map.gz")

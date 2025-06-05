@@ -10,7 +10,7 @@ the package.
 
 """
 
-import io
+import builtins
 import os
 
 import numpy as np
@@ -126,7 +126,7 @@ def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
                 " delete it first or call 'mrcfile.new()' with"
                 " 'overwrite=True' to overwrite it".format(name)
             )
-        with io.open(name, "rb") as f:
+        with builtins.open(name, "rb") as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
         # Check for map ID string to avoid trying to decompress normal files
         # where the nx value happens to include the magic number for a
