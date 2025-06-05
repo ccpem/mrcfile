@@ -196,7 +196,7 @@ def write(name, data=None, *, overwrite=False, voxel_size=None):
         compression = "gzip"
     elif name.endswith(".bz2"):
         compression = "bzip2"
-    with new(name, data, compression, overwrite) as mrc:
+    with new(name, data, compression=compression, overwrite=overwrite) as mrc:
         if voxel_size is not None:
             mrc.voxel_size = voxel_size
 

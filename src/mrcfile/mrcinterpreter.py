@@ -112,7 +112,7 @@ class MrcInterpreter(MrcObject):
 
         # If iostream is given, initialise by reading it
         if self._iostream is not None:
-            self._read(header_only)
+            self._read(header_only=header_only)
 
     def __enter__(self):
         """Called by the context manager at the start of a :keyword:`with`

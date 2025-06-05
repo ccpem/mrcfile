@@ -117,7 +117,7 @@ class MrcFile(MrcInterpreter):
             if "w" in mode:
                 self._create_default_attributes()
             else:
-                self._read(header_only)
+                self._read(header_only=header_only)
         except Exception:
             self._close_file()
             raise
@@ -132,7 +132,7 @@ class MrcFile(MrcInterpreter):
     def _read(self, *, header_only=False):
         """Override _read() to move back to start of file first."""
         self._iostream.seek(0)
-        super(MrcFile, self)._read(header_only)
+        super(MrcFile, self)._read(header_only=header_only)
 
     def _read_data(self):
         """Override _read_data() to check file size matches data block size."""
