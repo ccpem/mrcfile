@@ -45,6 +45,7 @@ class MrcMemmap(MrcFile):
     """
 
     def __repr__(self):
+        """Return a string representation of the MrcMemmap object."""
         return "MrcMemmap('{0}', mode='{1}')".format(self._iostream.name, self._mode)
 
     def set_extended_header(self, extended_header):

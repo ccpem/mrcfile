@@ -53,26 +53,45 @@ indent-width = 4
 target-version = "py39"
 
 [tool.ruff.lint]
+# Possibly useful but not yet selected: ANN, DTZ, EM, LOG, G, TC, D[234]
 select = [
-    "A",
-    "B",
-    "BLE",
-    "C",
-    "COM",
-    "E",
-    "ERA",
-    "F",
-    "FBT",
-    "FIX",
-    "I",
-    "NPY",
-    "PLR",
+    "A",  # flake8-builtins
+    "ARG",  # Unused arguments
+    "ASYNC",  # flake8-async
+    "B",  # flake8-bugbear
+    "BLE",  # Overly-broad except clauses
+    "C4",  # flake8-comprehensions
+    "C901",  # McCabe complexity
+    "COM",  # flake8-commas
+    "D1",  # Missing docstrings in public API
+    "E",  # pycodestyle errors
+    "ERA",  # Eradicate commented-out code
+    "EXE",  # flake8-executable
+    "F",  # Pyflakes
+    "FA",  # flake8-future-annotations
+    "FBT",  # Avoid positional boolean arguments
+    "FIX",  # flake8-fixme
+    "FLY",  # flynt
+    "I",  # isort
+    "ICN",  # flake8-import-conventions
+    "ISC",  # Implicit string concatenation
+    "N",  # PEP8 naming conventions
+    "NPY",  # NumPy-specific rules
+    "PERF",  # Perflint
+    "PGH",  # pygrep-hooks (incl no bare "noqa" or "type: ignore" comments)
+    "PIE",  # flake8-pie
+    "PL",  # Pylint
+    "Q",  # flake8-quotes
+    "RSE",  # flake8-raise
     "RUF",
-    "S",
-    "SIM",
-    "SLF",
-    "T",
-    "W",
+    "S",  # flake8-bandit
+    "SIM",  # flake8-simplify
+    "SLF",  # flake8-self
+    "SLOT", # flake8-slots
+    "T",  # T100? T20?
+    "TD",  # flake8-todos
+    "TID",  # flake8-tidy-imports
+    "W",  # pycodestyle warnings
 ]
 ignore = [
     "B028",  # explicit stacklevel keyword in warnings
@@ -87,7 +106,13 @@ unfixable = []
 [tool.ruff.lint.per-file-ignores]
 # Ignore some rules that are not relevant to test code
 "tests/**.py" = [
+    "D",
     "S101",
     "SLF001",
     "T",
+]
+
+# Ignore some rules that are not relevant to docs config file
+"docs/conf.py" = [
+    "D"
 ]

@@ -55,13 +55,13 @@ def new(name, data=None, *, compression=None, overwrite=False):
         RuntimeWarning: If the data array contains Inf or NaN values.
     """
     if compression == "gzip":
-        NewMrc = GzipMrcFile
+        NewMrc = GzipMrcFile  # noqa: N806
     elif compression == "bzip2":
-        NewMrc = Bzip2MrcFile
+        NewMrc = Bzip2MrcFile  # noqa: N806
     elif compression is not None:
         raise ValueError("Unknown compression format '{0}'".format(compression))
     else:
-        NewMrc = MrcFile
+        NewMrc = MrcFile  # noqa: N806
     mrc = NewMrc(name, mode="w+", overwrite=overwrite)
     if data is not None:
         mrc.set_data(data)
@@ -117,7 +117,7 @@ def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
             value but the extended header's size is not a multiple of the
             number of bytes in the corresponding dtype.
     """
-    NewMrc = MrcFile
+    NewMrc = MrcFile  # noqa: N806
     name = str(name)  # in case name is a pathlib Path
     if os.path.exists(name):
         if "w" in mode:
@@ -136,9 +136,9 @@ def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
         # class can always be used directly instead.)
         if start[-len(MAP_ID) :] != MAP_ID:
             if start[:2] == b"\x1f\x8b":
-                NewMrc = GzipMrcFile
+                NewMrc = GzipMrcFile  # noqa: N806
             elif start[:2] == b"BZ":
-                NewMrc = Bzip2MrcFile
+                NewMrc = Bzip2MrcFile  # noqa: N806
     return NewMrc(name, mode=mode, permissive=permissive, header_only=header_only)
 
 

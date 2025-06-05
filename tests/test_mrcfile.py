@@ -155,7 +155,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
                 b"                                        "
             )
 
-    def test_indexed_extended_header_from_FEI1_file(self):
+    def test_indexed_extended_header_from_fei1_file(self):
         with self.newmrc(self.fei1_ext_header_mrc_name) as mrc:
             # FEI1 means use the fei format
             assert mrc.header["exttyp"] == b"FEI1"
@@ -174,7 +174,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
             assert ext[0]["Microscope type"] == b"TITAN52336320"
             assert ext[0]["HT"] == 300000.0
 
-    def test_indexed_extended_header_from_FEI2_file(self):
+    def test_indexed_extended_header_from_fei2_file(self):
         with self.newmrc(self.fei2_ext_header_mrc_name) as mrc:
             # FEI2 means use the fei format
             assert mrc.header["exttyp"] == b"FEI2"

@@ -123,6 +123,7 @@ class MrcFile(MrcInterpreter):
             raise
 
     def __repr__(self):
+        """Return a string representation of the MrcFile object."""
         return "MrcFile('{0}', mode='{1}')".format(self._iostream.name, self._mode)
 
     def _open_file(self, name):

@@ -27,6 +27,7 @@ class Bzip2MrcFile(MrcFile):
     """
 
     def __repr__(self):
+        """Return a string representation of the Bzip2MrcFile object."""
         return "Bzip2MrcFile('{0}', mode='{1}')".format(self._fname, self._mode)
 
     def _open_file(self, name):
