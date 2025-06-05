@@ -28,8 +28,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    # Install Ruff and run "ruff check"
-    - uses: astral-sh/ruff-action@v3
+    - name: Install Ruff and lint code
+      uses: astral-sh/ruff-action@v3
+      with:
+        version: "latest"
     - name: Format with Ruff
       run: ruff format
     - name: Python ${{ matrix.python-version }}
