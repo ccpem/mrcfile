@@ -475,13 +475,6 @@ class MrcObjectTest(unittest.TestCase):
     def test_header_stats_setting_complex_data(self):
         data = np.arange(6, dtype=np.complex64).reshape(3, 2)
         with warnings.catch_warnings(record=True) as w:
-            # Hack for warnings bug in Python 2.7
-            #  See https://stackoverflow.com/q/56821539
-            if sys.version_info[0:2] == (2, 7):
-                from mrcfile import mrcobject
-
-                if hasattr(mrcobject, "__warningregistry__"):
-                    mrcobject.__warningregistry__.clear()
             warnings.simplefilter("always")
             self.mrcobject.set_data(data)
             assert len(w) == 0
@@ -495,13 +488,6 @@ class MrcObjectTest(unittest.TestCase):
         data = np.arange(6, dtype=np.float32).reshape(3, 2)
         data[1, 1] = np.nan
         with warnings.catch_warnings(record=True) as w:
-            # Hack for warnings bug in Python 2.7
-            #  See https://stackoverflow.com/q/56821539
-            if sys.version_info[0:2] == (2, 7):
-                from mrcfile import mrcobject
-
-                if hasattr(mrcobject, "__warningregistry__"):
-                    mrcobject.__warningregistry__.clear()
             warnings.simplefilter("always")
             self.mrcobject.set_data(data)
             assert len(w) >= 1, str(len(w)) + " warnings issued"
