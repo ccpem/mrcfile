@@ -10,7 +10,7 @@ mrcfile.py
 .. |readthedocs| image:: https://readthedocs.org/projects/mrcfile/badge/
     :target: https://mrcfile.readthedocs.io/
     :alt: Documentation
-    
+
 .. |python-versions| image:: https://img.shields.io/pypi/pyversions/mrcfile.svg
     :target: https://pypi.python.org/pypi/mrcfile
     :alt: Python Versions
@@ -90,7 +90,7 @@ To open an MRC file and read a slice of data::
     >>> import mrcfile
     >>> with mrcfile.open('tests/test_data/EMD-3197.map') as mrc:
     ...     mrc.data[10,10]
-    ... 
+    ...
     array([ 2.58179283,  3.1406002 ,  3.64495397,  3.63812137,  3.61837363,
             4.0115056 ,  3.66981959,  2.07317996,  0.1251585 , -0.87975615,
             0.12517013,  2.07319379,  3.66982722,  4.0115037 ,  3.61837196,
@@ -103,7 +103,7 @@ To create a new file with a 2D data array, and change some values::
     ...     mrc.set_data(array)
     ...     mrc.data[1:4,1:4] = 10
     ...     mrc.data
-    ... 
+    ...
     array([[ 0,  0,  0,  0,  0],
            [ 0, 10, 10, 10,  0],
            [ 0, 10, 10, 10,  0],
@@ -156,8 +156,9 @@ Code contributions are also welcome, please submit pull requests to the
 
 .. _GitHub repository: https://github.com/ccpem/mrcfile
 
-To run the test suite, go to the top-level project directory (which contains
-the ``mrcfile`` and ``tests`` packages) and run ``python -m unittest tests``.
+To run the test suite, install ``mrcfile`` with ``dev`` dependencies (probably in a new
+virtual environment in editable mode, for example ``python -m pip install .[dev]``
+from the top-level project directory), then run ``python -m pytest``.
 (Or, if you have `tox`_ installed, run ``tox``.)
 
 .. _tox: http://tox.readthedocs.org
@@ -166,4 +167,3 @@ Licence
 -------
 
 The project is released under the BSD licence.
-

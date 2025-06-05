@@ -37,6 +37,12 @@ classifiers = [
 ]
 dependencies = ["numpy >= 1.16.0"]
 
+optional-dependencies.dev = [
+    "pre-commit",
+    "pytest",
+    "ruff",
+]
+
 [project.urls]
 homepage = "https://github.com/ccpem/mrcfile"
 documentation = "https://mrcfile.readthedocs.io/"

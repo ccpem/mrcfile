@@ -9,7 +9,7 @@ mrcfile -- Main package
     :members: new, open, read, write, open_async, mmap, new_mmap, validate
     :undoc-members:
     :show-inheritance:
-    
+
     Members
     -------
 
@@ -145,5 +145,3 @@ mrcfile.validator module
     :undoc-members:
     :private-members:
     :show-inheritance:
-
-
