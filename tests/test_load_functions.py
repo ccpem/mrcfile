@@ -299,7 +299,7 @@ class LoadFunctionTest(unittest.TestCase):
             mrcfile.new_mmap(self.temp_mrc_name, (np.iinfo(np.int32).max + 1, 1))
 
     def test_write(self):
-        data_in = np.random.random((10, 10)).astype(np.float16)
+        data_in = np.ones((10, 10), dtype=np.float16)
         mrcfile.write(self.temp_mrc_name, data_in, voxel_size=1.1)
         with mrcfile.open(self.temp_mrc_name) as mrc:
             data_out = mrc.data
@@ -310,7 +310,7 @@ class LoadFunctionTest(unittest.TestCase):
         self.assertAlmostEqual(voxel_size.z, 1.1)
 
     def test_write_with_auto_compression(self):
-        data_in = np.random.random((10, 10)).astype(np.float16)
+        data_in = np.ones((10, 10), dtype=np.float16)
         mrcfile.write(self.temp_gz_mrc_name, data_in)
         with mrcfile.open(self.temp_gz_mrc_name) as mrc:
             assert isinstance(mrc, GzipMrcFile)

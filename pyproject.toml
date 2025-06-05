@@ -65,6 +65,7 @@ select = [
     "FBT",
     "FIX",
     "I",
+    "NPY",
     "PLR",
     "RUF",
     "S",
