@@ -164,7 +164,7 @@ class MrcObject:
         header.maps = 3
 
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        header.label[0] = "{:40s}{:>39s} ".format("Created by mrcfile.py", time)
+        header.label[0] = f"Created by mrcfile.py {time:>57s} "
         header.nlabl = 1
 
         self.reset_header_stats()
@@ -837,8 +837,8 @@ class MrcObject:
         valid_exttypes = [b"CCP4", b"MRCO", b"SERI", b"AGAR", b"FEI1", b"FEI2", b"HDF5"]
         if self.header.nsymbt > 0 and self.header.exttyp not in valid_exttypes:
             log(
-                "Extended header type is undefined or unrecognised: exttyp = "
-                "'{}'".format(self.header.exttyp.item().decode("ascii"))
+                "Extended header type is undefined or unrecognised: exttyp ="
+                f" '{self.header.exttyp.item().decode('ascii')}'"
             )
             valid = False
 
