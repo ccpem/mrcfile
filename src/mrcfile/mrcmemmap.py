@@ -46,7 +46,7 @@ class MrcMemmap(MrcFile):
 
     def __repr__(self):
         """Return a string representation of the MrcMemmap object."""
-        return "MrcMemmap('{0}', mode='{1}')".format(self._iostream.name, self._mode)
+        return f"MrcMemmap('{self._iostream.name}', mode='{self._mode}')"
 
     def set_extended_header(self, extended_header):
         """Replace the file's extended header.
@@ -102,7 +102,7 @@ class MrcMemmap(MrcFile):
             dtype = utils.data_dtype_from_header(self.header)
         except ValueError as err:
             if self._permissive:
-                warnings.warn("{0} - data block not read".format(err), RuntimeWarning)
+                warnings.warn(f"{err} - data block not read", RuntimeWarning)
                 self._data = None
                 return
             else:
@@ -148,8 +148,9 @@ class MrcMemmap(MrcFile):
                 data_size = 1
 
             if data_size < remaining_file_size:
-                msg = "MRC file is {0} bytes larger than expected".format(
-                    remaining_file_size - data_size
+                msg = (
+                    f"MRC file is {remaining_file_size - data_size} bytes larger than"
+                    " expected"
                 )
                 warnings.warn(msg, RuntimeWarning)
 

@@ -45,18 +45,14 @@ class LoadFunctionTest(unittest.TestCase):
 
     def test_normal_opening(self):
         with mrcfile.open(self.example_mrc_name) as mrc:
-            assert repr(mrc) == (
-                "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcFile('{self.example_mrc_name}', mode='r')")
 
     def test_normal_opening_pathlib(self):
         """Single test to ensure pathlib functionality is tested even if there's
         a problem with the LoadFunctionTestWithPathlib class"""
         path = Path(self.example_mrc_name)
         with mrcfile.open(path) as mrc:
-            assert repr(mrc) == (
-                "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcFile('{self.example_mrc_name}', mode='r')")
 
     def test_read(self):
         volume = mrcfile.read(self.example_mrc_name)
@@ -66,29 +62,23 @@ class LoadFunctionTest(unittest.TestCase):
 
     def test_gzip_opening(self):
         with mrcfile.open(self.gzip_mrc_name) as mrc:
-            assert repr(mrc) == (
-                "GzipMrcFile('{0}', mode='r')".format(self.gzip_mrc_name)
-            )
+            assert repr(mrc) == (f"GzipMrcFile('{self.gzip_mrc_name}', mode='r')")
 
     def test_bzip2_opening(self):
         with mrcfile.open(self.bzip2_mrc_name) as mrc:
-            assert repr(mrc) == (
-                "Bzip2MrcFile('{0}', mode='r')".format(self.bzip2_mrc_name)
-            )
+            assert repr(mrc) == (f"Bzip2MrcFile('{self.bzip2_mrc_name}', mode='r')")
 
     def test_mmap_opening(self):
         with mrcfile.mmap(self.example_mrc_name) as mrc:
-            assert repr(mrc) == (
-                "MrcMemmap('{0}', mode='r')".format(self.example_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcMemmap('{self.example_mrc_name}', mode='r')")
 
     def test_new_empty_file(self):
         with mrcfile.new(self.temp_mrc_name) as mrc:
-            assert repr(mrc) == ("MrcFile('{0}', mode='w+')".format(self.temp_mrc_name))
+            assert repr(mrc) == (f"MrcFile('{self.temp_mrc_name}', mode='w+')")
 
     def test_new_empty_file_with_open_function(self):
         with mrcfile.open(self.temp_mrc_name, mode="w+") as mrc:
-            assert repr(mrc) == ("MrcFile('{0}', mode='w+')".format(self.temp_mrc_name))
+            assert repr(mrc) == (f"MrcFile('{self.temp_mrc_name}', mode='w+')")
 
     def test_error_overwriting_file_with_open_function(self):
         assert not os.path.exists(self.temp_mrc_name)
@@ -116,17 +106,13 @@ class LoadFunctionTest(unittest.TestCase):
         data = np.arange(24, dtype=np.uint16).reshape(4, 3, 2)
         with mrcfile.new(self.temp_mrc_name, data, compression="gzip") as mrc:
             np.testing.assert_array_equal(data, mrc.data)
-            assert repr(mrc) == (
-                "GzipMrcFile('{0}', mode='w+')".format(self.temp_mrc_name)
-            )
+            assert repr(mrc) == (f"GzipMrcFile('{self.temp_mrc_name}', mode='w+')")
 
     def test_new_bzip2_file(self):
         data = np.arange(24, dtype=np.uint16).reshape(4, 3, 2)
         with mrcfile.new(self.temp_mrc_name, data, compression="bzip2") as mrc:
             np.testing.assert_array_equal(data, mrc.data)
-            assert repr(mrc) == (
-                "Bzip2MrcFile('{0}', mode='w+')".format(self.temp_mrc_name)
-            )
+            assert repr(mrc) == (f"Bzip2MrcFile('{self.temp_mrc_name}', mode='w+')")
 
     def test_unknown_compression_type(self):
         with self.assertRaisesRegex(ValueError, "Unknown compression format"):
@@ -195,9 +181,7 @@ class LoadFunctionTest(unittest.TestCase):
 
     def test_simple_async_opening(self):
         with mrcfile.open_async(self.example_mrc_name).result() as mrc:
-            assert repr(mrc) == (
-                "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcFile('{self.example_mrc_name}', mode='r')")
 
     def test_slow_async_opening(self):
         # This test relies on the fact that file opening takes longer than the
@@ -210,18 +194,14 @@ class LoadFunctionTest(unittest.TestCase):
         with future.result() as mrc:
             assert future.done()
             assert not future.running()
-            assert repr(mrc) == (
-                "GzipMrcFile('{0}', mode='r')".format(self.slow_mrc_name)
-            )
+            assert repr(mrc) == (f"GzipMrcFile('{self.slow_mrc_name}', mode='r')")
         assert future.exception() is None
 
     def test_new_mmap(self):
         with mrcfile.new_mmap(
             self.temp_mrc_name, (3, 4, 5, 6), mrc_mode=2, fill=1.1
         ) as mrc:
-            assert repr(mrc) == (
-                "MrcMemmap('{0}', mode='w+')".format(self.temp_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcMemmap('{self.temp_mrc_name}', mode='w+')")
             assert mrc.data.shape == (3, 4, 5, 6)
             assert np.all(mrc.data == 1.1)
             assert mrc.header.nx == 6
@@ -238,9 +218,7 @@ class LoadFunctionTest(unittest.TestCase):
             extended_header=np.zeros(1, dtype=np.int8),
             exttyp="TYPE",
         ) as mrc:
-            assert repr(mrc) == (
-                "MrcMemmap('{0}', mode='w+')".format(self.temp_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcMemmap('{self.temp_mrc_name}', mode='w+')")
             assert mrc.data.shape == (3, 4, 5)
             assert np.all(mrc.data == 1.1)
             assert mrc.header.nx == 5
@@ -265,9 +243,7 @@ class LoadFunctionTest(unittest.TestCase):
             fill=1.1,
             extended_header=np.zeros(problem_ext_head_size, dtype=np.int8),
         ) as mrc:
-            assert repr(mrc) == (
-                "MrcMemmap('{0}', mode='w+')".format(self.temp_mrc_name)
-            )
+            assert repr(mrc) == (f"MrcMemmap('{self.temp_mrc_name}', mode='w+')")
             assert mrc.data.shape == (3, 4, 5)
             assert np.all(mrc.data == 1.1)
             assert mrc.header.nx == 5

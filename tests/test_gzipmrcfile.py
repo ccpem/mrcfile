@@ -89,9 +89,7 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
     def test_repr(self):
         """Override test to change expected repr string."""
         with GzipMrcFile(self.example_mrc_name) as mrc:
-            assert repr(mrc) == "GzipMrcFile('{0}', mode='r')".format(
-                self.example_mrc_name
-            )
+            assert repr(mrc) == f"GzipMrcFile('{self.example_mrc_name}', mode='r')"
 
 
 if __name__ == "__main__":

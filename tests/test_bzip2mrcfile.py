@@ -90,9 +90,7 @@ class Bzip2MrcFileTest(test_mrcfile.MrcFileTest):
     def test_repr(self):
         """Override test to change expected repr string."""
         with Bzip2MrcFile(self.example_mrc_name) as mrc:
-            assert repr(mrc) == "Bzip2MrcFile('{0}', mode='r')".format(
-                self.example_mrc_name
-            )
+            assert repr(mrc) == f"Bzip2MrcFile('{self.example_mrc_name}', mode='r')"
 
 
 if __name__ == "__main__":

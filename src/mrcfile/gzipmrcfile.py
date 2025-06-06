@@ -26,7 +26,7 @@ class GzipMrcFile(MrcFile):
 
     def __repr__(self):
         """Return a string representation of the GzipMrcFile object."""
-        return "GzipMrcFile('{0}', mode='{1}')".format(self._fileobj.name, self._mode)
+        return f"GzipMrcFile('{self._fileobj.name}', mode='{self._mode}')"
 
     def _open_file(self, name):
         """Override _open_file() to open both normal and gzip files."""

@@ -103,7 +103,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
 
     def test_repr(self):
         with self.newmrc(self.example_mrc_name) as mrc:
-            expected = "MrcFile('{0}', mode='r')".format(self.example_mrc_name)
+            expected = f"MrcFile('{self.example_mrc_name}', mode='r')"
             assert repr(mrc) == expected
 
     def test_data_values_are_correct(self):
@@ -335,7 +335,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
                 assert mrc.data is None
             assert len(w) > 0
             assert str(w[0].message) in (
-                "Expected {} bytes in data block but limit is 24".format(nx * ny * nz),
+                f"Expected {nx * ny * nz} bytes in data block but limit is 24",
                 "Error opening memmap",
             )
             assert issubclass(w[0].category, RuntimeWarning)
@@ -370,7 +370,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
             np.testing.assert_array_equal(mrc.data, data)
         with self.newmrc(self.temp_mrc_name, mode="r") as mrc:
             # Change the extended header dtype to a string for comparison
-            mrc.extended_header.dtype = "S{}".format(mrc.extended_header.nbytes)
+            mrc.extended_header.dtype = f"S{mrc.extended_header.nbytes}"
             np.testing.assert_array_equal(mrc.extended_header, extended_header)
             np.testing.assert_array_equal(mrc.data, data)
 
@@ -400,7 +400,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
                 # Test that the file is still read, and the dtype falls back to 'V'
                 assert mrc.extended_header.dtype.kind == "V"
                 assert mrc.indexed_extended_header is None
-                mrc.extended_header.dtype = "S{}".format(mrc.extended_header.nbytes)
+                mrc.extended_header.dtype = f"S{mrc.extended_header.nbytes}"
                 np.testing.assert_array_equal(mrc.extended_header, extended_header)
             assert len(w) == 1
             assert "FEI1" in str(w[0].message)

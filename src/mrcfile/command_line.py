@@ -42,5 +42,5 @@ def print_headers(names=None, print_file=None):
         names = args.filename
     for name in names:
         with mrcfile.open(name, permissive=True, header_only=True) as mrc:
-            print("MRC header for {}:".format(name), file=print_file)
+            print(f"MRC header for {name}:", file=print_file)
             mrc.print_header(print_file=print_file)

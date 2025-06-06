@@ -164,7 +164,7 @@ class MrcObject:
         header.maps = 3
 
         time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        header.label[0] = "{0:40s}{1:>39s} ".format("Created by mrcfile.py", time)
+        header.label[0] = "{:40s}{:>39s} ".format("Created by mrcfile.py", time)
         header.nlabl = 1
 
         self.reset_header_stats()
@@ -216,8 +216,8 @@ class MrcObject:
                 raise ValueError  # noqa: TRY301
         except ValueError:
             warnings.warn(
-                "The header has exttyp '{}' but the extended header "
-                "cannot be interpreted as that type".format(self.header.exttyp),
+                f"The header has exttyp '{self.header.exttyp}' but the extended header"
+                " cannot be interpreted as that type",
                 RuntimeWarning,
             )
             return None
@@ -230,8 +230,8 @@ class MrcObject:
             full.dtype = dtype
         except ValueError:
             warnings.warn(
-                "The header has exttyp '{}' but the extended header "
-                "cannot be interpreted as that type".format(self.header.exttyp),
+                f"The header has exttyp '{self.header.exttyp}' but the extended header"
+                " cannot be interpreted as that type",
                 RuntimeWarning,
             )
             return None
@@ -252,10 +252,8 @@ class MrcObject:
         self._check_writeable()
         if extended_header.nbytes > np.iinfo(np.int32).max:
             raise ValueError(
-                "New extended header is too large! It has {} "
-                "bytes. The maximum allowed is {}.".format(
-                    extended_header.nbytes, np.iinfo(np.int32).max
-                )
+                f"New extended header is too large! It has {extended_header.nbytes}"
+                f" bytes. The maximum allowed is {np.iinfo(np.int32).max}."
             )
         self._extended_header = extended_header
         self.header.nsymbt = extended_header.nbytes
@@ -290,9 +288,8 @@ class MrcObject:
         for dim in data.shape:
             if dim > np.iinfo(np.int32).max:
                 raise ValueError(
-                    "New data array is too large! Found a "
-                    "dimension of size {}. The maximum allowed "
-                    "is {}.".format(dim, np.iinfo(np.int32).max)
+                    f"New data array is too large! Found a dimension of size {dim}. The"
+                    f" maximum allowed is {np.iinfo(np.int32).max}."
                 )
 
         # Set new_dtype to None if it is the same type as the original array,
@@ -655,7 +652,7 @@ class MrcObject:
                 means output will be printed to :data:`sys.stdout`.
         """
         for item in self.header.dtype.names:
-            print("{0:15s} : {1}".format(item, self.header[item]), file=print_file)
+            print(f"{item:15s} : {self.header[item]}", file=print_file)
 
     def get_labels(self):
         """Get the labels from the MRC header.
@@ -756,9 +753,8 @@ class MrcObject:
         # Check map ID string
         if self.header.map != MAP_ID:
             log(
-                "Map ID string is incorrect: found {0}, should be {1}".format(
-                    self.header.map, MAP_ID
-                )
+                f"Map ID string is incorrect: found {self.header.map}, should be"
+                f" {MAP_ID}"
             )
             valid = False
 
@@ -774,19 +770,19 @@ class MrcObject:
         try:
             utils.dtype_from_mode(self.header.mode)
         except ValueError:
-            log("Invalid mode: {0}".format(self.header.mode))
+            log(f"Invalid mode: {self.header.mode}")
             valid = False
 
         # Check map dimensions and other fields are non-negative
         for field in ["nx", "ny", "nz", "mx", "my", "mz", "ispg", "nlabl"]:
             if self.header[field] < 0:
-                log("Header field '{0}' is negative".format(field))
+                log(f"Header field '{field}' is negative")
                 valid = False
 
         # Check cell dimensions are non-negative
         for field in ["x", "y", "z"]:
             if self.header.cella[field] < 0:
-                log("Cell dimension '{0}' is negative".format(field))
+                log(f"Cell dimension '{field}' is negative")
                 valid = False
 
         # Check axis mapping is valid
@@ -794,11 +790,7 @@ class MrcObject:
         for field in ["mapc", "mapr", "maps"]:
             axes.add(int(self.header[field]))
         if axes != {1, 2, 3}:
-            log(
-                "Invalid axis mapping: found {0}, should be [1, 2, 3]".format(
-                    sorted(axes)
-                )
-            )
+            log(f"Invalid axis mapping: found {sorted(axes)}, should be [1, 2, 3]")
             valid = False
 
         # Check mz value for volume stacks
@@ -807,10 +799,8 @@ class MrcObject:
             and self.header.nz % self.header.mz != 0
         ):
             log(
-                "Error in dimensions for volume stack: nz should be "
-                "divisible by mz. Found nz = {0}, mz = {1})".format(
-                    self.header.nz, self.header.mz
-                )
+                "Error in dimensions for volume stack: nz should be divisible by mz."
+                f" Found nz = {self.header.nz}, mz = {self.header.mz})"
             )
             valid = False
 
@@ -822,16 +812,16 @@ class MrcObject:
                 count += 1
                 if seen_empty_label:
                     log(
-                        "Error in header labels: empty labels appear between "
-                        "text-containing labels"
+                        "Error in header labels: empty labels appear between"
+                        " text-containing labels"
                     )
                     valid = False
             else:
                 seen_empty_label = True
         if count != self.header.nlabl:
             log(
-                "Error in header labels: nlabl is {0} "
-                "but {1} labels contain text".format(self.header.nlabl, count)
+                f"Error in header labels: nlabl is {self.header.nlabl} but {count}"
+                " labels contain text"
             )
             valid = False
 
@@ -839,7 +829,7 @@ class MrcObject:
         if self.header.nversion not in (20140, 20141):
             log(
                 "File does not declare MRC format version 20140 or 20141: nversion ="
-                " {0}".format(self.header.nversion)
+                f" {self.header.nversion}"
             )
             valid = False
 
@@ -848,7 +838,7 @@ class MrcObject:
         if self.header.nsymbt > 0 and self.header.exttyp not in valid_exttypes:
             log(
                 "Extended header type is undefined or unrecognised: exttyp = "
-                "'{0}'".format(self.header.exttyp.item().decode("ascii"))
+                "'{}'".format(self.header.exttyp.item().decode("ascii"))
             )
             valid = False
 
@@ -859,8 +849,8 @@ class MrcObject:
                 real_rms = self.data.std()
             if not np.isclose(real_rms, self.header.rms, rtol=0.01):
                 log(
-                    "Data statistics appear to be inaccurate: RMS deviation is {0} but"
-                    " the value in the header is {1}".format(real_rms, self.header.rms)
+                    "Data statistics appear to be inaccurate: RMS deviation is"
+                    f" {real_rms} but the value in the header is {self.header.rms}"
                 )
                 valid = False
         if self.header.dmin < self.header.dmax:
@@ -869,14 +859,14 @@ class MrcObject:
                 real_max = self.data.max()
             if self.header.dmin != real_min:
                 log(
-                    "Data statistics appear to be inaccurate: minimum is {0} but the"
-                    " value in the header is {1}".format(real_min, self.header.dmin)
+                    f"Data statistics appear to be inaccurate: minimum is {real_min}"
+                    f" but the value in the header is {self.header.dmin}"
                 )
                 valid = False
             if self.header.dmax != real_max:
                 log(
-                    "Data statistics appear to be inaccurate: maximum is {0} but the"
-                    " value in the header is {1}".format(real_max, self.header.dmax)
+                    f"Data statistics appear to be inaccurate: maximum is {real_max}"
+                    f" but the value in the header is {self.header.dmax}"
                 )
                 valid = False
         if self.header.dmean > min(self.header.dmin, self.header.dmax):
@@ -884,8 +874,8 @@ class MrcObject:
                 real_mean = self.data.mean(dtype=np.float64)
             if not np.isclose(real_mean, self.header.dmean, rtol=0.01):
                 log(
-                    "Data statistics appear to be inaccurate: mean is {0} but the"
-                    " value in the header is {1}".format(real_mean, self.header.dmean)
+                    f"Data statistics appear to be inaccurate: mean is {real_mean}"
+                    f" but the value in the header is {self.header.dmean}"
                 )
                 valid = False
 

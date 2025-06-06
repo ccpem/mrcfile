@@ -59,7 +59,7 @@ def new(name, data=None, *, compression=None, overwrite=False):
     elif compression == "bzip2":
         NewMrc = Bzip2MrcFile  # noqa: N806
     elif compression is not None:
-        raise ValueError("Unknown compression format '{0}'".format(compression))
+        raise ValueError(f"Unknown compression format '{compression}'")
     else:
         NewMrc = MrcFile  # noqa: N806
     mrc = NewMrc(name, mode="w+", overwrite=overwrite)
@@ -122,9 +122,9 @@ def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
     if os.path.exists(name):
         if "w" in mode:
             raise ValueError(
-                "File '{0}' already exists; use a different name, or"
+                f"File '{name}' already exists; use a different name, or"
                 " delete it first or call 'mrcfile.new()' with"
-                " 'overwrite=True' to overwrite it".format(name)
+                " 'overwrite=True' to overwrite it"
             )
         with builtins.open(name, "rb") as f:
             start = f.read(MAP_ID_OFFSET_BYTES + len(MAP_ID))
@@ -334,9 +334,7 @@ def new_mmap(  # noqa: PLR0913
         if dim > np.iinfo(np.int32).max:
             raise ValueError(
                 "New shape is too large! Found a dimension of"
-                " size {}. The maximum allowed is {}.".format(
-                    dim, np.iinfo(np.int32).max
-                )
+                f" size {dim}. The maximum allowed is {np.iinfo(np.int32).max}."
             )
 
     mrc = MrcMemmap(name, mode="w+", overwrite=overwrite)

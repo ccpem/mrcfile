@@ -98,14 +98,12 @@ class MrcFile(MrcInterpreter):
         super().__init__(permissive=permissive, **kwargs)
 
         if mode not in ["r", "r+", "w+"]:
-            raise ValueError("Mode '{0}' not supported".format(mode))
+            raise ValueError(f"Mode '{mode}' not supported")
 
         name = str(name)  # in case name is a pathlib Path
         if "w" in mode and os.path.exists(name) and not overwrite:
             raise ValueError(
-                "File '{0}' already exists; set overwrite=True to overwrite it".format(
-                    name
-                )
+                f"File '{name}' already exists; set overwrite=True to overwrite it"
             )
 
         self._mode = mode
@@ -124,7 +122,7 @@ class MrcFile(MrcInterpreter):
 
     def __repr__(self):
         """Return a string representation of the MrcFile object."""
-        return "MrcFile('{0}', mode='{1}')".format(self._iostream.name, self._mode)
+        return f"MrcFile('{self._iostream.name}', mode='{self._mode}')"
 
     def _open_file(self, name):
         """Open a file object to use as the I/O stream."""
@@ -150,8 +148,9 @@ class MrcFile(MrcInterpreter):
         if self.data is not None:
             data_size = self.data.nbytes
             if data_size < remaining_file_size:
-                msg = "MRC file is {0} bytes larger than expected".format(
-                    remaining_file_size - data_size
+                msg = (
+                    f"MRC file is {remaining_file_size - data_size} bytes larger than"
+                    " expected"
                 )
                 warnings.warn(msg, RuntimeWarning)
 
@@ -232,10 +231,8 @@ class MrcFile(MrcInterpreter):
             )
             if file_size != mrc_size:
                 print(
-                    "File is larger than expected. Actual size: {0} bytes; "
-                    "expected size: {1} bytes (calculated from header)".format(
-                        file_size, mrc_size
-                    ),
+                    f"File is larger than expected. Actual size: {file_size} bytes; "
+                    f"expected size: {mrc_size} bytes (calculated from header)",
                     file=print_file,
                 )
                 valid = False

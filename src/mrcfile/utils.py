@@ -120,9 +120,7 @@ def mode_from_dtype(dtype):
     kind_and_size = dtype.kind + str(dtype.itemsize)
     if kind_and_size in _dtype_to_mode:
         return _dtype_to_mode[kind_and_size]
-    raise ValueError(
-        "dtype '{0}' cannot be converted to an MRC file mode".format(dtype)
-    )
+    raise ValueError(f"dtype '{dtype}' cannot be converted to an MRC file mode")
 
 
 _mode_to_dtype = {
@@ -174,12 +172,12 @@ def dtype_from_mode(mode):
     if mode in _mode_to_dtype:
         return np.dtype(_mode_to_dtype[mode])
     else:
-        raise ValueError("Unrecognised mode '{0}'".format(mode))
+        raise ValueError(f"Unrecognised mode '{mode}'")
 
 
 def pretty_machine_stamp(machst):
     """Return a human-readable hex string for a machine stamp."""
-    return " ".join("0x{:02x}".format(byte) for byte in machst)
+    return " ".join(f"0x{byte:02x}" for byte in machst)
 
 
 def byte_order_from_machine_stamp(machst):
@@ -268,7 +266,7 @@ def normalise_byte_order(byte_order):
             ``>``.
     """
     if byte_order not in ("<", ">", "="):
-        raise ValueError("Unrecognised byte order indicator '{0}'".format(byte_order))
+        raise ValueError(f"Unrecognised byte order indicator '{byte_order}'")
     if byte_order == "=":
         return "<" if sys.byteorder == "little" else ">"
     return byte_order

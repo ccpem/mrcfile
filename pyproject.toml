@@ -111,8 +111,6 @@ ignore = [
     "COM812",  # trailing commas
     "PLR2004",  # magic values
     "TRY003",  # long exception messages
-    "UP030",  # implicit format fields - aim to remove this one
-    "UP032",  # f-strings - aim to remove this one
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

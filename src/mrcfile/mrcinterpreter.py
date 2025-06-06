@@ -265,9 +265,8 @@ class MrcInterpreter(MrcObject):
 
         if bytes_read < self.header.nsymbt:
             msg = (
-                "Expected {0} bytes in extended header but could only read {1}".format(
-                    self.header.nsymbt, bytes_read
-                )
+                f"Expected {self.header.nsymbt} bytes in extended header but could only"
+                f" read {bytes_read}"
             )
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
@@ -305,9 +304,7 @@ class MrcInterpreter(MrcObject):
             dtype = utils.data_dtype_from_header(self.header)
         except ValueError as err:
             if self._permissive:
-                warnings.warn(
-                    "{0} - data block cannot be read".format(err), RuntimeWarning
-                )
+                warnings.warn(f"{err} - data block cannot be read", RuntimeWarning)
                 self._data = None
                 return
             else:
@@ -320,9 +317,7 @@ class MrcInterpreter(MrcObject):
             nbytes *= axis_length
 
         if max_bytes > 0 and nbytes > max_bytes:
-            msg = "Expected {0} bytes in data block but limit is {1}".format(
-                nbytes, max_bytes
-            )
+            msg = f"Expected {nbytes} bytes in data block but limit is {max_bytes}"
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
                 self._data = None
@@ -333,8 +328,9 @@ class MrcInterpreter(MrcObject):
         data_arr, bytes_read = self._read_bytearray_from_stream(nbytes)
 
         if bytes_read < nbytes:
-            msg = "Expected {0} bytes in data block but could only read {1}".format(
-                nbytes, bytes_read
+            msg = (
+                f"Expected {nbytes} bytes in data block but could only read"
+                f" {bytes_read}"
             )
             if self._permissive:
                 warnings.warn(msg, RuntimeWarning)
