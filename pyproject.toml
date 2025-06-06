@@ -107,10 +107,10 @@ select = [
 
 # Specific rules to ignore
 ignore = [
-    "B028",  # explicit stacklevel keyword in warnings
-    "COM812",  # trailing commas
-    "PLR2004",  # magic values
-    "TRY003",  # long exception messages
+    "B028",  # explicit stacklevel keyword in warnings - aim to review these
+    "COM812",  # trailing commas - won't fix, conflicts with Ruff formatter
+    "PLR2004",  # magic values - won't fix, not worth changing these
+    "TRY003",  # long exception messages - won't fix
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
