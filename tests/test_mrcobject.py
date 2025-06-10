@@ -14,16 +14,16 @@ from datetime import datetime
 import numpy as np
 
 try:
-    from numpy.exceptions import (
-        ComplexWarning,  # type: ignore[attr-defined, import-not-found]
+    from numpy.exceptions import (  # type: ignore[import-not-found]
+        ComplexWarning,  # type: ignore[attr-defined]
     )
 except ImportError:
     from numpy import ComplexWarning  # type: ignore[attr-defined, no-redef]
 try:
     from numpy.rec import fromrecords  # type: ignore[attr-defined, import-not-found]
 except ImportError:
-    from numpy.core.records import (
-        fromrecords,  # type: ignore[attr-defined, import-not-found, no-redef]
+    from numpy.core.records import (  # type: ignore[import-not-found]
+        fromrecords,  # type: ignore[attr-defined, no-redef]
     )
 
 from mrcfile import constants, dtypes, utils

@@ -16,8 +16,8 @@ from pathlib import Path
 import numpy as np
 
 try:
-    from numpy.exceptions import (
-        ComplexWarning,  # type: ignore[attr-defined, import-not-found]
+    from numpy.exceptions import (  # type: ignore[import-not-found]
+        ComplexWarning,  # type: ignore[attr-defined]
     )
 except ImportError:
     from numpy import ComplexWarning  # type: ignore[attr-defined, no-redef]
