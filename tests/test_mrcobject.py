@@ -22,8 +22,8 @@ except ImportError:
 try:
     from numpy.rec import fromrecords  # type: ignore[attr-defined, import-not-found]
 except ImportError:
-    from numpy.core.records import (  # type: ignore[import-not-found]
-        fromrecords,  # type: ignore[attr-defined, no-redef]
+    from numpy.core.records import (  # type: ignore[import-not-found, no-redef]
+        fromrecords,  # type: ignore[attr-defined]
     )
 
 from mrcfile import constants, dtypes, utils
