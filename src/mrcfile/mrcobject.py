@@ -753,8 +753,8 @@ class MrcObject:
         # Check map ID string
         if self.header.map != MAP_ID:
             log(
-                f"Map ID string is incorrect: found {self.header.map}, should be"
-                f" {MAP_ID}"
+                f"Map ID string is incorrect: found {self.header.map!r}, should be"
+                f" {MAP_ID!r}"
             )
             valid = False
 

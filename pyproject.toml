@@ -38,6 +38,7 @@ classifiers = [
 dependencies = ["numpy >= 1.16.0"]
 
 optional-dependencies.dev = [
+    "mypy",
     "pre-commit",
     "pytest",
     "ruff",
@@ -50,6 +51,12 @@ documentation = "https://mrcfile.readthedocs.io/"
 [project.scripts]
 'mrcfile-header' = 'mrcfile.command_line:print_headers'
 'mrcfile-validate' = 'mrcfile.validator:main'
+
+
+[tool.mypy]
+files = ["src", "tests"]
+python_version = "3.9"
+
 
 [tool.ruff]
 # Same as Black.

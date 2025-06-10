@@ -5,18 +5,15 @@ dtypes
 ------
 
 numpy dtypes used by the ``mrcfile.py`` library.
-
-The dtypes are defined in a separate module because they do not interact nicely
-with the ``from __future__ import unicode_literals`` feature used in the rest
-of the package.
-
 """
+
+from __future__ import annotations
 
 import numpy as np
 
 from .utils import normalise_byte_order
 
-HEADER_DTYPE = np.dtype(
+HEADER_DTYPE: np.dtype = np.dtype(
     [
         ("nx", "i4"),  # Number of columns
         ("ny", "i4"),  # Number of rows
@@ -73,10 +70,10 @@ HEADER_DTYPE = np.dtype(
 )
 
 
-VOXEL_SIZE_DTYPE = np.dtype([("x", "f4"), ("y", "f4"), ("z", "f4")])
+VOXEL_SIZE_DTYPE: np.dtype = np.dtype([("x", "f4"), ("y", "f4"), ("z", "f4")])
 
 
-NSTART_DTYPE = np.dtype([("x", "i4"), ("y", "i4"), ("z", "i4")])
+NSTART_DTYPE: np.dtype = np.dtype([("x", "i4"), ("y", "i4"), ("z", "i4")])
 
 
 # FEI extended header dtype for metadata version 0, as described in the EPU
@@ -186,7 +183,7 @@ fei_dtype_dict = [
     ("Alpha tilt min", ">f8"),
     ("Alpha tilt max", ">f8"),
 ]
-fei1_dtype_big_endian = np.dtype(fei_dtype_dict)
+fei1_dtype_big_endian: np.dtype = np.dtype(fei_dtype_dict)
 
 
 # Additional metadata entries for FEI extended header dtype for metadata version 2,
@@ -210,10 +207,10 @@ fei_dtype_dict.extend(
         ("Objective aperture name", "S16"),
     ]
 )
-fei2_dtype_big_endian = np.dtype(fei_dtype_dict)
+fei2_dtype_big_endian: np.dtype = np.dtype(fei_dtype_dict)
 
 
-def get_ext_header_dtype(exttyp, byte_order="="):
+def get_ext_header_dtype(exttyp, byte_order="=") -> np.dtype | None:
     """Get a dtype for an extended header.
 
     Args:

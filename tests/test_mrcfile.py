@@ -16,9 +16,9 @@ from pathlib import Path
 import numpy as np
 
 try:
-    from numpy.exceptions import ComplexWarning
+    from numpy.exceptions import ComplexWarning  # type: ignore[attr-defined]
 except ImportError:
-    from numpy import ComplexWarning
+    from numpy import ComplexWarning  # type: ignore[attr-defined, no-redef]
 
 from mrcfile import utils
 from mrcfile.mrcfile import MrcFile
