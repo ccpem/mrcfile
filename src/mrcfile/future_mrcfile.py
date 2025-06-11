@@ -13,7 +13,12 @@ Classes:
 
 """
 
+from __future__ import annotations
+
 import threading
+from collections.abc import Callable
+
+from .mrcfile import MrcFile
 
 
 class FutureMrcFile:
@@ -25,7 +30,12 @@ class FutureMrcFile:
 
     """
 
-    def __init__(self, open_function, args=(), kwargs=None):
+    def __init__(
+        self,
+        open_function: Callable[..., MrcFile],
+        args: tuple = (),
+        kwargs: dict | None = None,
+    ) -> None:
         """Initialise a new :class:`FutureMrcFile` object.
 
         This constructor starts a new thread which will invoke the callable
@@ -41,12 +51,12 @@ class FutureMrcFile:
             kwargs: A dictionary of keyword arguments to use when
                 ``open_function`` is called.
         """
-        self._result_holder = [None]
+        self._result_holder: list[MrcFile | Exception | None] = [None]
         self._open_function = open_function
         self._thread = threading.Thread(target=self._run, args=args, kwargs=kwargs)
         self._thread.start()
 
-    def _run(self, *args, **kwargs):
+    def _run(self, *args, **kwargs) -> None:
         """Call the open function and store the result in the holder list.
 
         (For internal use only.)
@@ -57,7 +67,7 @@ class FutureMrcFile:
         except Exception as ex:  # noqa: BLE001
             self._result_holder[0] = ex
 
-    def cancel(self):
+    def cancel(self) -> bool:
         """Return :data:`False`.
 
         (See :meth:`concurrent.futures.Future.cancel` for more details. This
@@ -65,7 +75,7 @@ class FutureMrcFile:
         """
         return False
 
-    def cancelled(self):
+    def cancelled(self) -> bool:
         """Return :data:`False`.
 
         (See :meth:`concurrent.futures.Future.cancelled` for more details.
@@ -73,7 +83,7 @@ class FutureMrcFile:
         """
         return False
 
-    def running(self):
+    def running(self) -> bool:
         """Return :data:`True` if the :class:`~mrcfile.mrcfile.MrcFile` is
         currently being opened.
 
@@ -81,14 +91,14 @@ class FutureMrcFile:
         """
         return self._thread.is_alive()
 
-    def done(self):
+    def done(self) -> bool:
         """Return :data:`True` if the file opening has finished.
 
         (See :meth:`concurrent.futures.Future.done` for more details.)
         """
         return not self.running()
 
-    def result(self, timeout=None):
+    def result(self, timeout: float | None = None) -> MrcFile:
         """Return the :class:`~mrcfile.mrcfile.MrcFile` that has been opened.
 
         (See :meth:`concurrent.futures.Future.result` for more details.)
@@ -117,7 +127,7 @@ class FutureMrcFile:
         else:
             return result
 
-    def exception(self, timeout=None):
+    def exception(self, timeout: float | None = None) -> Exception | None:
         """Return the exception raised by the file opening operation.
 
         (See :meth:`concurrent.futures.Future.exception` for more details.)
@@ -143,7 +153,7 @@ class FutureMrcFile:
         else:
             return None
 
-    def _get_result(self, timeout):
+    def _get_result(self, timeout: float | None) -> MrcFile | Exception:
         """Return the result or exception from the file opening operation.
 
         (For internal use only.)
@@ -151,9 +161,15 @@ class FutureMrcFile:
         self._thread.join(timeout=timeout)
         if self._thread.is_alive():
             raise RuntimeError("Timed out waiting for result")
-        return self._result_holder[0]
+        result = self._result_holder[0]
+        if result is None:
+            raise RuntimeError(
+                "File opening finished but no result or exception was returned. This"
+                " should not happen."
+            )
+        return result
 
-    def add_done_callback(self, fn):
+    def add_done_callback(self, fn) -> None:
         """Not implemented.
 
         (See :meth:`concurrent.futures.Future.add_done_callback` for more details.)

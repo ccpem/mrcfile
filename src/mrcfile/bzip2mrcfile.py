@@ -12,6 +12,8 @@ Classes:
 
 """
 
+from __future__ import annotations
+
 import bz2
 import os
 
@@ -26,34 +28,34 @@ class Bzip2MrcFile(MrcFile):
 
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the Bzip2MrcFile object."""
         return f"Bzip2MrcFile('{self._fname}', mode='{self._mode}')"
 
-    def _open_file(self, name):
+    def _open_file(self, name: str | os.PathLike[str]) -> None:
         """Override _open_file() to open a bzip2 file."""
         self._fname = name
         if "w" in self._mode and not os.path.exists(name):
             open(name, mode="w").close()
         self._iostream = bz2.BZ2File(name, mode="r")
 
-    def _read(self, *, header_only=False):
+    def _read(self, *, header_only=False) -> None:
         """Override _read() to ensure bzip2 file is in read mode."""
         self._ensure_readable_bzip2_stream()
         super()._read(header_only=header_only)
 
-    def _ensure_readable_bzip2_stream(self):
+    def _ensure_readable_bzip2_stream(self) -> None:
         """Make sure _iostream is a bzip2 stream that can be read."""
         if not self._iostream.readable():
             self._iostream.close()
             self._iostream = bz2.BZ2File(self._fname, mode="r")
 
-    def _get_file_size(self):
+    def _get_file_size(self) -> int:
         """Override _get_file_size() to ensure stream is readable first."""
         self._ensure_readable_bzip2_stream()
         return super()._get_file_size()
 
-    def flush(self):
+    def flush(self) -> None:
         """Override :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` since
         BZ2File objects need special handling.
         """

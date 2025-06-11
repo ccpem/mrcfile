@@ -31,6 +31,8 @@ Functions
 
 """
 
+from __future__ import annotations
+
 import string
 import sys
 
@@ -39,7 +41,7 @@ import numpy as np
 from .constants import IMAGE_STACK_SPACEGROUP
 
 
-def data_dtype_from_header(header):
+def data_dtype_from_header(header: np.recarray) -> np.dtype:
     """Return the data dtype indicated by the given header.
 
     This function calls :func:`dtype_from_mode` to get the basic dtype, and
@@ -62,7 +64,9 @@ def data_dtype_from_header(header):
     return dtype_from_mode(mode).newbyteorder(mode.dtype.byteorder)
 
 
-def data_shape_from_header(header):
+def data_shape_from_header(
+    header: np.recarray,
+) -> tuple[int, int] | tuple[int, int, int] | tuple[int, int, int, int]:
     """Return the data shape indicated by the given header.
 
     Args:
@@ -77,6 +81,7 @@ def data_shape_from_header(header):
     nz = int(header.nz)
     mz = int(header.mz)
 
+    shape: tuple[int, int] | tuple[int, int, int] | tuple[int, int, int, int]
     if spacegroup_is_volume_stack(header.ispg):
         shape = (nz // mz, mz, ny, nx)
     elif header.ispg == IMAGE_STACK_SPACEGROUP and nz == 1:
@@ -91,7 +96,7 @@ def data_shape_from_header(header):
 _dtype_to_mode = {"f2": 12, "f4": 2, "i1": 0, "i2": 1, "u1": 6, "u2": 6, "c8": 4}
 
 
-def mode_from_dtype(dtype):
+def mode_from_dtype(dtype: np.dtype) -> int:
     """Return the MRC mode number corresponding to the given :class:`numpy
     dtype <numpy.dtype>`.
 
@@ -133,7 +138,7 @@ _mode_to_dtype = {
 }
 
 
-def dtype_from_mode(mode):
+def dtype_from_mode(mode: int) -> np.dtype:
     """Return the :class:`numpy dtype <numpy.dtype>` corresponding to the given
     MRC mode number.
 
@@ -175,12 +180,12 @@ def dtype_from_mode(mode):
         raise ValueError(f"Unrecognised mode '{mode}'")
 
 
-def pretty_machine_stamp(machst):
+def pretty_machine_stamp(machst: bytes) -> str:
     """Return a human-readable hex string for a machine stamp."""
     return " ".join(f"0x{byte:02x}" for byte in machst)
 
 
-def byte_order_from_machine_stamp(machst):
+def byte_order_from_machine_stamp(machst: bytes) -> str:
     """Return the byte order corresponding to the given machine stamp.
 
     Args:
@@ -209,7 +214,7 @@ _byte_order_to_machine_stamp = {
 }
 
 
-def machine_stamp_from_byte_order(byte_order="="):
+def machine_stamp_from_byte_order(byte_order: str = "=") -> bytearray:
     """Return the machine stamp corresponding to the given byte order
     indicator.
 
@@ -231,7 +236,7 @@ def machine_stamp_from_byte_order(byte_order="="):
     return _byte_order_to_machine_stamp[byte_order]
 
 
-def byte_orders_equal(a, b):
+def byte_orders_equal(a: str, b: str) -> bool:
     """Work out if the byte order indicators represent the same endianness.
 
     Args:
@@ -249,7 +254,7 @@ def byte_orders_equal(a, b):
     return normalise_byte_order(a) == normalise_byte_order(b)
 
 
-def normalise_byte_order(byte_order):
+def normalise_byte_order(byte_order: str) -> str:
     """Convert a numpy byte order indicator to one of ``<`` or ``>``.
 
     Args:
@@ -272,7 +277,7 @@ def normalise_byte_order(byte_order):
     return byte_order
 
 
-def spacegroup_is_volume_stack(ispg):
+def spacegroup_is_volume_stack(ispg: int) -> bool:
     """Identify if the given space group number represents a volume stack.
 
     Args:
@@ -288,12 +293,12 @@ def spacegroup_is_volume_stack(ispg):
 printable_chars = " " + string.ascii_letters + string.digits + string.punctuation
 
 
-def is_printable_ascii(string_):
+def is_printable_ascii(string_: str) -> bool:
     """Check if a string is entirely composed of printable ASCII characters."""
     return str.isprintable(string_) and str.isascii(string_)
 
 
-def printable_string_from_bytes(bytes_):
+def printable_string_from_bytes(bytes_: bytes) -> str:
     """Convert bytes into a printable ASCII string.
 
     Non-printable characters are removed.

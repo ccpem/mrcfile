@@ -12,6 +12,8 @@ Classes:
 
 """
 
+from __future__ import annotations
+
 import mmap
 import os
 import warnings
@@ -44,11 +46,11 @@ class MrcMemmap(MrcFile):
 
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the MrcMemmap object."""
         return f"MrcMemmap('{self._iostream.name}', mode='{self._mode}')"
 
-    def set_extended_header(self, extended_header):
+    def set_extended_header(self, extended_header: np.ndarray) -> None:
         """Replace the file's extended header.
 
         Note that the file's entire data block must be moved if the extended
@@ -75,7 +77,7 @@ class MrcMemmap(MrcFile):
             self._open_memmap(data_copy.dtype, data_copy.shape)
             np.copyto(self._data, data_copy)
 
-    def flush(self):
+    def flush(self) -> None:
         """Flush the header and data arrays to the file buffer."""
         if not self._read_only:
             self._iostream.seek(0)
@@ -112,7 +114,7 @@ class MrcMemmap(MrcFile):
 
         self._open_memmap(dtype, shape)
 
-    def _open_memmap(self, dtype, shape):
+    def _open_memmap(self, dtype: np.dtype, shape: tuple) -> None:
         """Open a new memmap array pointing at the file's data block."""
         acc_mode = "r" if self._read_only else "r+"
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
@@ -154,7 +156,7 @@ class MrcMemmap(MrcFile):
                 )
                 warnings.warn(msg, RuntimeWarning)
 
-    def _close_data(self):
+    def _close_data(self) -> None:
         """Delete the existing memmap array, if it exists.
 
         The array is flagged as read-only before deletion, so if a reference to
@@ -166,7 +168,7 @@ class MrcMemmap(MrcFile):
             self._data.flags.writeable = False
             self._data = None
 
-    def _set_new_data(self, data):
+    def _set_new_data(self, data: np.ndarray) -> None:
         """Override of :meth:`_set_new_data` to handle opening a new memmap and
         copying data into it."""
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
