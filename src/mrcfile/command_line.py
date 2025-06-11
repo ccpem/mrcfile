@@ -12,12 +12,18 @@ The names of the corresponding command line scripts can be found in the
 
 """
 
+from __future__ import annotations
+
 import argparse
+from collections.abc import Iterable
+from typing import TextIO
 
 import mrcfile
 
 
-def print_headers(names=None, print_file=None):
+def print_headers(
+    names: Iterable[str] | None = None, print_file: TextIO | None = None
+) -> None:
     """
     Print the MRC header contents from a list of files.
 
@@ -40,7 +46,8 @@ def print_headers(names=None, print_file=None):
         parser.add_argument("filename", nargs="*", help="Input MRC file")
         args = parser.parse_args()
         names = args.filename
-    for name in names:
-        with mrcfile.open(name, permissive=True, header_only=True) as mrc:
-            print(f"MRC header for {name}:", file=print_file)
-            mrc.print_header(print_file=print_file)
+    if names is not None:
+        for name in names:
+            with mrcfile.open(name, permissive=True, header_only=True) as mrc:
+                print(f"MRC header for {name}:", file=print_file)
+                mrc.print_header(print_file=print_file)

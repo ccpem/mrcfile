@@ -12,14 +12,19 @@ line.
 
 """
 
+from __future__ import annotations
+
 import argparse
+import os
 import sys
 import traceback
+from collections.abc import Iterable, Sequence
+from typing import TextIO
 
 from . import load_functions
 
 
-def main(args=None):
+def main(args: Sequence[str] | None = None) -> int:
     """
     Validate a list of MRC files given as command arguments.
 
@@ -40,14 +45,16 @@ def main(args=None):
         "files are written to the standard output."
     )
     parser.add_argument("filename", nargs="*", help="Input MRC file")
-    args = parser.parse_args(args)
-    names = args.filename
+    parsed_args = parser.parse_args(args)
+    names = parsed_args.filename
     if validate_all(names):
         return 0
     return 1
 
 
-def validate_all(names, print_file=None):
+def validate_all(
+    names: Iterable[str | os.PathLike[str]], print_file: TextIO | None = None
+) -> bool:
     """Validate a list of MRC files.
 
     This function calls :func:`validate` for each file name in the given list.
@@ -79,7 +86,7 @@ def validate_all(names, print_file=None):
     return result
 
 
-def validate(name, print_file=None):
+def validate(name: str | os.PathLike[str], print_file: TextIO | None = None) -> bool:
     """Validate an MRC file.
 
     This function first opens the file by calling :func:`~mrcfile.open` (with

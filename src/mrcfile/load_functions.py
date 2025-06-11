@@ -10,6 +10,8 @@ the package.
 
 """
 
+from __future__ import annotations
+
 import builtins
 import os
 
@@ -24,7 +26,13 @@ from .mrcfile import MrcFile
 from .mrcmemmap import MrcMemmap
 
 
-def new(name, data=None, *, compression=None, overwrite=False):
+def new(
+    name: str | os.PathLike[str],
+    data: np.ndarray | None = None,
+    *,
+    compression: str | None = None,
+    overwrite: bool = False,
+) -> MrcFile:
     """Create a new MRC file.
 
     Args:
@@ -54,21 +62,27 @@ def new(name, data=None, *, compression=None, overwrite=False):
     Warns:
         RuntimeWarning: If the data array contains Inf or NaN values.
     """
+    NewMrc = MrcFile  # noqa: N806
     if compression == "gzip":
         NewMrc = GzipMrcFile  # noqa: N806
     elif compression == "bzip2":
         NewMrc = Bzip2MrcFile  # noqa: N806
     elif compression is not None:
         raise ValueError(f"Unknown compression format '{compression}'")
-    else:
-        NewMrc = MrcFile  # noqa: N806
+
     mrc = NewMrc(name, mode="w+", overwrite=overwrite)
     if data is not None:
         mrc.set_data(data)
     return mrc
 
 
-def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
+def open(  # noqa: A001
+    name: str | os.PathLike[str],
+    mode: str = "r",
+    *,
+    permissive: bool = False,
+    header_only: bool = False,
+) -> MrcFile:
     """Open an MRC file.
 
     This function opens both normal and compressed MRC files. Supported
@@ -142,7 +156,7 @@ def open(name, mode="r", *, permissive=False, header_only=False):  # noqa: A001
     return NewMrc(name, mode=mode, permissive=permissive, header_only=header_only)
 
 
-def read(name):
+def read(name: str | os.PathLike[str]) -> np.ndarray:
     """Read an MRC file's data into a numpy array.
 
     This is a convenience function to read the data from an MRC file when there is no
@@ -161,7 +175,13 @@ def read(name):
     return data
 
 
-def write(name, data=None, *, overwrite=False, voxel_size=None):
+def write(
+    name: str | os.PathLike[str],
+    data: np.ndarray | None = None,
+    *,
+    overwrite: bool = False,
+    voxel_size: float | tuple[float, float, float] | np.recarray | None = None,
+) -> None:
     """Write a new MRC file.
 
     This is a convenience function to allow data to be quickly written to a file (with
@@ -201,7 +221,9 @@ def write(name, data=None, *, overwrite=False, voxel_size=None):
             mrc.voxel_size = voxel_size
 
 
-def open_async(name, mode="r", *, permissive=False):
+def open_async(
+    name: str | os.PathLike[str], mode: str = "r", *, permissive: bool = False
+) -> FutureMrcFile:
     """Open an MRC file asynchronously in a separate thread.
 
     This allows a file to be opened in the background while the main thread
@@ -243,7 +265,9 @@ def open_async(name, mode="r", *, permissive=False):
     return FutureMrcFile(open, (name,), {"mode": mode, "permissive": permissive})
 
 
-def mmap(name, mode="r", *, permissive=False):
+def mmap(
+    name: str | os.PathLike[str], mode: str = "r", *, permissive: bool = False
+) -> MrcMemmap:
     """Open a memory-mapped MRC file.
 
     This allows much faster opening of large files, because the data is only
@@ -271,15 +295,15 @@ def mmap(name, mode="r", *, permissive=False):
 
 
 def new_mmap(  # noqa: PLR0913
-    name,
-    shape,
+    name: str | os.PathLike[str],
+    shape: tuple[int, int] | tuple[int, int, int] | tuple[int, int, int, int],
     *,
-    mrc_mode=0,
-    fill=None,
-    overwrite=False,
-    extended_header=None,
-    exttyp=None,
-):
+    mrc_mode: int = 0,
+    fill: float | None = None,
+    overwrite: bool = False,
+    extended_header: np.recarray | None = None,
+    exttyp: bytes | str | None = None,
+) -> MrcMemmap:
     """Create a new, empty memory-mapped MRC file.
 
     This function is useful for creating very large files. The initial contents
