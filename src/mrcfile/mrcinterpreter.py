@@ -271,7 +271,7 @@ class MrcInterpreter(MrcObject):
                 is :data:`True`.
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot read extended header from an uninitialised or closed MRC object"
             )
         ext_header_arr, bytes_read = self._read_bytearray_from_stream(
@@ -335,7 +335,7 @@ class MrcInterpreter(MrcObject):
                 :data:`True`.
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot read data from an uninitialised or closed MRC object"
             )
 
@@ -402,7 +402,7 @@ class MrcInterpreter(MrcObject):
                 :meth:`~io.BufferedIOBase.readinto`.
         """
         if self._iostream is None:
-            raise ValueError("Cannot read data because no iostream is set")
+            raise RuntimeError("Cannot read data because no iostream is set")
         result_array = bytearray(number_of_bytes)
         bytes_read = self._iostream.readinto(result_array)  # type: ignore[attr-defined]
         return result_array, bytes_read

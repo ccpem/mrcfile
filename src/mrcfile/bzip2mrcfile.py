@@ -47,7 +47,7 @@ class Bzip2MrcFile(MrcFile):
     def _ensure_readable_bzip2_stream(self) -> None:
         """Make sure _iostream is a bzip2 stream that can be read."""
         if self._iostream is None:
-            raise ValueError("Cannot read file because no file is set")
+            raise RuntimeError("Cannot read file because no file is set")
         if not self._iostream.readable():
             self._iostream.close()
             self._iostream = bz2.BZ2File(self._fname, mode="r")  # type: ignore[assignment]  # awkward IO types
@@ -55,7 +55,7 @@ class Bzip2MrcFile(MrcFile):
     def _get_file_size(self) -> int:
         """Override _get_file_size() to ensure stream is readable first."""
         if self._iostream is None:
-            raise ValueError("Cannot get file size because no file is set")
+            raise RuntimeError("Cannot get file size because no file is set")
         self._ensure_readable_bzip2_stream()
         return super()._get_file_size()
 

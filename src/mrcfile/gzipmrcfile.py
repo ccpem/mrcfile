@@ -38,7 +38,7 @@ class GzipMrcFile(MrcFile):
     def _close_file(self) -> None:
         """Override _close_file() to close both normal and gzip files."""
         if self._iostream is None:
-            raise ValueError("Cannot close file because no file is set")
+            raise RuntimeError("Cannot close file because no file is set")
         self._iostream.close()
         self._fileobj.close()
 
@@ -50,7 +50,7 @@ class GzipMrcFile(MrcFile):
     def _ensure_readable_gzip_stream(self) -> None:
         """Make sure _iostream is a gzip stream that can be read."""
         if self._iostream is None:
-            raise ValueError("Cannot read file because no file is set")
+            raise RuntimeError("Cannot read file because no file is set")
         if self._iostream.mode != gzip.READ:
             self._iostream.close()
             self._fileobj.seek(0)
@@ -59,7 +59,7 @@ class GzipMrcFile(MrcFile):
     def _get_file_size(self) -> int:
         """Override _get_file_size() to avoid seeking from end."""
         if self._iostream is None:
-            raise ValueError("Cannot get file size because no file is set")
+            raise RuntimeError("Cannot get file size because no file is set")
         self._ensure_readable_gzip_stream()
         pos = self._iostream.tell()
         extra = len(self._iostream.read())

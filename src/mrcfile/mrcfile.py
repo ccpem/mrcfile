@@ -135,14 +135,14 @@ class MrcFile(MrcInterpreter):
     def _read(self, *, header_only: bool = False) -> None:
         """Override _read() to move back to start of file first."""
         if self._iostream is None:
-            raise ValueError("Cannot read data because no file is set")
+            raise RuntimeError("Cannot read data because no file is set")
         self._iostream.seek(0)
         super()._read(header_only=header_only)
 
     def _read_data(self) -> None:
         """Read data array from file and check file size matches data block size."""
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot read data from an uninitialised or closed MRC object"
             )
         file_size = self._get_file_size()
@@ -167,7 +167,7 @@ class MrcFile(MrcInterpreter):
     def _get_file_size(self) -> int:
         """Return the size of the underlying file object, in bytes."""
         if self._iostream is None:
-            raise ValueError("Cannot get file size because no file is set")
+            raise RuntimeError("Cannot get file size because no file is set")
         pos = self._iostream.tell()
         self._iostream.seek(0, os.SEEK_END)
         size = self._iostream.tell()
@@ -186,7 +186,7 @@ class MrcFile(MrcInterpreter):
     def _close_file(self) -> None:
         """Close the file object."""
         if self._iostream is None:
-            raise ValueError("Cannot close file because no file is set")
+            raise RuntimeError("Cannot close file because no file is set")
         self._iostream.close()
 
     def validate(self, print_file: TextIO | None = None) -> bool:
@@ -236,7 +236,7 @@ class MrcFile(MrcInterpreter):
             does not meet the MRC format specification in any way.
         """
         if self.header is None:
-            raise ValueError("Cannot validate an uninitialised or closed MRC object")
+            raise RuntimeError("Cannot validate an uninitialised or closed MRC object")
         valid = super().validate(print_file=print_file)
 
         ext_header_nbytes = (

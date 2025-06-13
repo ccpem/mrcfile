@@ -62,7 +62,7 @@ class MrcMemmap(MrcFile):
         occupies a different number of bytes than the previous one.
         """
         if self.header is None or self._iostream is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot set extended header on an uninitialised or closed MRC object"
             )
         old_ext_header_size = (
@@ -124,7 +124,7 @@ class MrcMemmap(MrcFile):
         opens the data as a numpy memmap array.
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot read data from an uninitialised or closed MRC object"
             )
         try:
@@ -144,7 +144,7 @@ class MrcMemmap(MrcFile):
     def _open_memmap(self, dtype: np.dtype, shape: tuple) -> None:
         """Open a new memmap array pointing at the file's data block."""
         if self.header is None or self._iostream is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot open memmap for an uninitialised or closed MRC object"
             )
         acc_mode = "r" if self._read_only else "r+"
@@ -203,11 +203,17 @@ class MrcMemmap(MrcFile):
         """Override of :meth:`_set_new_data` to handle opening a new memmap and
         copying data into it."""
         if self.header is None or self._iostream is None:
-            raise ValueError("Cannot set data on an uninitialised or closed MRC object")
+            raise RuntimeError(
+                "Cannot set data on an uninitialised or closed MRC object"
+            )
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
         # self.extended_header might be None in permissive read mode. Need to convert to
         # Python int (rather than numpy int32) to avoid possible overflow.
         file_size = self.header.nbytes + int(self.header.nsymbt) + data.nbytes
         self._iostream.truncate(file_size)
         self._open_memmap(data.dtype, data.shape)
+        if self._data is None:
+            raise RuntimeError(
+                "Cannot set data on an uninitialised or closed MRC object"
+            )
         np.copyto(self._data, data, casting="no")

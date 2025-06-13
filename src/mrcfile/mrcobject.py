@@ -272,7 +272,7 @@ class MrcObject:
         """
         self._check_writeable()
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot set extended header on an uninitialised or closed MRC object"
             )
         if extended_header.nbytes > np.iinfo(np.int32).max:
@@ -380,7 +380,7 @@ class MrcObject:
         >>> mrc.voxel_size = vox_sizes
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot get voxel size from an uninitialised or closed MRC object"
             )
         x = self.header.cella.x / self.header.mx
@@ -422,7 +422,7 @@ class MrcObject:
             z_size: The voxel size in the Z direction, in angstroms
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot set voxel size on an uninitialised or closed MRC object"
             )
         self.header.cella.x = float(x_size) * self.header.mx
@@ -472,7 +472,7 @@ class MrcObject:
         >>> mrc.nstart = starts
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot get nstart values from an uninitialised or closed MRC object"
             )
         x = self.header.nxstart
@@ -514,7 +514,7 @@ class MrcObject:
             nzstart: The location of the first section in the unit cell
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot set nstart values on an uninitialised or closed MRC object"
             )
         self.header.nxstart = int(nxstart)
@@ -575,7 +575,7 @@ class MrcObject:
         """
         self._check_writeable()
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot change space group on an uninitialised or closed MRC object"
             )
         if self.data is None or self.data.ndim != 3:
@@ -594,7 +594,7 @@ class MrcObject:
         """
         self._check_writeable()
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot change space group on an uninitialised or closed MRC object"
             )
         if self.data is None or self.data.ndim != 3:
@@ -633,11 +633,11 @@ class MrcObject:
         """
         self._check_writeable()
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot update header of an uninitialised or closed MRC object"
             )
         if self.data is None:
-            raise ValueError("Cannot update header from non-existent data array")
+            raise RuntimeError("Cannot update header from non-existent data array")
 
         # Check the dtype is one we can handle and update mode to match
         header = self.header
@@ -699,7 +699,7 @@ class MrcObject:
         """
         self._check_writeable()
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot update header of an uninitialised or closed MRC object"
             )
 
@@ -730,7 +730,7 @@ class MrcObject:
         """Set the header statistics to indicate that the values are unknown."""
         self._check_writeable()
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot reset header stats of an uninitialised or closed MRC object"
             )
 
@@ -749,7 +749,7 @@ class MrcObject:
                 means output will be printed to :data:`sys.stdout`.
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot print header of an uninitialised or closed MRC object"
             )
         for item in self.header.dtype.names:
@@ -769,7 +769,7 @@ class MrcObject:
             items, each containing up to 80 characters.
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot get labels from an uninitialised or closed MRC object"
             )
         return [
@@ -797,7 +797,7 @@ class MrcObject:
                 additional label cannot be stored.
         """
         if self.header is None:
-            raise ValueError(
+            raise RuntimeError(
                 "Cannot add label to an uninitialised or closed MRC object"
             )
         if not utils.is_printable_ascii(label):
