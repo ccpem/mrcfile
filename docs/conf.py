@@ -83,9 +83,16 @@ doctest_test_doctest_blocks = ""
 napoleon_include_init_with_doc = False
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.8", None),
+    "python": ("https://docs.python.org/3.13", None),
     "numpy": ("https://numpy.org/doc/stable", None),
 }
+
+
+# Intersphinx fails to find "np.memmap" for the MrcMemmap._data attribute type hint.
+# Couldn't find a way to fix it so ignore it instead.
+nitpick_ignore = [
+    ("py:class", "np.memmap"),
+]
 
 # -- Options for HTML output ----------------------------------------------
 

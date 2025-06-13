@@ -46,6 +46,7 @@ class MrcMemmap(MrcFile):
 
     """
 
+    #: Data array attribute overridden to specify memmap type
     _data: np.memmap | None
 
     def __repr__(self) -> str:
