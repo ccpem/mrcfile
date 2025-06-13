@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import builtins
 import os
+from typing import Literal
 
 import numpy as np
 
@@ -78,7 +79,7 @@ def new(
 
 def open(  # noqa: A001
     name: str | os.PathLike[str],
-    mode: str = "r",
+    mode: Literal["r", "r+", "w+"] = "r",
     *,
     permissive: bool = False,
     header_only: bool = False,
@@ -156,7 +157,7 @@ def open(  # noqa: A001
     return NewMrc(name, mode=mode, permissive=permissive, header_only=header_only)
 
 
-def read(name: str | os.PathLike[str]) -> np.ndarray:
+def read(name: str | os.PathLike[str]) -> np.ndarray | None:
     """Read an MRC file's data into a numpy array.
 
     This is a convenience function to read the data from an MRC file when there is no
@@ -168,10 +169,11 @@ def read(name: str | os.PathLike[str]) -> np.ndarray:
         name: The file name to read, as a string or :class:`~pathlib.Path`.
 
     Returns:
-        A :class:`numpy array<numpy.ndarray>` containing the data from the file.
+        A :class:`numpy array<numpy.ndarray>` containing the data from the file, or
+        :data:`None` if the data could not be read.
     """
     with open(name, mode="r", permissive=True) as mrc:
-        data = mrc.data.copy()
+        data = mrc.data.copy() if mrc.data is not None else None
     return data
 
 
@@ -222,7 +224,10 @@ def write(
 
 
 def open_async(
-    name: str | os.PathLike[str], mode: str = "r", *, permissive: bool = False
+    name: str | os.PathLike[str],
+    mode: Literal["r", "r+", "w+"] = "r",
+    *,
+    permissive: bool = False,
 ) -> FutureMrcFile:
     """Open an MRC file asynchronously in a separate thread.
 
@@ -266,7 +271,10 @@ def open_async(
 
 
 def mmap(
-    name: str | os.PathLike[str], mode: str = "r", *, permissive: bool = False
+    name: str | os.PathLike[str],
+    mode: Literal["r", "r+", "w+"] = "r",
+    *,
+    permissive: bool = False,
 ) -> MrcMemmap:
     """Open a memory-mapped MRC file.
 

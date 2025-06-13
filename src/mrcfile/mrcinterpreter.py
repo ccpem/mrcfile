@@ -12,8 +12,11 @@ Classes:
 
 """
 
+from __future__ import annotations
+
 import warnings
 from contextlib import suppress
+from typing import BinaryIO
 
 import numpy as np
 
@@ -74,7 +77,13 @@ class MrcInterpreter(MrcObject):
 
     """
 
-    def __init__(self, iostream=None, *, permissive=False, header_only=False):
+    def __init__(
+        self,
+        iostream: BinaryIO | None = None,
+        *,
+        permissive: bool = False,
+        header_only: bool = False,
+    ):
         """Initialise a new MrcInterpreter object.
 
         This initialiser reads the stream if it is given. In general,
@@ -114,7 +123,7 @@ class MrcInterpreter(MrcObject):
         if self._iostream is not None:
             self._read(header_only=header_only)
 
-    def __enter__(self):
+    def __enter__(self) -> MrcInterpreter:
         """Called by the context manager at the start of a :keyword:`with`
         block.
 
@@ -123,7 +132,7 @@ class MrcInterpreter(MrcObject):
         """
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, _exc_type, _exc_val, _exc_tb) -> None:  # type: ignore[no-untyped-def]
         """Called by the context manager at the end of a :keyword:`with`
         block.
 
@@ -131,7 +140,7 @@ class MrcInterpreter(MrcObject):
         """
         self.close()
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Attempt to flush the stream when this object is garbage collected.
 
         It's better not to rely on this - instead, use a :keyword:`with`
@@ -140,7 +149,7 @@ class MrcInterpreter(MrcObject):
         with suppress(Exception):
             self.close()
 
-    def _read(self, *, header_only=False):
+    def _read(self, *, header_only: bool = False) -> None:
         """Read the header, extended header and data from the I/O stream.
 
         Before calling this method, the stream should be open and positioned at
@@ -165,7 +174,7 @@ class MrcInterpreter(MrcObject):
         if not header_only:
             self._read_data()
 
-    def _read_header(self):
+    def _read_header(self) -> None:
         """Read the MRC header from the I/O stream.
 
         The header will be read from the current stream position, and the
@@ -242,7 +251,7 @@ class MrcInterpreter(MrcObject):
         header.flags.writeable = not self._read_only
         self._header = header
 
-    def _read_extended_header(self):
+    def _read_extended_header(self) -> None:
         """Read the extended header from the stream.
 
         If there is no extended header, a zero-length array is assigned to the
@@ -285,7 +294,7 @@ class MrcInterpreter(MrcObject):
 
         self._extended_header.flags.writeable = not self._read_only
 
-    def _read_data(self):
+    def _read_data(self) -> None:
         """Read the data array from the stream.
 
         This method uses information from the header to set the data array's
@@ -304,7 +313,7 @@ class MrcInterpreter(MrcObject):
         """
         self._read_data_from_stream()
 
-    def _read_data_from_stream(self, max_bytes=0):
+    def _read_data_from_stream(self, max_bytes: int = 0) -> None:
         """Read the data array from the stream.
 
         Unless you need to use the ``max_bytes`` argument, call ``_read_data`` instead.
@@ -372,7 +381,9 @@ class MrcInterpreter(MrcObject):
         self._data = np.frombuffer(data_arr, dtype=dtype).reshape(shape)
         self._data.flags.writeable = not self._read_only
 
-    def _read_bytearray_from_stream(self, number_of_bytes):
+    def _read_bytearray_from_stream(
+        self, number_of_bytes: int
+    ) -> tuple[bytearray, int]:
         """Read a :class:`bytearray` from the stream.
 
         This default implementation relies on the stream implementing the
@@ -387,14 +398,16 @@ class MrcInterpreter(MrcObject):
 
         Raises:
             :exc:`ValueError`: If no stream has been set.
+            :exc:`AttributeError`: If the stream does not support
+                :meth:`~io.BufferedIOBase.readinto`.
         """
         if self._iostream is None:
             raise ValueError("Cannot read data because no iostream is set")
         result_array = bytearray(number_of_bytes)
-        bytes_read = self._iostream.readinto(result_array)
+        bytes_read = self._iostream.readinto(result_array)  # type: ignore[attr-defined]
         return result_array, bytes_read
 
-    def close(self):
+    def close(self) -> None:
         """Flush to the stream and clear the header and data attributes."""
         if (
             self.header is not None
@@ -406,7 +419,7 @@ class MrcInterpreter(MrcObject):
         self._extended_header = None
         self._close_data()
 
-    def flush(self):
+    def flush(self) -> None:
         """Flush the header and data arrays to the I/O stream.
 
         This implementation seeks to the start of the stream, writes the
@@ -417,9 +430,9 @@ class MrcInterpreter(MrcObject):
         """
         if not self._read_only and self._iostream is not None:
             self._iostream.seek(0)
-            self._iostream.write(self.header)
-            self._iostream.write(self.extended_header)
+            self._iostream.write(self.header)  # type: ignore[arg-type]  # https://github.com/numpy/numpy/issues/26783
+            self._iostream.write(self.extended_header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             if self.data is not None:
-                self._iostream.write(np.ascontiguousarray(self.data))
+                self._iostream.write(np.ascontiguousarray(self.data))  # type: ignore[arg-type]  # https://github.com/numpy/numpy/issues/26783
             self._iostream.truncate()
             self._iostream.flush()

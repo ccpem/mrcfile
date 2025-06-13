@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import warnings
 from datetime import datetime
-from typing import TextIO
+from typing import SupportsFloat, SupportsInt, TextIO
 
 import numpy as np
 
@@ -392,7 +392,10 @@ class MrcObject:
 
     @voxel_size.setter
     def voxel_size(
-        self, voxel_size: float | tuple[float, float, float] | np.recarray
+        self,
+        voxel_size: SupportsFloat
+        | tuple[SupportsFloat, SupportsFloat, SupportsFloat]
+        | np.recarray,
     ) -> None:
         self._check_writeable()
         try:
@@ -408,7 +411,9 @@ class MrcObject:
                 sizes = voxel_size  # type: ignore[assignment]
         self._set_voxel_size(*sizes)
 
-    def _set_voxel_size(self, x_size: float, y_size: float, z_size: float) -> None:
+    def _set_voxel_size(
+        self, x_size: SupportsFloat, y_size: SupportsFloat, z_size: SupportsFloat
+    ) -> None:
         """Set the voxel size.
 
         Args:
@@ -420,9 +425,9 @@ class MrcObject:
             raise ValueError(
                 "Cannot set voxel size on an uninitialised or closed MRC object"
             )
-        self.header.cella.x = x_size * self.header.mx
-        self.header.cella.y = y_size * self.header.my
-        self.header.cella.z = z_size * self.header.mz
+        self.header.cella.x = float(x_size) * self.header.mx
+        self.header.cella.y = float(y_size) * self.header.my
+        self.header.cella.z = float(z_size) * self.header.mz
 
     @property
     def nstart(self) -> np.recarray:
@@ -478,7 +483,12 @@ class MrcObject:
         return nstart
 
     @nstart.setter
-    def nstart(self, nstart: int | tuple[int, int, int] | np.recarray) -> None:
+    def nstart(
+        self,
+        nstart: SupportsInt
+        | tuple[SupportsInt, SupportsInt, SupportsInt]
+        | np.recarray,
+    ) -> None:
         self._check_writeable()
         try:
             # First, assume we have a single numeric value
@@ -493,7 +503,9 @@ class MrcObject:
                 starts = nstart  # type: ignore[assignment]
         self._set_nstart(*starts)
 
-    def _set_nstart(self, nxstart: int, nystart: int, nzstart: int) -> None:
+    def _set_nstart(
+        self, nxstart: SupportsInt, nystart: SupportsInt, nzstart: SupportsInt
+    ) -> None:
         """Set the grid start locations.
 
         Args:
@@ -505,9 +517,9 @@ class MrcObject:
             raise ValueError(
                 "Cannot set nstart values on an uninitialised or closed MRC object"
             )
-        self.header.nxstart = nxstart
-        self.header.nystart = nystart
-        self.header.nzstart = nzstart
+        self.header.nxstart = int(nxstart)
+        self.header.nystart = int(nystart)
+        self.header.nzstart = int(nzstart)
 
     def is_single_image(self) -> bool:
         """Identify whether the file represents a single image.
@@ -847,7 +859,7 @@ class MrcObject:
 
         valid = True
 
-        def log(message):
+        def log(message: str) -> None:
             print(message, file=print_file)
 
         # Check map ID string

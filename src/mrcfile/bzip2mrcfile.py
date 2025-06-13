@@ -37,21 +37,25 @@ class Bzip2MrcFile(MrcFile):
         self._fname = name
         if "w" in self._mode and not os.path.exists(name):
             open(name, mode="w").close()
-        self._iostream = bz2.BZ2File(name, mode="r")
+        self._iostream = bz2.BZ2File(name, mode="r")  # type: ignore[assignment]  # awkward IO types
 
-    def _read(self, *, header_only=False) -> None:
+    def _read(self, *, header_only: bool = False) -> None:
         """Override _read() to ensure bzip2 file is in read mode."""
         self._ensure_readable_bzip2_stream()
         super()._read(header_only=header_only)
 
     def _ensure_readable_bzip2_stream(self) -> None:
         """Make sure _iostream is a bzip2 stream that can be read."""
+        if self._iostream is None:
+            raise ValueError("Cannot read file because no file is set")
         if not self._iostream.readable():
             self._iostream.close()
-            self._iostream = bz2.BZ2File(self._fname, mode="r")
+            self._iostream = bz2.BZ2File(self._fname, mode="r")  # type: ignore[assignment]  # awkward IO types
 
     def _get_file_size(self) -> int:
         """Override _get_file_size() to ensure stream is readable first."""
+        if self._iostream is None:
+            raise ValueError("Cannot get file size because no file is set")
         self._ensure_readable_bzip2_stream()
         return super()._get_file_size()
 
@@ -59,9 +63,9 @@ class Bzip2MrcFile(MrcFile):
         """Override :meth:`~mrcfile.mrcinterpreter.MrcInterpreter.flush` since
         BZ2File objects need special handling.
         """
-        if not self._read_only:
+        if not self._read_only and self._iostream is not None:
             self._iostream.close()
-            self._iostream = bz2.BZ2File(self._fname, mode="w")
+            self._iostream = bz2.BZ2File(self._fname, mode="w")  # type: ignore[assignment]  # awkward IO types
 
             # Arrays converted to bytes so bz2 can calculate sizes correctly
             if self.header is not None:

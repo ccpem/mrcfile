@@ -11,8 +11,11 @@ Classes:
 
 """
 
+from __future__ import annotations
+
 import os
 import warnings
+from typing import Literal, TextIO
 
 from .mrcinterpreter import MrcInterpreter
 
@@ -45,13 +48,13 @@ class MrcFile(MrcInterpreter):
 
     def __init__(
         self,
-        name,
-        mode="r",
+        name: str | os.PathLike[str],
+        mode: Literal["r", "r+", "w+"] = "r",
         *,
-        overwrite=False,
-        permissive=False,
-        header_only=False,
-    ):
+        overwrite: bool = False,
+        permissive: bool = False,
+        header_only: bool = False,
+    ) -> None:
         """Initialise a new :class:`MrcFile` object.
 
         The given file name is opened in the given mode. For mode ``r`` or
@@ -105,7 +108,7 @@ class MrcFile(MrcInterpreter):
                 f"File '{name}' already exists; set overwrite=True to overwrite it"
             )
 
-        self._mode = mode
+        self._mode: Literal["r", "r+", "w+"] = mode
         self._read_only = self._mode == "r"
 
         self._open_file(name)
@@ -119,20 +122,24 @@ class MrcFile(MrcInterpreter):
             self._close_file()
             raise
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the MrcFile object."""
-        return f"MrcFile('{self._iostream.name}', mode='{self._mode}')"
+        name = getattr(self._iostream, "name", "<unnamed stream>")
+        return f"MrcFile('{name}', mode='{self._mode}')"
 
-    def _open_file(self, name):
+    def _open_file(self, name: str | os.PathLike[str]) -> None:
         """Open a file object to use as the I/O stream."""
-        self._iostream = open(name, self._mode + "b")  # noqa: SIM115
+        binary_mode: Literal["rb", "r+b", "w+b"] = self._mode + "b"  # type: ignore[assignment]
+        self._iostream = open(name, binary_mode)  # noqa: SIM115  # no context manager
 
-    def _read(self, *, header_only=False):
+    def _read(self, *, header_only: bool = False) -> None:
         """Override _read() to move back to start of file first."""
+        if self._iostream is None:
+            raise ValueError("Cannot read data because no file is set")
         self._iostream.seek(0)
         super()._read(header_only=header_only)
 
-    def _read_data(self):
+    def _read_data(self) -> None:
         """Read data array from file and check file size matches data block size."""
         if self.header is None:
             raise ValueError(
@@ -157,15 +164,17 @@ class MrcFile(MrcInterpreter):
                 )
                 warnings.warn(msg, RuntimeWarning)
 
-    def _get_file_size(self):
+    def _get_file_size(self) -> int:
         """Return the size of the underlying file object, in bytes."""
+        if self._iostream is None:
+            raise ValueError("Cannot get file size because no file is set")
         pos = self._iostream.tell()
         self._iostream.seek(0, os.SEEK_END)
         size = self._iostream.tell()
         self._iostream.seek(pos, os.SEEK_SET)
         return size
 
-    def close(self):
+    def close(self) -> None:
         """Flush any changes to disk and close the file.
 
         This override calls :meth:`.MrcInterpreter.close` to ensure the stream
@@ -174,11 +183,13 @@ class MrcFile(MrcInterpreter):
         super().close()
         self._close_file()
 
-    def _close_file(self):
+    def _close_file(self) -> None:
         """Close the file object."""
+        if self._iostream is None:
+            raise ValueError("Cannot close file because no file is set")
         self._iostream.close()
 
-    def validate(self, print_file=None):
+    def validate(self, print_file: TextIO | None = None) -> bool:
         """Validate this MRC file.
 
         The tests are:

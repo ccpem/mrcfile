@@ -56,7 +56,7 @@ class FutureMrcFile:
         self._thread = threading.Thread(target=self._run, args=args, kwargs=kwargs)
         self._thread.start()
 
-    def _run(self, *args, **kwargs) -> None:
+    def _run(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
         """Call the open function and store the result in the holder list.
 
         (For internal use only.)
@@ -169,7 +169,7 @@ class FutureMrcFile:
             )
         return result
 
-    def add_done_callback(self, fn) -> None:
+    def add_done_callback(self, fn) -> None:  # type: ignore[no-untyped-def]
         """Not implemented.
 
         (See :meth:`concurrent.futures.Future.add_done_callback` for more details.)
