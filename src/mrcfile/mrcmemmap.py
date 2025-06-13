@@ -99,7 +99,7 @@ class MrcMemmap(MrcFile):
         """Flush the header and data arrays to the file buffer."""
         if not self._read_only and self._iostream is not None:
             self._iostream.seek(0)
-            self._iostream.write(self.header)  # type: ignore[arg-type]  # https://github.com/numpy/numpy/issues/26783
+            self._iostream.write(self.header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             self._iostream.write(self.extended_header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
 
             if self._data is None:
@@ -155,7 +155,7 @@ class MrcMemmap(MrcFile):
 
         self._iostream.flush()
         try:
-            self._data = np.memmap(
+            self._data = np.memmap(  # type: ignore[call-overload]
                 self._iostream,  # type: ignore[arg-type]  # awkward IO types
                 dtype=dtype,
                 mode=acc_mode,

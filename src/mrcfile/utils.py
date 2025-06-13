@@ -35,6 +35,7 @@ from __future__ import annotations
 
 import string
 import sys
+from typing import Literal
 
 import numpy as np
 
@@ -185,7 +186,7 @@ def pretty_machine_stamp(machst: bytes) -> str:
     return " ".join(f"0x{byte:02x}" for byte in machst)
 
 
-def byte_order_from_machine_stamp(machst: bytes) -> str:
+def byte_order_from_machine_stamp(machst: bytes) -> Literal["<", ">"]:
     """Return the byte order corresponding to the given machine stamp.
 
     Args:
@@ -254,7 +255,7 @@ def byte_orders_equal(a: str, b: str) -> bool:
     return normalise_byte_order(a) == normalise_byte_order(b)
 
 
-def normalise_byte_order(byte_order: str) -> str:
+def normalise_byte_order(byte_order: str) -> Literal["<", ">"]:
     """Convert a numpy byte order indicator to one of ``<`` or ``>``.
 
     Args:
@@ -270,11 +271,14 @@ def normalise_byte_order(byte_order: str) -> str:
         :exc:`ValueError`: If ``byte_order`` is not one of ``=``, ``<`` or
             ``>``.
     """
-    if byte_order not in ("<", ">", "="):
-        raise ValueError(f"Unrecognised byte order indicator '{byte_order}'")
-    if byte_order == "=":
+    if byte_order == "<":
+        return "<"
+    elif byte_order == ">":
+        return ">"
+    elif byte_order == "=":
         return "<" if sys.byteorder == "little" else ">"
-    return byte_order
+    else:
+        raise ValueError(f"Unrecognised byte order indicator '{byte_order}'")
 
 
 def spacegroup_is_volume_stack(ispg: int) -> bool:

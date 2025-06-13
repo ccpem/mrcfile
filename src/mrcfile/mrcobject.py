@@ -645,7 +645,7 @@ class MrcObject:
 
         # Ensure header byte order and machine stamp match the data's byte order
         data_byte_order = self.data.dtype.byteorder
-        header_byte_order = header.mode.dtype.byteorder
+        header_byte_order = header.mode.dtype.byteorder  # type: ignore[attr-defined]  # mypy thinks header.mode is an ``int``
         if data_byte_order != "|" and not utils.byte_orders_equal(
             data_byte_order, header_byte_order
         ):
@@ -653,7 +653,7 @@ class MrcObject:
             # Assigning to .dtype is discouraged but not yet deprecated, and none of the
             # other methods (view, astype) achieve quite what we need here
             header.dtype = header.dtype.newbyteorder(data_byte_order)  # type: ignore[misc]
-        header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)
+        header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)  # type: ignore[attr-defined]  # mypy thinks header.mode is an ``int``
 
         shape = self.data.shape
         axes = len(shape)

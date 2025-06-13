@@ -222,7 +222,9 @@ class MrcInterpreter(MrcObject):
                 raise
 
         # Create a new dtype with the correct byte order and update the header
-        header.dtype = header.dtype.newbyteorder(byte_order)
+        # Assigning to .dtype is discouraged but not yet deprecated, and none of the
+        # other methods (view, astype) achieve quite what we need here
+        header.dtype = header.dtype.newbyteorder(byte_order)  # type: ignore[misc]
 
         # Check mode is valid; if not, try the opposite byte order
         # (Some MRC files have been seen 'in the wild' that are correct except
@@ -236,7 +238,10 @@ class MrcInterpreter(MrcObject):
                     utils.dtype_from_mode(opp_mode)
                     # If we get here the new byte order is probably correct
                     # Use it and issue a warning
-                    header.dtype = header.dtype.newbyteorder()
+                    # Assigning to .dtype is discouraged but not yet deprecated, and
+                    # none of the other methods (view, astype) achieve quite what we
+                    # need here
+                    header.dtype = header.dtype.newbyteorder()  # type: ignore[misc]
                     pretty_machst = utils.pretty_machine_stamp(header.machst)
                     warnings.warn(
                         f"Machine stamp '{pretty_machst}' does not match the apparent"
@@ -430,9 +435,9 @@ class MrcInterpreter(MrcObject):
         """
         if not self._read_only and self._iostream is not None:
             self._iostream.seek(0)
-            self._iostream.write(self.header)  # type: ignore[arg-type]  # https://github.com/numpy/numpy/issues/26783
+            self._iostream.write(self.header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             self._iostream.write(self.extended_header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             if self.data is not None:
-                self._iostream.write(np.ascontiguousarray(self.data))  # type: ignore[arg-type]  # https://github.com/numpy/numpy/issues/26783
+                self._iostream.write(np.ascontiguousarray(self.data))  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             self._iostream.truncate()
             self._iostream.flush()
