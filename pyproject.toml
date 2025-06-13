@@ -57,6 +57,10 @@ documentation = "https://mrcfile.readthedocs.io/"
 files = ["src", "tests"]
 python_version = "3.9"
 
+[[tool.mypy.overrides]]
+module = "mrcfile.*"
+check_untyped_defs = true
+
 
 [tool.ruff]
 # Same as Black.

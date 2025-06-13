@@ -12,8 +12,11 @@ Classes:
 
 """
 
+from __future__ import annotations
+
 import warnings
 from datetime import datetime
+from typing import TextIO
 
 import numpy as np
 
@@ -94,7 +97,7 @@ class MrcObject:
 
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self) -> None:
         """Initialise a new :class:`MrcObject`.
 
         This initialiser deliberately avoids creating any arrays and simply
@@ -109,15 +112,12 @@ class MrcObject:
         by the caller, or might create the standard empty defaults rather than
         setting the attributes to :data:`None`.
         """
-        super().__init__(**kwargs)
+        self._header: np.recarray | None = None
+        self._extended_header: np.ndarray | None = None
+        self._data: np.ndarray | None = None
+        self._read_only: bool = False
 
-        # Set empty default attributes
-        self._header = None
-        self._extended_header = None
-        self._data = None
-        self._read_only = False
-
-    def _check_writeable(self):
+    def _check_writeable(self) -> None:
         """Check that this MRC object is writeable.
 
         Raises:
@@ -126,13 +126,13 @@ class MrcObject:
         if self._read_only:
             raise ValueError("MRC object is read-only")
 
-    def _create_default_attributes(self):
+    def _create_default_attributes(self) -> None:
         """Set valid default values for the header and data attributes."""
-        self._create_default_header()
+        self._header = self._get_default_header()
         self._extended_header = np.empty(0, dtype="V1")
         self._set_new_data(np.empty(0, dtype=np.int8))
 
-    def _create_default_header(self):
+    def _get_default_header(self) -> np.recarray:
         """Create a default MRC file header.
 
         The header is initialised with standard file type and version
@@ -140,8 +140,7 @@ class MrcObject:
         elsewhere. The first text label is also set to indicate the file was
         created by this module.
         """
-        self._header = np.zeros(shape=(), dtype=HEADER_DTYPE).view(np.recarray)
-        header = self._header
+        header = np.zeros(shape=(), dtype=HEADER_DTYPE).view(np.recarray)
         header.map = MAP_ID
         header.nversion = 20141  # current MRC 2014 format version
         header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)
@@ -167,16 +166,30 @@ class MrcObject:
         header.label[0] = f"Created by mrcfile.py {time:>57s} "
         header.nlabl = 1
 
-        self.reset_header_stats()
+        # Standard null statistics
+        header.dmin = 0
+        header.dmax = -1
+        header.dmean = -2
+        header.rms = -1
+
+        return header
 
     @property
-    def header(self):
-        """Get the header as a :class:`numpy record array <numpy.recarray>`."""
+    def header(self) -> np.recarray | None:
+        """Get the header as a :class:`numpy record array <numpy.recarray>`.
+
+        This can be :data:`None` for an empty MRC object that has just been created or
+        one that has been closed.
+        """
         return self._header
 
     @property
-    def extended_header(self):
+    def extended_header(self) -> np.ndarray | None:
         """Get the extended header as a :class:`numpy array <numpy.ndarray>`.
+
+        This can be :data:`None` for an empty MRC object that has just been created,
+        one that has been closed or if there was an error reading the extended header
+        in permissive mode.
 
         The dtype will be void (raw data, dtype ``V'``). If the actual data type
         of the extended header is known, the dtype of the array can be changed
@@ -190,7 +203,7 @@ class MrcObject:
         return self._extended_header
 
     @property
-    def indexed_extended_header(self):
+    def indexed_extended_header(self) -> np.ndarray | None:
         """Get the indexed part of the extended header as a
         :class:`numpy array <numpy.ndarray>` with the appropriate dtype set.
 
@@ -201,17 +214,23 @@ class MrcObject:
         sufficient length a warning will be produced and the indexed extended
         header will be None.
         """
+        if self.header is None or self.extended_header is None:
+            return None
         # Use the header's byte order for the extended header
         dtype = get_ext_header_dtype(
             self.header.exttyp, self.header.mode.dtype.byteorder
         )
+        if dtype is None:
+            return None
 
         # Interpret one element
         try:
             if self.extended_header.nbytes < dtype.itemsize:
                 raise ValueError  # noqa: TRY301
             first = self.extended_header[0 : dtype.itemsize]
-            first.dtype = dtype
+            # Assigning to .dtype is discouraged but not yet deprecated, and none of the
+            # other methods (view, astype) achieve quite what we need here
+            first.dtype = dtype  # type: ignore[misc]
             if first["Metadata size"][0] != dtype.itemsize:
                 raise ValueError  # noqa: TRY301
         except ValueError:
@@ -227,7 +246,9 @@ class MrcObject:
             if self.extended_header.nbytes < nbytes:
                 raise ValueError  # noqa: TRY301
             full = self.extended_header[0:nbytes]
-            full.dtype = dtype
+            # Assigning to .dtype is discouraged but not yet deprecated, and none of the
+            # other methods (view, astype) achieve quite what we need here
+            full.dtype = dtype  # type: ignore[misc]
         except ValueError:
             warnings.warn(
                 f"The header has exttyp '{self.header.exttyp}' but the extended header"
@@ -238,7 +259,7 @@ class MrcObject:
 
         return full
 
-    def set_extended_header(self, extended_header):
+    def set_extended_header(self, extended_header: np.ndarray) -> None:
         """Replace the extended header.
 
         If you set the extended header you should also set the
@@ -250,6 +271,10 @@ class MrcObject:
                 in the header).
         """
         self._check_writeable()
+        if self.header is None:
+            raise ValueError(
+                "Cannot set extended header on an uninitialised or closed MRC object"
+            )
         if extended_header.nbytes > np.iinfo(np.int32).max:
             raise ValueError(
                 f"New extended header is too large! It has {extended_header.nbytes}"
@@ -259,11 +284,11 @@ class MrcObject:
         self.header.nsymbt = extended_header.nbytes
 
     @property
-    def data(self):
-        """Get the data as a :class:`numpy array <numpy.ndarray>`."""
+    def data(self) -> np.ndarray | None:
+        """Get the data as a :class:`numpy array <numpy.ndarray>` or :data:`None`."""
         return self._data
 
-    def set_data(self, data):
+    def set_data(self, data: np.ndarray) -> None:
         """Replace the data array.
 
         This replaces the current data with the given array (or a copy of it),
@@ -283,7 +308,9 @@ class MrcObject:
 
         # Check if the new data's dtype is valid without changes
         mode = utils.mode_from_dtype(data.dtype)
-        new_dtype = utils.dtype_from_mode(mode).newbyteorder(data.dtype.byteorder)
+        new_dtype: np.dtype | None = utils.dtype_from_mode(mode).newbyteorder(
+            data.dtype.byteorder
+        )
 
         for dim in data.shape:
             if dim > np.iinfo(np.int32).max:
@@ -306,11 +333,11 @@ class MrcObject:
         self.update_header_from_data()
         self.update_header_stats()
 
-    def _close_data(self):
+    def _close_data(self) -> None:
         """Close the data array."""
         self._data = None
 
-    def _set_new_data(self, data):
+    def _set_new_data(self, data: np.ndarray) -> None:
         """Replace the data array with a new one.
 
         The new data array is not checked - it must already be valid for use in
@@ -319,7 +346,7 @@ class MrcObject:
         self._data = data
 
     @property
-    def voxel_size(self):
+    def voxel_size(self) -> np.recarray:
         """Get or set the voxel size in angstroms.
 
         The voxel size is returned as a structured NumPy :class:`record array
@@ -352,6 +379,10 @@ class MrcObject:
         >>> vox_sizes.z = 1.0
         >>> mrc.voxel_size = vox_sizes
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot get voxel size from an uninitialised or closed MRC object"
+            )
         x = self.header.cella.x / self.header.mx
         y = self.header.cella.y / self.header.my
         z = self.header.cella.z / self.header.mz
@@ -360,22 +391,24 @@ class MrcObject:
         return sizes
 
     @voxel_size.setter
-    def voxel_size(self, voxel_size):
+    def voxel_size(
+        self, voxel_size: float | tuple[float, float, float] | np.recarray
+    ) -> None:
         self._check_writeable()
         try:
             # First, assume we have a single numeric value
-            sizes = (float(voxel_size),) * 3
+            sizes = (float(voxel_size),) * 3  # type: ignore[arg-type]
         except TypeError:
             try:
                 # Not a single value. Next, if voxel_size is an array (as
                 # produced by the voxel_size getter), item() gives a 3-tuple
-                sizes = voxel_size.item()
+                sizes = voxel_size.item()  # type: ignore[union-attr, assignment]
             except AttributeError:
                 # If the item() method doesn't exist, assume we have a 3-tuple
-                sizes = voxel_size
+                sizes = voxel_size  # type: ignore[assignment]
         self._set_voxel_size(*sizes)
 
-    def _set_voxel_size(self, x_size, y_size, z_size):
+    def _set_voxel_size(self, x_size: float, y_size: float, z_size: float) -> None:
         """Set the voxel size.
 
         Args:
@@ -383,12 +416,16 @@ class MrcObject:
             y_size: The voxel size in the Y direction, in angstroms
             z_size: The voxel size in the Z direction, in angstroms
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot set voxel size on an uninitialised or closed MRC object"
+            )
         self.header.cella.x = x_size * self.header.mx
         self.header.cella.y = y_size * self.header.my
         self.header.cella.z = z_size * self.header.mz
 
     @property
-    def nstart(self):
+    def nstart(self) -> np.recarray:
         """Get or set the grid start locations.
 
         This provides a convenient way to get and set the values of the
@@ -429,6 +466,10 @@ class MrcObject:
         >>> starts.z = -150
         >>> mrc.nstart = starts
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot get nstart values from an uninitialised or closed MRC object"
+            )
         x = self.header.nxstart
         y = self.header.nystart
         z = self.header.nzstart
@@ -437,22 +478,22 @@ class MrcObject:
         return nstart
 
     @nstart.setter
-    def nstart(self, nstart):
+    def nstart(self, nstart: int | tuple[int, int, int] | np.recarray) -> None:
         self._check_writeable()
         try:
             # First, assume we have a single numeric value
-            starts = (int(nstart),) * 3
+            starts = (int(nstart),) * 3  # type: ignore[arg-type]
         except TypeError:
             try:
                 # Not a single value. Next, if nstart is an array (as
                 # produced by the nstart getter), item() gives a 3-tuple
-                starts = nstart.item()
+                starts = nstart.item()  # type: ignore[union-attr, assignment]
             except AttributeError:
                 # If the item() method doesn't exist, assume we have a 3-tuple
-                starts = nstart
+                starts = nstart  # type: ignore[assignment]
         self._set_nstart(*starts)
 
-    def _set_nstart(self, nxstart, nystart, nzstart):
+    def _set_nstart(self, nxstart: int, nystart: int, nzstart: int) -> None:
         """Set the grid start locations.
 
         Args:
@@ -460,45 +501,59 @@ class MrcObject:
             nystart: The location of the first row in the unit cell
             nzstart: The location of the first section in the unit cell
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot set nstart values on an uninitialised or closed MRC object"
+            )
         self.header.nxstart = nxstart
         self.header.nystart = nystart
         self.header.nzstart = nzstart
 
-    def is_single_image(self):
+    def is_single_image(self) -> bool:
         """Identify whether the file represents a single image.
 
         Returns:
-            :data:`True` if the data array is two-dimensional.
+            :data:`True` if the data array exists and is two-dimensional.
         """
-        return self.data.ndim == 2
+        return self.data is not None and self.data.ndim == 2
 
-    def is_image_stack(self):
+    def is_image_stack(self) -> bool:
         """Identify whether the file represents a stack of images.
 
         Returns:
-            :data:`True` if the data array is three-dimensional and the space group
-            is zero.
+            :data:`True` if the data array exists and is three-dimensional and the space
+            group is zero.
         """
-        return self.data.ndim == 3 and self.header.ispg == IMAGE_STACK_SPACEGROUP
+        return (
+            self.header is not None
+            and self.data is not None
+            and self.data.ndim == 3
+            and self.header.ispg == IMAGE_STACK_SPACEGROUP
+        )
 
-    def is_volume(self):
+    def is_volume(self) -> bool:
         """Identify whether the file represents a volume.
 
         Returns:
-            :data:`True` if the data array is three-dimensional and the space
+            :data:`True` if the data array exists and is three-dimensional and the space
             group is not zero.
         """
-        return self.data.ndim == 3 and self.header.ispg != IMAGE_STACK_SPACEGROUP
+        return (
+            self.header is not None
+            and self.data is not None
+            and self.data.ndim == 3
+            and self.header.ispg != IMAGE_STACK_SPACEGROUP
+        )
 
-    def is_volume_stack(self):
+    def is_volume_stack(self) -> bool:
         """Identify whether the file represents a stack of volumes.
 
         Returns:
-            :data:`True` if the data array is four-dimensional.
+            :data:`True` if the data array exists and is four-dimensional.
         """
-        return self.data.ndim == 4
+        return self.data is not None and self.data.ndim == 4
 
-    def set_image_stack(self):
+    def set_image_stack(self) -> None:
         """Change three-dimensional data to represent an image stack.
 
         This method changes the space group number (``header.ispg``) to zero.
@@ -507,12 +562,16 @@ class MrcObject:
             :exc:`ValueError`: If the data array is not three-dimensional.
         """
         self._check_writeable()
-        if self.data.ndim != 3:
+        if self.header is None:
+            raise ValueError(
+                "Cannot change space group on an uninitialised or closed MRC object"
+            )
+        if self.data is None or self.data.ndim != 3:
             raise ValueError("Only 3D data can be changed into an image stack")
         self.header.ispg = IMAGE_STACK_SPACEGROUP
         self.header.mz = 1
 
-    def set_volume(self):
+    def set_volume(self) -> None:
         """Change three-dimensional data to represent a volume.
 
         If the space group was previously zero (representing an image stack),
@@ -522,13 +581,17 @@ class MrcObject:
             :exc:`ValueError`: If the data array is not three-dimensional.
         """
         self._check_writeable()
-        if self.data.ndim != 3:
+        if self.header is None:
+            raise ValueError(
+                "Cannot change space group on an uninitialised or closed MRC object"
+            )
+        if self.data is None or self.data.ndim != 3:
             raise ValueError("Only 3D data can be changed into a volume")
         if self.is_image_stack():
             self.header.ispg = VOLUME_SPACEGROUP
             self.header.mz = self.header.nz
 
-    def update_header_from_data(self):
+    def update_header_from_data(self) -> None:
         """Update the header from the data array.
 
         This function updates the header byte order and machine stamp to match
@@ -552,8 +615,17 @@ class MrcObject:
         long time for large data sets, but updating the other header
         information is always fast because only the type and shape of the data
         array need to be inspected.)
+
+        Raises:
+            :exc:`ValueError`: If the data array is :data:`None`.
         """
         self._check_writeable()
+        if self.header is None:
+            raise ValueError(
+                "Cannot update header of an uninitialised or closed MRC object"
+            )
+        if self.data is None:
+            raise ValueError("Cannot update header from non-existent data array")
 
         # Check the dtype is one we can handle and update mode to match
         header = self.header
@@ -566,7 +638,9 @@ class MrcObject:
             data_byte_order, header_byte_order
         ):
             header.byteswap(inplace=True)
-            header.dtype = header.dtype.newbyteorder(data_byte_order)
+            # Assigning to .dtype is discouraged but not yet deprecated, and none of the
+            # other methods (view, astype) achieve quite what we need here
+            header.dtype = header.dtype.newbyteorder(data_byte_order)  # type: ignore[misc]
         header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)
 
         shape = self.data.shape
@@ -598,19 +672,26 @@ class MrcObject:
         else:
             raise ValueError("Data must be 2-, 3- or 4-dimensional")
 
-    def update_header_stats(self):
+    def update_header_stats(self) -> None:
         """Update the header's ``dmin``, ``dmax``, ``dmean`` and ``rms`` fields
         from the data.
 
         Note that this can take some time with large files, particularly with
         files larger than the currently available memory.
 
+        Raises:
+            :exc:`ValueError`: If the data array is :data:`None`.
+
         Warns:
             RuntimeWarning: If the data array contains Inf or NaN values.
         """
         self._check_writeable()
+        if self.header is None:
+            raise ValueError(
+                "Cannot update header of an uninitialised or closed MRC object"
+            )
 
-        if self.data.size > 0:
+        if self.data is not None and self.data.size > 0:
             # Header stats are always in float32. If we have complex data, this doesn't
             # make sense so just set rms and leave min, max and mean at their default
             # un-set values
@@ -633,16 +714,20 @@ class MrcObject:
         else:
             self.reset_header_stats()
 
-    def reset_header_stats(self):
+    def reset_header_stats(self) -> None:
         """Set the header statistics to indicate that the values are unknown."""
         self._check_writeable()
+        if self.header is None:
+            raise ValueError(
+                "Cannot reset header stats of an uninitialised or closed MRC object"
+            )
 
         self.header.dmin = 0
         self.header.dmax = -1
         self.header.dmean = -2
         self.header.rms = -1
 
-    def print_header(self, print_file=None):
+    def print_header(self, print_file: TextIO | None = None) -> None:
         """Print the contents of all header fields.
 
         Args:
@@ -651,10 +736,14 @@ class MrcObject:
                 :func:`print` function. The default is :data:`None`, which
                 means output will be printed to :data:`sys.stdout`.
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot print header of an uninitialised or closed MRC object"
+            )
         for item in self.header.dtype.names:
             print(f"{item:15s} : {self.header[item]}", file=print_file)
 
-    def get_labels(self):
+    def get_labels(self) -> list[str]:
         """Get the labels from the MRC header.
 
         Up to ten labels are stored in the header as arrays of 80 bytes. This method
@@ -667,12 +756,16 @@ class MrcObject:
             The labels, as a list of strings. The list will contain between 0 and 10
             items, each containing up to 80 characters.
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot get labels from an uninitialised or closed MRC object"
+            )
         return [
             utils.printable_string_from_bytes(label)
             for label in self.header.label[: self.header.nlabl]
         ]
 
-    def add_label(self, label):
+    def add_label(self, label: str) -> None:
         """Add a label to the MRC header.
 
         The new label will be stored after any labels already in the header. If all ten
@@ -691,6 +784,10 @@ class MrcObject:
             :exc:`IndexError`: If the file already contains 10 labels and so an
                 additional label cannot be stored.
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot add label to an uninitialised or closed MRC object"
+            )
         if not utils.is_printable_ascii(label):
             raise ValueError("Label contains non-printable or non-ASCII characters")
         label_bytes = str.encode(label, encoding="ascii", errors="strict")
@@ -699,7 +796,7 @@ class MrcObject:
         self.header.label[self.header.nlabl] = label
         self.header.nlabl += 1
 
-    def validate(self, print_file=None):  # noqa: C901, PLR0912, PLR0915
+    def validate(self, print_file: TextIO | None = None) -> bool:  # noqa: C901, PLR0912, PLR0915
         """Validate this MrcObject.
 
         This method runs a series of tests to check whether this object
@@ -745,6 +842,9 @@ class MrcObject:
             :data:`True` if this MrcObject  is valid, or :data:`False` if it
             does not meet the MRC format specification in any way.
         """
+        if self.header is None:
+            raise ValueError("Cannot validate an uninitialised or closed MRC object")
+
         valid = True
 
         def log(message):

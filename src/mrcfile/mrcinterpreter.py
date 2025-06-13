@@ -74,7 +74,7 @@ class MrcInterpreter(MrcObject):
 
     """
 
-    def __init__(self, iostream=None, *, permissive=False, header_only=False, **kwargs):
+    def __init__(self, iostream=None, *, permissive=False, header_only=False):
         """Initialise a new MrcInterpreter object.
 
         This initialiser reads the stream if it is given. In general,
@@ -105,7 +105,7 @@ class MrcInterpreter(MrcObject):
                 cannot be interpreted as a valid MRC file and ``permissive``
                 is :data:`True`.
         """
-        super().__init__(**kwargs)
+        super().__init__()
 
         self._iostream = iostream
         self._permissive = permissive
@@ -172,6 +172,7 @@ class MrcInterpreter(MrcObject):
         stream will be advanced by 1024 bytes.
 
         Raises:
+            :exc:`ValueError`: If no stream has been set.
             :exc:`ValueError`: If the data in the stream cannot be interpreted
                  as a valid MRC file and ``permissive`` is :data:`False`.
 
@@ -250,6 +251,7 @@ class MrcInterpreter(MrcObject):
         The dtype is set as void (``'V1'``).
 
         Raises:
+            :exc:`ValueError`: If no stream has been set.
             :exc:`ValueError`: If the stream is not long enough to contain the
                 extended header indicated by the header and ``permissive``
                 is :data:`False`.
@@ -259,6 +261,10 @@ class MrcInterpreter(MrcObject):
                 extended header indicated by the header and ``permissive``
                 is :data:`True`.
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot read extended header from an uninitialised or closed MRC object"
+            )
         ext_header_arr, bytes_read = self._read_bytearray_from_stream(
             int(self.header.nsymbt)
         )
@@ -279,18 +285,14 @@ class MrcInterpreter(MrcObject):
 
         self._extended_header.flags.writeable = not self._read_only
 
-    def _read_data(self, max_bytes=0):
+    def _read_data(self):
         """Read the data array from the stream.
 
         This method uses information from the header to set the data array's
         shape and dtype.
 
-        Args:
-            max_bytes: Read at most this many bytes from the stream. If zero or
-                negative, the full size of the data block as defined in the header
-                will be read, even if this is very large.
-
         Raises:
+            :exc:`ValueError`: If no stream has been set.
             :exc:`ValueError`: If the stream is not long enough to contain the
                 data indicated by the header and ``permissive`` is
                 :data:`False`.
@@ -300,6 +302,34 @@ class MrcInterpreter(MrcObject):
                 data indicated by the header and ``permissive`` is
                 :data:`True`.
         """
+        self._read_data_from_stream()
+
+    def _read_data_from_stream(self, max_bytes=0):
+        """Read the data array from the stream.
+
+        Unless you need to use the ``max_bytes`` argument, call ``_read_data`` instead.
+
+        Args:
+            max_bytes: Read at most this many bytes from the stream. If zero or
+                negative, the full size of the data block as defined in the header
+                will be read, even if this is very large.
+
+        Raises:
+            :exc:`ValueError`: If no stream has been set.
+            :exc:`ValueError`: If the stream is not long enough to contain the
+                data indicated by the header and ``permissive`` is
+                :data:`False`.
+
+        Warns:
+            RuntimeWarning: If the stream is not long enough to contain the
+                data indicated by the header and ``permissive`` is
+                :data:`True`.
+        """
+        if self.header is None:
+            raise ValueError(
+                "Cannot read data from an uninitialised or closed MRC object"
+            )
+
         try:
             dtype = utils.data_dtype_from_header(self.header)
         except ValueError as err:
@@ -354,14 +384,23 @@ class MrcInterpreter(MrcObject):
         Returns:
             A 2-tuple of the :class:`bytearray` and the number of bytes that
             were read from the stream.
+
+        Raises:
+            :exc:`ValueError`: If no stream has been set.
         """
+        if self._iostream is None:
+            raise ValueError("Cannot read data because no iostream is set")
         result_array = bytearray(number_of_bytes)
         bytes_read = self._iostream.readinto(result_array)
         return result_array, bytes_read
 
     def close(self):
         """Flush to the stream and clear the header and data attributes."""
-        if self._header is not None and not self._iostream.closed:
+        if (
+            self.header is not None
+            and self._iostream is not None
+            and not self._iostream.closed
+        ):
             self.flush()
         self._header = None
         self._extended_header = None
@@ -376,10 +415,11 @@ class MrcInterpreter(MrcObject):
         Subclasses should override this implementation for streams which do not
         support :meth:`~io.IOBase.seek` or :meth:`~io.IOBase.truncate`.
         """
-        if not self._read_only:
+        if not self._read_only and self._iostream is not None:
             self._iostream.seek(0)
             self._iostream.write(self.header)
             self._iostream.write(self.extended_header)
-            self._iostream.write(np.ascontiguousarray(self.data))
+            if self.data is not None:
+                self._iostream.write(np.ascontiguousarray(self.data))
             self._iostream.truncate()
             self._iostream.flush()

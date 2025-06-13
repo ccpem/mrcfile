@@ -15,7 +15,7 @@ class DtypesTest(unittest.TestCase):
 
     def test_invalid_byte_order_raises_exception(self):
         with self.assertRaisesRegex(ValueError, "Unrecognised byte order indicator"):
-            _ = dtypes.get_ext_header_dtype("", "a")
+            _ = dtypes.get_ext_header_dtype(b"", "a")
 
     def test_fei1_ext_header_with_native_byte_order(self):
         dtype = dtypes.get_ext_header_dtype(b"FEI1")

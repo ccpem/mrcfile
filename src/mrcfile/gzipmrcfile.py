@@ -70,8 +70,11 @@ class GzipMrcFile(MrcFile):
             self._iostream = gzip.GzipFile(fileobj=self._fileobj, mode="wb")
 
             # Arrays converted to bytes so gzip can calculate sizes correctly
-            self._iostream.write(self.header.tobytes())
-            self._iostream.write(self.extended_header.tobytes())
-            self._iostream.write(self.data.tobytes())
+            if self.header is not None:
+                self._iostream.write(self.header.tobytes())
+            if self.extended_header is not None:
+                self._iostream.write(self.extended_header.tobytes())
+            if self.data is not None:
+                self._iostream.write(self.data.tobytes())
             self._iostream.flush()
             self._fileobj.truncate()

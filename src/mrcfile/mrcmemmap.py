@@ -46,6 +46,8 @@ class MrcMemmap(MrcFile):
 
     """
 
+    _data: np.memmap | None
+
     def __repr__(self) -> str:
         """Return a string representation of the MrcMemmap object."""
         return f"MrcMemmap('{self._iostream.name}', mode='{self._mode}')"
@@ -58,24 +60,39 @@ class MrcMemmap(MrcFile):
         very time consuming with large files, if the new extended header
         occupies a different number of bytes than the previous one.
         """
-        old_ext_header_size = self._extended_header.nbytes
+        if self.header is None:
+            raise ValueError(
+                "Cannot set extended header on an uninitialised or closed MRC object"
+            )
+        old_ext_header_size = (
+            self.extended_header.nbytes if self.extended_header is not None else 0
+        )
         super().set_extended_header(extended_header)
         if extended_header.nbytes != old_ext_header_size:
-            data_copy = self._data.copy()
-            self._close_data()
+            if self._data is None:
+                data_copy = None
+                data_nbytes = 0
+            else:
+                data_copy = self._data.copy()
+                data_nbytes = data_copy.nbytes
+                self._close_data()
+
             self._extended_header = extended_header
             self.header.nsymbt = extended_header.nbytes
             header_nbytes = self.header.nbytes + extended_header.nbytes
-            total_nbytes = header_nbytes + data_copy.nbytes
+            total_nbytes = header_nbytes + data_nbytes
 
             # Workaround for https://github.com/ccpem/mrcfile/issues/65
-            if data_copy.nbytes == 0 and total_nbytes % mmap.ALLOCATIONGRANULARITY == 0:
+            if data_nbytes == 0 and total_nbytes % mmap.ALLOCATIONGRANULARITY == 0:
                 # Add one extra byte here to avoid triggering mmap error
                 total_nbytes += 1
 
             self._iostream.truncate(total_nbytes)
-            self._open_memmap(data_copy.dtype, data_copy.shape)
-            np.copyto(self._data, data_copy)
+
+            if data_copy is not None:
+                self._open_memmap(data_copy.dtype, data_copy.shape)
+                if self._data is not None:
+                    np.copyto(self._data, data_copy)
 
     def flush(self) -> None:
         """Flush the header and data arrays to the file buffer."""
@@ -84,14 +101,19 @@ class MrcMemmap(MrcFile):
             self._iostream.write(self.header)
             self._iostream.write(self.extended_header)
 
-            # Flushing the file before the mmap makes the mmap flush faster
-            self._iostream.flush()
-            self._data.flush()
+            if self._data is None:
+                data_nbytes = 0
+            else:
+                # Flushing the file before the mmap makes the mmap flush faster
+                self._iostream.flush()
+                self._data.flush()
+                data_nbytes = self._data.nbytes
+
             self._iostream.flush()
 
             # Seek to end of data block so stream is left in the same position
             # as normal
-            self._iostream.seek(self._data.nbytes, os.SEEK_CUR)
+            self._iostream.seek(data_nbytes, os.SEEK_CUR)
 
     def _read_data(self):
         """Read the data block from the file.
@@ -100,6 +122,10 @@ class MrcMemmap(MrcFile):
         (block start position, endian-ness, file mode, array shape) and then
         opens the data as a numpy memmap array.
         """
+        if self.header is None:
+            raise ValueError(
+                "Cannot read data from an uninitialised or closed MRC object"
+            )
         try:
             dtype = utils.data_dtype_from_header(self.header)
         except ValueError as err:
@@ -116,6 +142,10 @@ class MrcMemmap(MrcFile):
 
     def _open_memmap(self, dtype: np.dtype, shape: tuple) -> None:
         """Open a new memmap array pointing at the file's data block."""
+        if self.header is None:
+            raise ValueError(
+                "Cannot open memmap for an uninitialised or closed MRC object"
+            )
         acc_mode = "r" if self._read_only else "r+"
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
         # self.extended_header might be None in permissive read mode. Need to convert to
@@ -171,6 +201,8 @@ class MrcMemmap(MrcFile):
     def _set_new_data(self, data: np.ndarray) -> None:
         """Override of :meth:`_set_new_data` to handle opening a new memmap and
         copying data into it."""
+        if self.header is None:
+            raise ValueError("Cannot set data on an uninitialised or closed MRC object")
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
         # self.extended_header might be None in permissive read mode. Need to convert to
         # Python int (rather than numpy int32) to avoid possible overflow.

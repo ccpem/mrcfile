@@ -301,7 +301,7 @@ def new_mmap(  # noqa: PLR0913
     mrc_mode: int = 0,
     fill: float | None = None,
     overwrite: bool = False,
-    extended_header: np.recarray | None = None,
+    extended_header: np.ndarray | None = None,
     exttyp: bytes | str | None = None,
 ) -> MrcMemmap:
     """Create a new, empty memory-mapped MRC file.
@@ -367,13 +367,14 @@ def new_mmap(  # noqa: PLR0913
     # memory mapped file to avoid having to copy lots of data
     if extended_header is not None:
         mrc.set_extended_header(extended_header)
-    if exttyp is not None:
+    if exttyp is not None and mrc.header is not None:
         mrc.header.exttyp = exttyp
 
     dtype = utils.dtype_from_mode(mrc_mode)
     mrc._open_memmap(dtype, shape)  # noqa: SLF001
-    mrc.update_header_from_data()
-    if fill is not None:
-        mrc.data[...] = fill
+    if mrc.data is not None:
+        mrc.update_header_from_data()
+        if fill is not None:
+            mrc.data[...] = fill
     mrc.flush()
     return mrc

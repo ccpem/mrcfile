@@ -51,7 +51,6 @@ class MrcFile(MrcInterpreter):
         overwrite=False,
         permissive=False,
         header_only=False,
-        **kwargs,
     ):
         """Initialise a new :class:`MrcFile` object.
 
@@ -95,7 +94,7 @@ class MrcFile(MrcInterpreter):
                 value but the extended header's size is not a multiple of the
                 number of bytes in the corresponding dtype.
         """
-        super().__init__(permissive=permissive, **kwargs)
+        super().__init__(permissive=permissive)
 
         if mode not in ["r", "r+", "w+"]:
             raise ValueError(f"Mode '{mode}' not supported")
@@ -134,7 +133,11 @@ class MrcFile(MrcInterpreter):
         super()._read(header_only=header_only)
 
     def _read_data(self):
-        """Override _read_data() to check file size matches data block size."""
+        """Read data array from file and check file size matches data block size."""
+        if self.header is None:
+            raise ValueError(
+                "Cannot read data from an uninitialised or closed MRC object"
+            )
         file_size = self._get_file_size()
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
         # self.extended_header might be None in permissive read mode. Need to convert to
@@ -142,7 +145,7 @@ class MrcFile(MrcInterpreter):
         header_size = self.header.nbytes + int(self.header.nsymbt)
         remaining_file_size = file_size - header_size
 
-        super()._read_data(max_bytes=remaining_file_size)
+        super()._read_data_from_stream(max_bytes=remaining_file_size)
 
         # Check if the file is the expected size.
         if self.data is not None:
@@ -221,14 +224,18 @@ class MrcFile(MrcInterpreter):
             :data:`True` if the file is valid, or :data:`False` if the file
             does not meet the MRC format specification in any way.
         """
+        if self.header is None:
+            raise ValueError("Cannot validate an uninitialised or closed MRC object")
         valid = super().validate(print_file=print_file)
+
+        ext_header_nbytes = (
+            self.extended_header.nbytes if self.extended_header is not None else 0
+        )
 
         if self.data is not None:
             # Check file size
             file_size = self._get_file_size()
-            mrc_size = (
-                self.header.nbytes + self.extended_header.nbytes + self.data.nbytes
-            )
+            mrc_size = self.header.nbytes + ext_header_nbytes + self.data.nbytes
             if file_size != mrc_size:
                 print(
                     f"File is larger than expected. Actual size: {file_size} bytes; "

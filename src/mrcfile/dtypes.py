@@ -210,7 +210,7 @@ fei_dtype_dict.extend(
 fei2_dtype_big_endian: np.dtype = np.dtype(fei_dtype_dict)
 
 
-def get_ext_header_dtype(exttyp, byte_order="=") -> np.dtype | None:
+def get_ext_header_dtype(exttyp: bytes, byte_order: str = "=") -> np.dtype | None:
     """Get a dtype for an extended header.
 
     Args:
@@ -220,7 +220,7 @@ def get_ext_header_dtype(exttyp, byte_order="=") -> np.dtype | None:
 
     Returns:
         A :class:`numpy dtype <numpy.dtype>` object for the extended header, or
-        :data:`None`
+        :data:`None` if the ``exttyp`` is not ``b'FEI1'`` or ``b'FEI2'``
 
     Raises:
         :exc:`ValueError`: If ``byte_order`` is not one of ``=``, ``<`` or ``>``.

@@ -41,7 +41,7 @@ class MrcObjectTest(unittest.TestCase):
         warning_context = warnings.catch_warnings()
         warning_context.__enter__()
         warnings.simplefilter("error")
-        self.addCleanup(warning_context.__exit__)
+        self.addCleanup(warning_context.__exit__, None, None, None)
 
         self.mrcobject = MrcObject()
         self.mrcobject._create_default_attributes()

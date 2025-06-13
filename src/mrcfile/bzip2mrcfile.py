@@ -64,7 +64,10 @@ class Bzip2MrcFile(MrcFile):
             self._iostream = bz2.BZ2File(self._fname, mode="w")
 
             # Arrays converted to bytes so bz2 can calculate sizes correctly
-            self._iostream.write(self.header.tobytes())
-            self._iostream.write(self.extended_header.tobytes())
-            self._iostream.write(self.data.tobytes())
+            if self.header is not None:
+                self._iostream.write(self.header.tobytes())
+            if self.extended_header is not None:
+                self._iostream.write(self.extended_header.tobytes())
+            if self.data is not None:
+                self._iostream.write(self.data.tobytes())
             # no equivalent for flush() with BZ2File
