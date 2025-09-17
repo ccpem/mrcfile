@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import bz2
 import os
+from typing import BinaryIO, cast
 
 from .mrcfile import MrcFile
 
@@ -37,7 +38,9 @@ class Bzip2MrcFile(MrcFile):
         self._fname = name
         if "w" in self._mode and not os.path.exists(name):
             open(name, mode="w").close()
-        self._iostream = bz2.BZ2File(name, mode="r")  # type: ignore[assignment]  # awkward IO types
+        self._iostream = cast(
+            BinaryIO, bz2.BZ2File(name, mode="r")
+        )  # cast needed because of awkward IO types
 
     def _read(self, *, header_only: bool = False) -> None:
         """Override _read() to ensure bzip2 file is in read mode."""
@@ -50,7 +53,9 @@ class Bzip2MrcFile(MrcFile):
             raise RuntimeError("Cannot read file because no file is set")
         if not self._iostream.readable():
             self._iostream.close()
-            self._iostream = bz2.BZ2File(self._fname, mode="r")  # type: ignore[assignment]  # awkward IO types
+            self._iostream = cast(
+                BinaryIO, bz2.BZ2File(self._fname, mode="r")
+            )  # cast needed because of awkward IO types
 
     def _get_file_size(self) -> int:
         """Override _get_file_size() to ensure stream is readable first."""
@@ -65,7 +70,9 @@ class Bzip2MrcFile(MrcFile):
         """
         if not self._read_only and self._iostream is not None:
             self._iostream.close()
-            self._iostream = bz2.BZ2File(self._fname, mode="w")  # type: ignore[assignment]  # awkward IO types
+            self._iostream = cast(
+                BinaryIO, bz2.BZ2File(self._fname, mode="w")
+            )  # cast needed because of awkward IO types
 
             # Arrays converted to bytes so bz2 can calculate sizes correctly
             if self.header is not None:

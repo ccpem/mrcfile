@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import gzip
 import os
+from typing import BinaryIO, cast
 
 from .mrcfile import MrcFile
 
@@ -33,7 +34,9 @@ class GzipMrcFile(MrcFile):
     def _open_file(self, name: str | os.PathLike[str]) -> None:
         """Override _open_file() to open both normal and gzip files."""
         self._fileobj = open(name, self._mode + "b")  # noqa: SIM115  # no context manager
-        self._iostream = gzip.GzipFile(fileobj=self._fileobj, mode="rb")  # type: ignore[assignment]  # awkward IO types
+        self._iostream = cast(
+            BinaryIO, gzip.GzipFile(fileobj=self._fileobj, mode="rb")
+        )  # cast needed because of awkward IO types
 
     def _close_file(self) -> None:
         """Override _close_file() to close both normal and gzip files."""
@@ -54,7 +57,9 @@ class GzipMrcFile(MrcFile):
         if self._iostream.mode != gzip.READ:
             self._iostream.close()
             self._fileobj.seek(0)
-            self._iostream = gzip.GzipFile(fileobj=self._fileobj, mode="rb")  # type: ignore[assignment]  # awkward IO types
+            self._iostream = cast(
+                BinaryIO, gzip.GzipFile(fileobj=self._fileobj, mode="rb")
+            )  # cast needed because of awkward IO types
 
     def _get_file_size(self) -> int:
         """Override _get_file_size() to avoid seeking from end."""
@@ -73,7 +78,9 @@ class GzipMrcFile(MrcFile):
         if not self._read_only and self._iostream is not None:
             self._iostream.close()
             self._fileobj.seek(0)
-            self._iostream = gzip.GzipFile(fileobj=self._fileobj, mode="wb")  # type: ignore[assignment]  # awkward IO types
+            self._iostream = cast(
+                BinaryIO, gzip.GzipFile(fileobj=self._fileobj, mode="wb")
+            )  # cast needed because of awkward IO types
 
             # Arrays converted to bytes so gzip can calculate sizes correctly
             if self.header is not None:
