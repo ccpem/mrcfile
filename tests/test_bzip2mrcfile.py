@@ -5,6 +5,7 @@
 Tests for bzip2mrcfile.py
 """
 
+import bz2
 import os
 import unittest
 
@@ -41,8 +42,6 @@ class Bzip2MrcFileTest(test_mrcfile.MrcFileTest):
                 "Test data file fei-extended.mrc.bz2 not found. Creating a new copy..."
             )
             fei1_ext_header_mrc_name = os.path.join(self.test_data, "fei-extended.mrc")
-            import bz2
-
             with (
                 open(fei1_ext_header_mrc_name, "rb") as mrc,
                 open(self.fei1_ext_header_mrc_name, "wb") as bzf,
@@ -57,8 +56,6 @@ class Bzip2MrcFileTest(test_mrcfile.MrcFileTest):
             fei2_ext_header_mrc_name = os.path.join(
                 self.test_data, "epu2.9_example.mrc"
             )
-            import bz2
-
             with (
                 open(fei2_ext_header_mrc_name, "rb") as mrc,
                 open(self.fei2_ext_header_mrc_name, "wb") as bzf,

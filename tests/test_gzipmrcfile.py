@@ -5,6 +5,7 @@
 Tests for gzipmrcfile.py
 """
 
+import gzip
 import os
 import unittest
 
@@ -41,8 +42,6 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
                 "Test data file fei-extended.mrc.gz not found. Creating a new copy..."
             )
             fei1_ext_header_mrc_name = os.path.join(self.test_data, "fei-extended.mrc")
-            import gzip
-
             with (
                 open(fei1_ext_header_mrc_name, "rb") as mrc,
                 gzip.open(self.fei1_ext_header_mrc_name, "wb") as gzipf,
@@ -56,8 +55,6 @@ class GzipMrcFileTest(test_mrcfile.MrcFileTest):
             fei2_ext_header_mrc_name = os.path.join(
                 self.test_data, "epu2.9_example.mrc"
             )
-            import gzip
-
             with (
                 open(fei2_ext_header_mrc_name, "rb") as mrc,
                 gzip.open(self.fei2_ext_header_mrc_name, "wb") as gzipf,
