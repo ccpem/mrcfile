@@ -666,9 +666,14 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
         assert mrc.data.flags.c_contiguous
 
         # Transpose the data array in-place
-        strides = mrc.data.strides
-        mrc.data.shape = mrc.data.shape[::-1]
-        mrc.data.strides = strides[::-1]
+        # Ignore deprecation warnings because directly setting shape and stride
+        # are deprecated in numpy >= 2.4.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            strides = mrc.data.strides
+            mrc.data.shape = mrc.data.shape[::-1]
+            mrc.data.strides = strides[::-1]
+
         # Check this is an effective way to do in-place transpose()
         np.testing.assert_array_equal(transposed_vol, mrc.data)
 
