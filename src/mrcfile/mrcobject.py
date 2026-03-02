@@ -748,7 +748,7 @@ class MrcObject:
                 :func:`print` function. The default is :data:`None`, which
                 means output will be printed to :data:`sys.stdout`.
         """
-        if self.header is None:
+        if self.header is None or self.header.dtype.names is None:
             raise RuntimeError(
                 "Cannot print header of an uninitialised or closed MRC object"
             )
