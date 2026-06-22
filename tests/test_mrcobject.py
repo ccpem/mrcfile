@@ -385,11 +385,13 @@ class MrcObjectTest(unittest.TestCase):
         assert utils.byte_orders_equal(header.mode.dtype.byteorder, orig_byte_order)
 
         self.mrcobject.set_data(data.view(data.dtype.newbyteorder()))
+        header = self.mrcobject.header
         assert not utils.byte_orders_equal(header.mode.dtype.byteorder, orig_byte_order)
         assert header.mode == 2
         assert header.mapc == original_mapc
 
         self.mrcobject.set_data(data)
+        header = self.mrcobject.header
         assert utils.byte_orders_equal(header.mode.dtype.byteorder, orig_byte_order)
         assert header.mode == 2
         assert header.mapc == original_mapc

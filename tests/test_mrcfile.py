@@ -146,8 +146,7 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
             assert mrc.header.nsymbt == 160
             assert mrc.extended_header.nbytes == 160
             assert mrc.extended_header.dtype.kind == "V"
-            mrc.extended_header.dtype = "S80"
-            ext = mrc.extended_header
+            ext = mrc.extended_header.view("S80")
             assert ext[0] == (
                 b"X,  Y,  Z                               "
                 b"                                        "
@@ -372,8 +371,8 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
             np.testing.assert_array_equal(mrc.data, data)
         with self.newmrc(self.temp_mrc_name, mode="r") as mrc:
             # Change the extended header dtype to a string for comparison
-            mrc.extended_header.dtype = f"S{mrc.extended_header.nbytes}"
-            np.testing.assert_array_equal(mrc.extended_header, extended_header)
+            ext = mrc.extended_header.view(f"S{mrc.extended_header.nbytes}")
+            np.testing.assert_array_equal(ext, extended_header)
             np.testing.assert_array_equal(mrc.data, data)
 
     def test_removing_extended_header(self):
@@ -402,8 +401,8 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
                 # Test that the file is still read, and the dtype falls back to 'V'
                 assert mrc.extended_header.dtype.kind == "V"
                 assert mrc.indexed_extended_header is None
-                mrc.extended_header.dtype = f"S{mrc.extended_header.nbytes}"
-                np.testing.assert_array_equal(mrc.extended_header, extended_header)
+                ext = mrc.extended_header.view(f"S{mrc.extended_header.nbytes}")
+                np.testing.assert_array_equal(ext, extended_header)
             assert len(w) == 1
             assert "FEI1" in str(w[0].message)
             assert "extended header" in str(w[0].message)
