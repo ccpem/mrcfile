@@ -222,9 +222,9 @@ class MrcInterpreter(MrcObject):
                 raise
 
         # Create a new dtype with the correct byte order and update the header
-        # Assigning to .dtype is discouraged but not yet deprecated, and none of the
-        # other methods (view, astype) achieve quite what we need here
-        header.dtype = header.dtype.newbyteorder(byte_order)  # type: ignore[misc]
+        # by viewing it as the new dtype. (Assigning to .dtype directly is
+        # deprecated since NumPy 2.5.)
+        header = header.view(header.dtype.newbyteorder(byte_order))
 
         # Check mode is valid; if not, try the opposite byte order
         # (Some MRC files have been seen 'in the wild' that are correct except
@@ -237,11 +237,9 @@ class MrcInterpreter(MrcObject):
                     opp_mode = header.mode.view(header.mode.dtype.newbyteorder())
                     utils.dtype_from_mode(opp_mode)
                     # If we get here the new byte order is probably correct
-                    # Use it and issue a warning
-                    # Assigning to .dtype is discouraged but not yet deprecated, and
-                    # none of the other methods (view, astype) achieve quite what we
-                    # need here
-                    header.dtype = header.dtype.newbyteorder()  # type: ignore[misc]
+                    # Use it and issue a warning. (Assigning to .dtype directly is
+                    # deprecated since NumPy 2.5.)
+                    header = header.view(header.dtype.newbyteorder())
                     pretty_machst = utils.pretty_machine_stamp(header.machst)
                     warnings.warn(
                         f"Machine stamp '{pretty_machst}' does not match the apparent"

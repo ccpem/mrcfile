@@ -228,9 +228,8 @@ class MrcObject:
             if self.extended_header.nbytes < dtype.itemsize:
                 raise ValueError  # noqa: TRY301
             first = self.extended_header[0 : dtype.itemsize]
-            # Assigning to .dtype is discouraged but not yet deprecated, and none of the
-            # other methods (view, astype) achieve quite what we need here
-            first.dtype = dtype  # type: ignore[misc]
+            # Assigning to .dtype directly is deprecated since NumPy 2.5
+            first = first.view(dtype)
             if first["Metadata size"][0] != dtype.itemsize:
                 raise ValueError  # noqa: TRY301
         except ValueError:
@@ -246,9 +245,8 @@ class MrcObject:
             if self.extended_header.nbytes < nbytes:
                 raise ValueError  # noqa: TRY301
             full = self.extended_header[0:nbytes]
-            # Assigning to .dtype is discouraged but not yet deprecated, and none of the
-            # other methods (view, astype) achieve quite what we need here
-            full.dtype = dtype  # type: ignore[misc]
+            # Assigning to .dtype directly is deprecated since NumPy 2.5
+            full = full.view(dtype)
         except ValueError:
             warnings.warn(
                 f"The header has exttyp '{self.header.exttyp}' but the extended header"
@@ -650,9 +648,11 @@ class MrcObject:
             data_byte_order, header_byte_order
         ):
             header.byteswap(inplace=True)
-            # Assigning to .dtype is discouraged but not yet deprecated, and none of the
-            # other methods (view, astype) achieve quite what we need here
-            header.dtype = header.dtype.newbyteorder(data_byte_order)  # type: ignore[misc]
+            # Assigning to .dtype directly is deprecated since NumPy 2.5, so view the
+            # header as the new dtype instead, and store the result back onto
+            # self._header since the view is a new array, not the original.
+            header = header.view(header.dtype.newbyteorder(data_byte_order))
+            self._header = header
         header.machst = utils.machine_stamp_from_byte_order(header.mode.dtype.byteorder)  # type: ignore[attr-defined]  # mypy thinks header.mode is an ``int``
 
         shape = self.data.shape
