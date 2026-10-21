@@ -16,6 +16,7 @@ from io import StringIO
 import numpy as np
 
 import mrcfile
+from mrcfile import utils
 from mrcfile.validator import validate_all
 
 from . import helpers
@@ -158,6 +159,16 @@ class ValidationTest(unittest.TestCase):
         with mrcfile.new(self.temp_mrc_name) as mrc:
             mrc.header.machst = bytearray(b"    ")
         self.check_temp_mrc_invalid_with_warning("machine stamp")
+        assert len(sys.stdout.getvalue()) == 0
+        assert len(sys.stderr.getvalue()) == 0
+
+    def test_machine_stamp_does_not_match_byte_order(self):
+        with mrcfile.new(self.temp_mrc_name) as mrc:
+            mrc.set_data(np.arange(12, dtype=np.float32).reshape(1, 3, 4))
+            wrong_byte_order = mrc.header.mode.dtype.newbyteorder().byteorder
+            mrc.header.machst = utils.machine_stamp_from_byte_order(wrong_byte_order)
+        self.check_temp_mrc_invalid_with_warning("Machine stamp")
+        assert "does not match the byte order" in self.print_stream.getvalue()
         assert len(sys.stdout.getvalue()) == 0
         assert len(sys.stderr.getvalue()) == 0
 
