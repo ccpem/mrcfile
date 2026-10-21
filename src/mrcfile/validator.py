@@ -114,7 +114,7 @@ def validate(name: str | os.PathLike[str], print_file: TextIO | None = None) -> 
        "MAP ".
     #. Machine stamp: The machine stamp should contain one of
        ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
-       ``0x11 0x11 0x00 0x00``.
+       ``0x11 0x11 0x00 0x00``, matching the byte order of the file.
     #. MRC mode: the ``mode`` field should be one of the supported mode
        numbers: 0, 1, 2, 4, 6 or 12. (Note that MRC modes 3 and 101 are also
        valid according to the MRC 2014 specification but are not supported by

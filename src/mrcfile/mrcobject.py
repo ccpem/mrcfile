@@ -818,7 +818,7 @@ class MrcObject:
            "MAP ".
         #. Machine stamp: The machine stamp should contain one of
            ``0x44 0x44 0x00 0x00``, ``0x44 0x41 0x00 0x00`` or
-           ``0x11 0x11 0x00 0x00``.
+           ``0x11 0x11 0x00 0x00``, matching the byte order of the header.
         #. MRC mode: the ``mode`` field should be one of the supported mode
            numbers: 0, 1, 2, 4, 6 or 12. (Note that MRC modes 3 and 101 are
            also valid according to the MRC 2014 specification but are not
@@ -872,11 +872,22 @@ class MrcObject:
 
         # Check machine stamp
         try:
-            utils.byte_order_from_machine_stamp(self.header.machst)
+            stamp_byte_order = utils.byte_order_from_machine_stamp(self.header.machst)
         except ValueError:
             pretty_bytes = utils.pretty_machine_stamp(self.header.machst)
             log("Invalid machine stamp: " + pretty_bytes)
             valid = False
+        else:
+            # A file opened in permissive mode may have had its byte order
+            # corrected to match the data, in which case the stamp is wrong
+            header_byte_order = self.header.mode.dtype.byteorder
+            if not utils.byte_orders_equal(stamp_byte_order, header_byte_order):
+                pretty_bytes = utils.pretty_machine_stamp(self.header.machst)
+                log(
+                    f"Machine stamp {pretty_bytes} does not match the byte order "
+                    f"of the file: '{utils.normalise_byte_order(header_byte_order)}'"
+                )
+                valid = False
 
         # Check mode is valid
         try:
