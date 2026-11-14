@@ -69,6 +69,7 @@ class Bzip2MrcFile(MrcFile):
         BZ2File objects need special handling.
         """
         if not self._read_only and self._iostream is not None:
+            self._update_extended_header_size()
             self._iostream.close()
             self._iostream = cast(
                 BinaryIO, bz2.BZ2File(self._fname, mode="w")

@@ -429,11 +429,13 @@ class MrcInterpreter(MrcObject):
 
         This implementation seeks to the start of the stream, writes the
         header, extended header and data arrays, and then truncates the stream.
+        The extended header size in the header is updated before writing.
 
         Subclasses should override this implementation for streams which do not
         support :meth:`~io.IOBase.seek` or :meth:`~io.IOBase.truncate`.
         """
         if not self._read_only and self._iostream is not None:
+            self._update_extended_header_size()
             self._iostream.seek(0)
             self._iostream.write(self.header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             self._iostream.write(self.extended_header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
