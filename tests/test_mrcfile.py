@@ -5,6 +5,8 @@
 Tests for mrcfile.py
 """
 
+import bz2
+import gzip
 import os
 import shutil
 import sys
@@ -23,6 +25,8 @@ except ImportError:
     from numpy import ComplexWarning  # type: ignore[attr-defined, no-redef]
 
 from mrcfile import utils
+from mrcfile.bzip2mrcfile import Bzip2MrcFile
+from mrcfile.gzipmrcfile import GzipMrcFile
 from mrcfile.mrcfile import MrcFile
 from mrcfile.mrcobject import (
     IMAGE_STACK_SPACEGROUP,
@@ -292,11 +296,65 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
         with self.newmrc(self.temp_mrc_name, mode="w+") as mrc:
             mrc.set_data(np.arange(24, dtype=np.int16).reshape(2, 3, 4))
             mrc.header.nsymbt = 49
+            # Write invalid bytes directly: flush() keeps nsymbt consistent.
+            invalid_bytes = mrc.header.tobytes() + mrc.data.tobytes()
+            if isinstance(mrc, GzipMrcFile):
+                invalid_bytes = gzip.compress(invalid_bytes)
+            elif isinstance(mrc, Bzip2MrcFile):
+                invalid_bytes = bz2.compress(invalid_bytes)
+        Path(self.temp_mrc_name).write_bytes(invalid_bytes)
         expected_error_msg = (
             "Expected 49 bytes in extended header but could only read 48"
         )
         with self.assertRaisesRegex(ValueError, expected_error_msg):
             self.newmrc(self.temp_mrc_name)
+
+    def test_copied_header_does_not_change_extended_header_size(self):
+        data = np.arange(24, dtype=np.float32).reshape(2, 3, 4)
+        self.mrcobject.set_data(data)
+        self.mrcobject.set_extended_header(np.arange(16, dtype=np.uint8))
+        self.mrcobject.header.exttyp = b"CCP4"
+        copied_header = self.mrcobject.header.copy()
+
+        with self.newmrc(self.temp_mrc_name, mode="w+") as mrc:
+            mrc.set_data(data)
+            mrc.header[...] = copied_header
+            mrc.flush()
+            assert mrc.header.nsymbt == 0
+            mrc.flush()
+
+        with self.newmrc(self.temp_mrc_name) as mrc:
+            assert mrc.extended_header.nbytes == 0
+            np.testing.assert_array_equal(mrc.data, data)
+
+    def test_copied_header_before_setting_data_preserves_data_offset(self):
+        data = np.arange(24, dtype=np.float32).reshape(2, 3, 4)
+        self.mrcobject.set_data(data)
+        self.mrcobject.set_extended_header(np.arange(16, dtype=np.uint8))
+        copied_header = self.mrcobject.header.copy()
+
+        with self.newmrc(self.temp_mrc_name, mode="w+") as mrc:
+            mrc.header[...] = copied_header
+            mrc.set_data(data)
+
+        with self.newmrc(self.temp_mrc_name) as mrc:
+            assert mrc.extended_header.nbytes == 0
+            np.testing.assert_array_equal(mrc.data, data)
+
+    def test_flush_uses_extended_header_bytes_not_element_count(self):
+        data = np.arange(24, dtype=np.float32).reshape(2, 3, 4)
+        extended = np.arange(16, dtype=np.int32)
+        with self.newmrc(self.temp_mrc_name, mode="w+") as mrc:
+            mrc.set_data(data)
+            mrc.set_extended_header(extended)
+            mrc.header.exttyp = b"CCP4"
+            mrc.header.nsymbt = 16
+            mrc.flush()
+            assert mrc.header.nsymbt == extended.nbytes
+
+        with self.newmrc(self.temp_mrc_name) as mrc:
+            assert mrc.extended_header.tobytes() == extended.tobytes()
+            np.testing.assert_array_equal(mrc.data, data)
 
     def test_exception_raised_if_file_is_too_small_for_reading_data(self):
         with self.newmrc(self.temp_mrc_name, mode="w+") as mrc:

@@ -283,6 +283,15 @@ class MrcObject:
         self._extended_header = extended_header
         self.header.nsymbt = extended_header.nbytes
 
+    def _update_extended_header_size(self) -> None:
+        """Update the header to match the extended header being written.
+
+        The size can become inconsistent if a header is copied from another
+        file without also copying its extended header.
+        """
+        if self.header is not None and self.extended_header is not None:
+            self.header.nsymbt = self.extended_header.nbytes
+
     @property
     def data(self) -> np.ndarray | None:
         """Get the data as a :class:`numpy array <numpy.ndarray>` or :data:`None`."""

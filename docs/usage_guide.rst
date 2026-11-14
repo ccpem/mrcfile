@@ -459,6 +459,11 @@ Note that setting an extended header does not automatically set or change the
 header's ``exttyp`` field. You should set this yourself to identify the type
 of extended header you are using.
 
+When writing a file, ``header.nsymbt`` is updated to match the size of the
+extended header in bytes. Copying the main header from another file does not
+copy its extended header. To preserve that metadata too, copy it separately
+with :meth:`~mrcfile.mrcobject.MrcObject.set_extended_header`.
+
 For a quick overview of the contents of a file's header, call
 :meth:`~mrcfile.mrcobject.MrcObject.print_header`:
 

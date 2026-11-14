@@ -99,6 +99,7 @@ class MrcMemmap(MrcFile):
     def flush(self) -> None:
         """Flush the header and data arrays to the file buffer."""
         if not self._read_only and self._iostream is not None:
+            self._update_extended_header_size()
             self._iostream.seek(0)
             self._iostream.write(self.header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
             self._iostream.write(self.extended_header)  # type: ignore[arg-type, call-overload]  # https://github.com/numpy/numpy/issues/26783
@@ -207,6 +208,7 @@ class MrcMemmap(MrcFile):
             raise RuntimeError(
                 "Cannot set data on an uninitialised or closed MRC object"
             )
+        self._update_extended_header_size()
         # Need to use self.header.nsymbt rather than self.extended_header.nbytes because
         # self.extended_header might be None in permissive read mode. Need to convert to
         # Python int (rather than numpy int32) to avoid possible overflow.

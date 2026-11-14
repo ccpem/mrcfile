@@ -76,6 +76,7 @@ class GzipMrcFile(MrcFile):
         GzipFile objects need special handling.
         """
         if not self._read_only and self._iostream is not None:
+            self._update_extended_header_size()
             self._iostream.close()
             self._fileobj.seek(0)
             self._iostream = cast(
