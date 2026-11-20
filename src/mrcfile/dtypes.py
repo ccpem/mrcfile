@@ -9,6 +9,9 @@ numpy dtypes used by the ``mrcfile.py`` library.
 
 from __future__ import annotations
 
+import operator
+from typing import SupportsIndex
+
 import numpy as np
 
 from .utils import normalise_byte_order
@@ -235,3 +238,38 @@ def get_ext_header_dtype(exttyp: bytes, byte_order: str = "=") -> np.dtype | Non
     if dtype is not None and normalised_byte_order == "<":
         dtype = dtype.newbyteorder("<")
     return dtype
+
+
+def new_ext_header(
+    exttyp: bytes, count: SupportsIndex, *, byte_order: str = "="
+) -> np.ndarray:
+    """Create FEI extended header records for a new MRC file.
+
+    The size and version fields are set for each record. The other fields
+    and the presence bitmasks are zero until the caller adds metadata.
+
+    Args:
+        exttyp: Either ``b'FEI1'`` or ``b'FEI2'``.
+        count: Number of records, normally one per section in the MRC file.
+        byte_order: Byte order of the MRC file, one of ``=``, ``<`` or ``>``.
+
+    Returns:
+        A one-dimensional structured :class:`numpy array <numpy.ndarray>`.
+
+    Raises:
+        :exc:`ValueError`: If the type or byte order is unsupported, or the
+            record count is negative or exceeds the MRC extended header size limit.
+    """
+    dtype = get_ext_header_dtype(exttyp, byte_order)
+    if dtype is None:
+        raise ValueError(f"Unsupported extended header type: {exttyp!r}")
+
+    records = operator.index(count)
+    max_bytes = np.iinfo(np.int32).max
+    if not 0 <= records <= max_bytes // dtype.itemsize:
+        raise ValueError(f"Invalid extended header record count: {records}")
+
+    header = np.zeros(records, dtype=dtype)
+    header["Metadata size"] = dtype.itemsize
+    header["Metadata version"] = 0 if exttyp == b"FEI1" else 2
+    return header

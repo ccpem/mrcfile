@@ -491,6 +491,32 @@ contains trailing padding bytes.
 Currently two extended header types (``exttyp``) are recognised as indexable:
 ``'FEI1'`` and ``'FEI2'``. Other types may be added in future.
 
+
+Use :func:`mrcfile.dtypes.new_ext_header` to allocate FEI metadata for a
+new file. It prepares the size and version fields of each record. Set
+the file's ``exttyp`` to the same value, and use the same byte order for
+the metadata as for the main header. Each section should have one record.
+
+.. doctest::
+
+   >>> data = np.zeros((3, 4, 4), dtype=np.float32)
+   >>> metadata = mrcfile.dtypes.new_ext_header(b'FEI1', data.shape[0])
+   >>> with mrcfile.new('fei_stack.mrc', overwrite=True) as mrc:
+   ...     mrc.set_data(data)
+   ...     mrc.set_extended_header(metadata)
+   ...     mrc.header.exttyp = b'FEI1'
+   >>> with mrcfile.open('fei_stack.mrc') as mrc:
+   ...     mrc.indexed_extended_header['Metadata size'].tolist()
+   [768, 768, 768]
+
+For a memory-mapped file, pass the same array and type to
+:func:`mrcfile.new_mmap` as ``extended_header`` and ``exttyp``.
+
+When adding optional metadata fields, set their corresponding presence
+bits according to the FEI specification. The reserved fields and all
+presence bits start at zero.
+
+
 Voxel size
 ~~~~~~~~~~
 
