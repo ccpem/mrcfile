@@ -651,6 +651,20 @@ class MrcFileTest(test_mrcobject.MrcObjectTest):
             assert mrc.header.mz == z
             assert mrc.header.nz == z * nvol
 
+    def test_replacing_volume_stack_with_volume_roundtrips(self):
+        stack = np.arange(48, dtype=np.int16).reshape(2, 2, 3, 4)
+        volume = np.arange(24, dtype=np.int16).reshape(2, 3, 4)
+        with self.newmrc(self.temp_mrc_name, mode="w+") as mrc:
+            mrc.set_data(stack)
+            mrc.header.ispg = 602
+            mrc.set_data(volume)
+
+        with self.newmrc(self.temp_mrc_name) as mrc:
+            np.testing.assert_array_equal(mrc.data, volume)
+            assert mrc.header.ispg == 202
+            assert mrc.is_volume()
+            assert not mrc.is_volume_stack()
+
     def test_data_transposed_in_place_is_written_without_errors(self):
         # Quite unlikely that anyone will mess with the data array like this,
         # but still worth making sure the flush() call is robust!

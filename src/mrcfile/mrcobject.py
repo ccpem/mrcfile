@@ -612,9 +612,10 @@ class MrcObject:
         ``mz``.
 
         If the data is 2D, the space group is set to 0 (image stack). For 3D
-        data the space group is not changed, and for 4D data the space group is
-        set to 401 (simple P1 volume stack) unless it is already in the volume
-        stack range (401--630).
+        data, a volume stack space group (401--630) is converted to the
+        corresponding volume space group by subtracting 400; other space
+        groups are not changed. For 4D data the space group is set to 401
+        (simple P1 volume stack) unless it is already in the volume stack range.
 
         This means that new 3D data will be treated as an image stack if the
         previous data was a single image or image stack, or as a volume if the
@@ -664,6 +665,8 @@ class MrcObject:
             header.ny = header.my = shape[0]
             header.nz = header.mz = 1
         elif axes == 3:
+            if utils.spacegroup_is_volume_stack(header.ispg):
+                header.ispg -= 400
             header.nx = header.mx = shape[2]
             header.ny = header.my = shape[1]
             if header.ispg == IMAGE_STACK_SPACEGROUP:
