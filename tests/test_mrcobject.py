@@ -257,6 +257,34 @@ class MrcObjectTest(unittest.TestCase):
         assert self.mrcobject.is_volume_stack()
         assert self.mrcobject.header.ispg == spacegroup
 
+    def test_replacing_volume_stack_with_volume_updates_spacegroup(self):
+        stack = np.arange(48, dtype=np.int16).reshape(2, 2, 3, 4)
+        volume = np.arange(24, dtype=np.int16).reshape(2, 3, 4)
+        for spacegroup in (401, 602, 630):
+            with self.subTest(spacegroup=spacegroup):
+                self.mrcobject.set_data(stack)
+                self.mrcobject.header.ispg = spacegroup
+                self.mrcobject.set_data(volume)
+
+                assert self.mrcobject.header.ispg == spacegroup - 400
+                assert self.mrcobject.is_volume()
+                assert (
+                    utils.data_shape_from_header(self.mrcobject.header) == volume.shape
+                )
+
+    def test_spacegroup_is_preserved_when_replacing_3d_data(self):
+        volume = np.arange(24, dtype=np.int16).reshape(2, 3, 4)
+        for spacegroup in (0, 1, 202, 230):
+            with self.subTest(spacegroup=spacegroup):
+                self.mrcobject.set_data(volume)
+                self.mrcobject.header.ispg = spacegroup
+                self.mrcobject.set_data(volume.copy())
+
+                assert self.mrcobject.header.ispg == spacegroup
+                assert (
+                    utils.data_shape_from_header(self.mrcobject.header) == volume.shape
+                )
+
     def test_switching_4d_data_to_image_stack_raises_exception(self):
         self.mrcobject.set_data(np.arange(24, dtype=np.int16).reshape(2, 2, 2, 3))
         with self.assertRaises(ValueError):
